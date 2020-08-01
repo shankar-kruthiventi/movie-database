@@ -1,0 +1,25 @@
+.header-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: #21252d;
+  color: #ffffff;
+  font-weight: bold;
+  height: 12.4vh;
+}
+a {
+  text-decoration: none;
+  color: #ffffff;
+}
+h1,
+h3 {
+  font-family: cursive;
+}
+h1 {
+  color: #cc0016;
+}
+h3:hover {
+  color: #cc0016;
+  font-size: 1.2em;
+  cursor: pointer;
+}

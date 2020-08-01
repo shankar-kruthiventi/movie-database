@@ -36,3 +36,7 @@
     transform: rotate(360deg);
   }
 }
+
+.app-container {
+  background: #000000;
+}
