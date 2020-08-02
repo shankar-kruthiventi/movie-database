@@ -1,3 +1,6 @@
+.header-view {
+  background: #21252d;
+}
 .header-container {
   display: flex;
   justify-content: space-around;
@@ -7,7 +10,10 @@
   font-weight: bold;
   height: 12.4vh;
 }
-a {
+.header-mobile-container {
+  display: none;
+}
+.header-container a {
   text-decoration: none;
   color: #ffffff;
 }
@@ -16,10 +22,51 @@ h3 {
   font-family: cursive;
 }
 h1 {
-  color: #cc0016;
+  /* color: #cc0016; */
+  color: #64dcb0;
 }
 h3:hover {
-  color: #cc0016;
+  /* color: #cc0016; */
+  color: #64dcb0;
   font-size: 1.2em;
   cursor: pointer;
+}
+@media only screen and (max-width: 600px) {
+  .header-container {
+    display: none;
+  }
+  .header-mobile-container {
+    display: block;
+    overflow: hidden;
+    position: relative;
+    font-family: cursive;
+  }
+  .header-mobile-container a {
+    color: white;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+    display: block;
+  }
+  .header-mobile-container a.icon {
+    background: #cc0016;
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  #myLinks {
+    display: none;
+  }
+  #myLinks a:active {
+    color: #cc0016;
+  }
+  #home {
+    color: white;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+    display: block;
+    margin-left: 12vw;
+  }
 }

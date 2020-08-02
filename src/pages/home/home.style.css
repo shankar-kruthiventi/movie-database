@@ -1,0 +1,47 @@
+.home-contianer {
+  background: url('./collection.jpg');
+  background-size: contain;
+  height: 87.6vh;
+}
+.finder-container {
+  padding: 2vw 5vw;
+  height:78vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.autocomplete {
+    width:50vw;
+    background: #5c3434;
+}
+.home-view-container {
+  color: #ffffff;
+  font-family: cursive;
+  padding: 2vw 4vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.about-container {
+  border: 1px solid #ffffff;
+  background: #000000;
+  border-radius: 8px;
+  flex-basis: 45%;
+  padding: 1vw;
+}
+.about {
+  padding: 10px;
+  margin-bottom: 1vw;
+  font-size: 24px;
+  border-bottom: 1px solid #ffffff;
+}
+
+@media only screen and (max-width: 600px) {
+  .home-view-container {
+    flex-direction: column;
+  }
+  .about-container {
+    margin-bottom: 5vw;
+    flex-basis: 100%;
+  }
+}

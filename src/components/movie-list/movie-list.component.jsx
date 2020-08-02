@@ -9,10 +9,10 @@ import { withStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
 import MuiDialogTitle from "@material-ui/core/DialogTitle";
 import MuiDialogContent from "@material-ui/core/DialogContent";
-import MuiDialogActions from "@material-ui/core/DialogActions";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 import Typography from "@material-ui/core/Typography";
+
 import Scrollbar from "react-smooth-scrollbar";
 
 const MovieList = ({ movieList, append }) => {
@@ -99,45 +99,62 @@ const MovieList = ({ movieList, append }) => {
             open={open}
           >
             <DialogTitle id="movie-title" onClose={handleClose}>
-              something{details.original_title}
+              {details.title}
             </DialogTitle>
-            <DialogContent dividers>
+            <DialogContent dividers id="dialog-content">
               <div className="movie-details-container">
                 <div className="details-poster-container">
                   <img
-                    src={
-                      "https://image.tmdb.org/t/p/w500" + details.poster_path
-                    }
+                    src={"https://image.tmdb.org/t/p/w500" + details.poster}
                     className="details-poster"
                     alt={details.original_title}
                   />
                 </div>
-                <div class="details-other-container">
-                  <div class="overview">{details.overview}</div>
-                  <span>{details.homepage}</span>
+                <div className="details-other-container">
+                  {details.overview && (
+                    <div className="overview">{details.overview}</div>
+                  )}
+                  {details.homepage && (
+                    <div>
+                      <a
+                        target="_blank"
+                        className="movie-home-page"
+                        rel="noopener noreferrer"
+                        href={details.homepage}
+                      >
+                        {details.homepage}
+                      </a>
+                    </div>
+                  )}
+                  {details.release_date && (
+                    <div>
+                      <b>Release date: </b>
+                      {details.release_date}
+                    </div>
+                  )}
+                  {details.genres.length && (
+                    <div>
+                      <b>Genres: </b>
+                      {details.genres.map((gener) => (
+                        <span>{gener.name} </span>
+                      ))}
+                    </div>
+                  )}
+                  {details.popularity && (
+                    <div>
+                      <b>Popularity: </b>
+                      {details.popularity}
+                    </div>
+                  )}
+                  {details.vote_average && (
+                    <div>
+                      <b>Rating: </b>
+                      {details.vote_average}/10
+                    </div>
+                  )}
                 </div>
               </div>
-              {/* <Typography gutterBottom>
-                Cras mattis consectetur purus sit amet fermentum. Cras justo
-                odio, dapibus ac facilisis in, egestas eget quam. Morbi leo
-                risus, porta ac consectetur ac, vestibulum at eros.
-              </Typography>
-              <Typography gutterBottom>
-                Praesent commodo cursus magna, vel scelerisque nisl consectetur
-                et. Vivamus sagittis lacus vel augue laoreet rutrum faucibus
-                dolor auctor.
-              </Typography>
-              <Typography gutterBottom>
-                Aenean lacinia bibendum nulla sed consectetur. Praesent commodo
-                cursus magna, vel scelerisque nisl consectetur et. Donec sed
-                odio dui. Donec ullamcorper nulla non metus auctor fringilla.
-              </Typography> */}
             </DialogContent>
-            {/* <DialogActions>
-              <Button autoFocus onClick={handleClose} color="primary">
-                Save changes
-              </Button>
-            </DialogActions> */}
           </Dialog>
         </div>
       </div>
@@ -183,17 +200,3 @@ const DialogContent = withStyles((theme) => ({
     padding: theme.spacing(2),
   },
 }))(MuiDialogContent);
-
-const DialogActions = withStyles((theme) => ({
-  root: {
-    margin: 0,
-    padding: theme.spacing(1),
-  },
-}))(MuiDialogActions);
-
-/* export function CustomizedDialogs() {
-  return (
-
-  );
-}
- */

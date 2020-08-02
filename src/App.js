@@ -48,9 +48,9 @@ function App() {
       <Header fetchData={fetchData}></Header>
       <Switch>
         <Route path="/home" component={Home} extact/>
-        <Route path="/popular" render={()=><MovieList append={append} movieList={movieList} movieType={'popular'}/>} />
-        <Route path="/top_rated" render={()=><MovieList append={append} movieList={movieList} movieType={'top_rated'}/>} />
-        <Route path="/now_playing" render={()=><MovieList append={append} movieList={movieList} movieType={'now_playing'}/>}/>
+        <Route path="/popular" render={()=><MovieList append={append} key={'popular'} movieList={movieList} movieType={'popular'}/>} />
+        <Route path="/top_rated" render={()=><MovieList append={append} key={'top_rated'} movieList={movieList} movieType={'top_rated'}/>} />
+        <Route path="/now_playing" render={()=><MovieList append={append} key={'now_playing'} movieList={movieList} movieType={'now_playing'}/>}/>
       </Switch>
       
     </div>
@@ -58,21 +58,3 @@ function App() {
 }
 
 export default App;
-
-{/*import logo from './logo.svg'; 
-  <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div> */}

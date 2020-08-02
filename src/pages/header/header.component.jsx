@@ -1,39 +1,88 @@
-import React from "react";
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
-import TextField from "@material-ui/core/TextField";
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import "./header.style.css";
 
-const Header = ({fetchData}) => {
+const Header = ({ fetchData }) => {
+  let [type, setType] = useState("Home");
+  const showMenu = (type, value) => {
+    setType(type);
+    var element = document.getElementById("myLinks");
+    if (value === "hide") {
+      element.style.display = "none";
+    } else {
+      element.style.display = "block";
+    }
+  };
   return (
-    <div className="header-container">
-      <Link to="/home">
+    <div className="header-view">
+      <div className="header-container">
         <h1>MOVIE CITY</h1>
-      </Link>
-      <Link onClick={() => fetchData('popular')} to="/popular">
-        <h3>Popular Movies</h3>
-      </Link>
-      <Link onClick={() => fetchData('top_rated')} to="/top_rated">
-        <h3>Top Rated Movies</h3>
-      </Link>
-      <Link onClick={() => fetchData('now_playing')} to="/now_playing">
-        <h3>Now Playing</h3>
-      </Link>
-      <Autocomplete
-        id="movie-name"
-        options={top100Films}
-        getOptionLabel={(option) => option.title}
-        style={{ width: 300 }}
-        renderInput={(params) => (
-          <TextField {...params} label="Search Movies" />
-        )}
-      />
+        <Link to="/home">
+          <h3>Home</h3>
+        </Link>
+        <Link onClick={() => fetchData("popular")} to="/popular">
+          <h3>Popular Movies</h3>
+        </Link>
+        <Link onClick={() => fetchData("top_rated")} to="/top_rated">
+          <h3>Top Rated Movies</h3>
+        </Link>
+        <Link onClick={() => fetchData("now_playing")} to="/now_playing">
+          <h3>Now Playing Movies</h3>
+        </Link>
+      </div>
+      <div className="header-mobile-container">
+        <Link to="/home" id="home">
+          {/* <span onClick={() => showMenu("Home","hide")}>MOVIE CITY</span>- */}
+          <span>{type}</span>
+        </Link>
+        <div id="myLinks">
+          <Link
+            to="/home"
+            onClick={() => {
+              showMenu("Home", "hide");
+            }}
+          >
+            Home
+          </Link>
+          <Link
+            to="/popular"
+            onClick={() => {
+              fetchData("popular");
+              showMenu("Popular Movies", "hide");
+            }}
+          >
+            Popular Movies
+          </Link>
+          <Link
+            to="/top_rated"
+            onClick={() => {
+              fetchData("top_rated");
+              showMenu("Top Rated Movies", "hide");
+            }}
+          >
+            Top Rated Movies
+          </Link>
+          <Link
+            to="/now_playing"
+            onClick={() => {
+              fetchData("now_playing");
+              showMenu("Now Playing", "hide");
+            }}
+          >
+            Now Playing
+          </Link>
+        </div>
+        <a
+          href="#myLinks"
+          className="icon"
+          onClick={() => showMenu(type, "show")}
+        >
+          <i className="fa fa-bars"></i>
+        </a>
+      </div>
     </div>
   );
 };
-const top100Films = [
-  { title: "The Shawshank Redemption", year: 1994 },
-  { title: "The Godfather", year: 1972 },
-];
+
 export default Header;

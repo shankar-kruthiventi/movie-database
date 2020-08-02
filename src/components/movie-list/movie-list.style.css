@@ -32,7 +32,9 @@
 .next-button:hover {
   color: #ffffff;
 }
-
+a[target="_blank"] {
+  color: #ffffff;
+}
 @media only screen and (max-width: 600px) {
   .movieList-container {
     display: flex;
@@ -59,6 +61,10 @@
 }
 
 /* movie-details */
+#dialog-content {
+  background: #2d2626;
+  color: #ffffff;
+}
 .movie-details-container {
   display: flex;
   flex-direction: row;
@@ -69,13 +75,40 @@
 }
 .details-poster {
   width: 100%;
-  height: 95%;
+  height: 100%;
 }
 .details-other-container {
   display: flex;
   flex-direction: column;
+  padding: 0 1vw;
+  width: 135vw;
 }
 .overview {
   font-family: cursive;
   font-size: 18px;
+}
+.details-other-container div {
+  margin-bottom: 10px;
+}
+.details-other-container div a {
+  text-decoration: underline;
+}
+
+@media only screen and (max-width: 600px) {
+  .details-poster-container {
+    display: none;
+  }
+  .details-other-container {
+    width: 72vw;
+    padding: 0vw;
+  }
+  .movie-home-page {
+    display: inline-block;
+    width: 100%;
+    overflow-wrap: break-word;
+    overflow: hidden;
+  }
+  .MuiTypography-root.MuiTypography-h6 {
+    padding: 0 25px;
+  }
 }
