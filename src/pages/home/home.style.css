@@ -1,18 +1,33 @@
 .home-contianer {
-  background: url('./collection.jpg');
-  background-size: contain;
   height: 87.6vh;
 }
 .finder-container {
   padding: 2vw 5vw;
-  height:78vh;
-  display: flex;
+  height: 78vh;
+  /* display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column; */
+  background: url("./collection.jpg");
+  background-size: contain;
+}
+.finder {
+  display: flex;
+  margin-top: 20vh;
+  flex-direction: column;
+  align-items: center;
+}
+.find-text {
+  color: #64dcb0;
+  font-size: 4vw;
 }
 .autocomplete {
-    width:50vw;
-    background: #5c3434;
+  width: 50vw;
+  background: #ffffff;
+  border-radius: 8px;
+}
+.MuiInputLabel-animated {
+  padding: 0 1vw !important;
 }
 .home-view-container {
   color: #ffffff;
@@ -40,8 +55,98 @@
   .home-view-container {
     flex-direction: column;
   }
+  .finder-container {
+    height: 35vh;
+  }
+  .find-text {
+    font-size: 8vw;
+  }
   .about-container {
     margin-bottom: 5vw;
     flex-basis: 100%;
+  }
+}
+
+/* react-select css */
+.auto-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+}
+.logo {
+  /* background-image: url("./loc-logo.png"); */
+  height: 70px;
+  width: 200px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+input {
+  padding: 10px;
+  height: 20px;
+  width: 500px;
+  border: 1px solid purple;
+  margin: 10px;
+  font-size: 18px;
+  text-transform: capitalize;
+}
+
+.pos-rel {
+  position: relative;
+}
+
+.autoContainer {
+  position: absolute;
+  border-width: 0px 1px 1px 1px;
+  border-style: solid;
+  border-color: goldenrod;
+  background-color: whitesmoke;
+  right: 0.75vw;
+  top: 8vh;
+  width: 34vw;
+  height: 42vh;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* width: 500px; */
+  padding: 0.8vh 0.5vw 0.8vh 0.5vw;
+}
+
+.option,
+span {
+  font-size: 28px;
+  text-transform: capitalize;
+}
+
+.flex-container {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+.movie-search-poster-container {
+  height: 12.5vh;
+}
+.movie-search-poster {
+  width: 3.7vw;
+}
+
+@media only screen and (max-width: 600px) {
+  .finder {
+    margin-top: 7vh;
+  }
+  input {
+    width: 70vw;
+  }
+  .autoContainer {
+    right: 2.75vw;
+    top: 8.5vh;
+    width: 75vw;
+    height: 25vh;
   }
 }
