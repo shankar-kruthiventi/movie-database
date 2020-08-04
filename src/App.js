@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { Route, Switch } from 'react-router-dom';
+import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
 import Header from './pages/header/header.component';
 import Home from './pages/home/home.component';
 import MovieList from './components/movie-list/movie-list.component';
@@ -44,9 +44,13 @@ function App() {
   }, []);
 
   return (
+  <HashRouter basename='/'>
     <div className="app-container">
       <Header fetchData={fetchData}></Header>
       <Switch>
+        <Route exact path="/">
+          <Redirect to="/home" />
+        </Route>
         <Route path="/home" component={Home} extact/>
         <Route path="/popular" render={()=><MovieList append={append} key={'popular'} movieList={movieList} movieType={'popular'}/>} />
         <Route path="/top_rated" render={()=><MovieList append={append} key={'top_rated'} movieList={movieList} movieType={'top_rated'}/>} />
@@ -54,6 +58,7 @@ function App() {
       </Switch>
       
     </div>
+  </HashRouter>
   );
 }
 
