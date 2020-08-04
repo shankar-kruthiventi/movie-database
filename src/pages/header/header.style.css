@@ -31,6 +31,9 @@ h3:hover {
   font-size: 1.2em;
   cursor: pointer;
 }
+.active{
+  color: #99e4c8 !important;
+}
 @media only screen and (max-width: 600px) {
   .header-container {
     display: none;
@@ -45,7 +48,7 @@ h3:hover {
     color: white;
     padding: 14px 16px;
     text-decoration: none;
-    font-size: 17px;
+    /* font-size: 26px; */
     display: block;
   }
   .header-mobile-container a.icon {

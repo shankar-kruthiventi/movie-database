@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 
 import "./header.style.css";
 
@@ -18,22 +18,21 @@ const Header = ({ fetchData }) => {
     <div className="header-view">
       <div className="header-container">
         <h1>MOVIE CITY</h1>
-        <Link to="/home">
+        <NavLink to="/home">
           <h3>Home</h3>
-        </Link>
-        <Link onClick={() => fetchData("popular")} to="/popular">
+        </NavLink>
+        <NavLink extact activeClassName="active" onClick={() => fetchData("popular")} to="/popular">
           <h3>Popular Movies</h3>
-        </Link>
-        <Link onClick={() => fetchData("top_rated")} to="/top_rated">
+        </NavLink>
+        <NavLink onClick={() => fetchData("top_rated")} to="/top_rated">
           <h3>Top Rated Movies</h3>
-        </Link>
-        <Link onClick={() => fetchData("now_playing")} to="/now_playing">
-          <h3>Now Playing Movies</h3>
-        </Link>
+        </NavLink>
+        <NavLink onClick={() => fetchData("now_playing")} to="/now_playing">
+          <h3>Now Playing</h3>
+        </NavLink>
       </div>
       <div className="header-mobile-container">
         <Link to="/home" id="home">
-          {/* <span onClick={() => showMenu("Home","hide")}>MOVIE CITY</span>- */}
           <span>{type}</span>
         </Link>
         <div id="myLinks">

@@ -22,12 +22,13 @@
 }
 .next-button-container {
   width: 90vw;
-  margin: 0 auto;
+  margin: 4vh auto;
   text-align: center;
-  margin-bottom: 4vh;
+  /* margin-bottom: 4vh; */
 }
 .next-button {
-  width: 12vw;
+  /* width: 12vw; */
+  width: auto;
 }
 .next-button:hover {
   color: #ffffff;
@@ -56,59 +57,6 @@ a[target="_blank"] {
     transform: scale(1);
   }
   .next-button {
-    width: 40vw;
-  }
-}
-
-/* movie-details */
-#dialog-content {
-  background: #2d2626;
-  color: #ffffff;
-}
-.movie-details-container {
-  display: flex;
-  flex-direction: row;
-}
-.details-poster-container {
-  width: 70vw;
-  height: 68vh;
-}
-.details-poster {
-  width: 100%;
-  height: 100%;
-}
-.details-other-container {
-  display: flex;
-  flex-direction: column;
-  padding: 0 1vw;
-  width: 135vw;
-}
-.overview {
-  font-family: cursive;
-  font-size: 18px;
-}
-.details-other-container div {
-  margin-bottom: 10px;
-}
-.details-other-container div a {
-  text-decoration: underline;
-}
-
-@media only screen and (max-width: 600px) {
-  .details-poster-container {
-    display: none;
-  }
-  .details-other-container {
-    width: 72vw;
-    padding: 0vw;
-  }
-  .movie-home-page {
-    display: inline-block;
-    width: 100%;
-    overflow-wrap: break-word;
-    overflow: hidden;
-  }
-  .MuiTypography-root.MuiTypography-h6 {
-    padding: 0 25px;
+    width: auto;
   }
 }

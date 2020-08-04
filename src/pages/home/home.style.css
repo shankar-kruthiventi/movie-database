@@ -9,7 +9,7 @@
   align-items: center;
   flex-direction: column; */
   background: url("./collection.jpg");
-  background-size: contain;
+  background-size: cover;
 }
 .finder {
   display: flex;
@@ -87,6 +87,7 @@ input {
   height: 20px;
   width: 500px;
   border: 1px solid purple;
+  border-radius: 8px;
   margin: 10px;
   font-size: 18px;
   text-transform: capitalize;
@@ -116,9 +117,8 @@ input {
   padding: 0.8vh 0.5vw 0.8vh 0.5vw;
 }
 
-.option,
-span {
-  font-size: 28px;
+.option span {
+  font-size: 20px;
   text-transform: capitalize;
 }
 
@@ -148,5 +148,37 @@ span {
     top: 8.5vh;
     width: 75vw;
     height: 25vh;
+  }
+  .option {
+    font-size: 5vw;
+    padding: 2.5vh 0.5vw 0.8vh 0.5vw;
+  }
+  .movie-search-poster-container {
+    display: none;
+  }
+}
+
+/* ipad, ipad pro styles */
+@media only screen and (width: 1024px) {
+  .autoContainer {
+    right: 1.5vw;
+    top: 5vh;
+    width: 50vw;
+    height: 24vh;
+  }
+  .movie-search-poster-container {
+    height: 6.5vh;
+  }
+}
+
+@media only screen and (width: 768px) {
+  .autoContainer {
+    right: 1.5vw;
+    top: 6vh;
+    width: 66.5vw;
+    height: 24vh;
+  }
+  .movie-search-poster-container {
+    height: 6.5vh;
   }
 }
