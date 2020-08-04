@@ -56,7 +56,6 @@ function App() {
         <Route path="/top_rated" render={()=><MovieList append={append} key={'top_rated'} movieList={movieList} movieType={'top_rated'}/>} />
         <Route path="/now_playing" render={()=><MovieList append={append} key={'now_playing'} movieList={movieList} movieType={'now_playing'}/>}/>
       </Switch>
-      
     </div>
   </HashRouter>
   );

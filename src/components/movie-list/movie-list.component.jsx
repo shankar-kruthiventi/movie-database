@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "./movie-list.style.css";
-import MovieDetails from '../../components/movie-details/movie-details.component';
+
+import MovieDetails from "../../components/movie-details/movie-details.component";
+
 import { Redirect } from "react-router-dom";
 
 import Button from "@material-ui/core/Button";
@@ -82,7 +84,11 @@ const MovieList = ({ movieList, append }) => {
             </Button>
           )}
         </div>
-        <MovieDetails open={open} details={details} handleClose={handleClose}></MovieDetails>
+        <MovieDetails
+          open={open}
+          details={details}
+          handleClose={handleClose}
+        ></MovieDetails>
       </div>
     </Scrollbar>
   );

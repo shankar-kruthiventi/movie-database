@@ -22,7 +22,7 @@
     width: 135vw;
   }
   .overview {
-    font-family: cursive;
+    font-family: monospace;
     font-size: 18px;
   }
   .details-other-container div {

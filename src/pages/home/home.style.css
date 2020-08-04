@@ -31,7 +31,7 @@
 }
 .home-view-container {
   color: #ffffff;
-  font-family: cursive;
+  font-family: monospace;
   padding: 2vw 4vw;
   display: flex;
   flex-direction: row;
@@ -43,6 +43,7 @@
   border-radius: 8px;
   flex-basis: 45%;
   padding: 1vw;
+  font-size: 1.4vw;
 }
 .about {
   padding: 10px;
@@ -64,6 +65,7 @@
   .about-container {
     margin-bottom: 5vw;
     flex-basis: 100%;
+    font-size: 2.5vw;
   }
 }
 
@@ -106,7 +108,7 @@ input {
   right: 0.75vw;
   top: 8vh;
   width: 34vw;
-  height: 42vh;
+  /* height: 42vh; */
 }
 
 .option {
@@ -147,7 +149,7 @@ input {
     right: 2.75vw;
     top: 8.5vh;
     width: 75vw;
-    height: 25vh;
+    /* height: 25vh; */
   }
   .option {
     font-size: 5vw;
@@ -155,6 +157,9 @@ input {
   }
   .movie-search-poster-container {
     display: none;
+  }
+  .movie-search-poster {
+    width: 6vw;
   }
 }
 
@@ -164,10 +169,13 @@ input {
     right: 1.5vw;
     top: 5vh;
     width: 50vw;
-    height: 24vh;
+    /* height: 24vh; */
   }
   .movie-search-poster-container {
     height: 6.5vh;
+  }
+  .movie-search-poster {
+    width: 6vw;
   }
 }
 
@@ -176,9 +184,12 @@ input {
     right: 1.5vw;
     top: 6vh;
     width: 66.5vw;
-    height: 24vh;
+    /* height: 24vh; */
   }
   .movie-search-poster-container {
     height: 6.5vh;
+  }
+  .movie-search-poster {
+    width: 6vw;
   }
 }

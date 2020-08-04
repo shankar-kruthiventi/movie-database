@@ -14,6 +14,14 @@ const Header = ({ fetchData }) => {
       element.style.display = "block";
     }
   };
+  const toggleMenu = () => {
+    var element = document.getElementById("myLinks");
+    if(element.style.display === 'block') {
+      element.style.display = 'none'
+    } else {
+      element.style.display = 'block'
+    }
+  }
   return (
     <div className="header-view">
       <div className="header-container">
@@ -32,7 +40,9 @@ const Header = ({ fetchData }) => {
         </NavLink>
       </div>
       <div className="header-mobile-container">
-        <Link to="/home" id="home">
+        <Link 
+          // to="/home"
+          id="home">
           <span>{type}</span>
         </Link>
         <div id="myLinks">
@@ -73,9 +83,10 @@ const Header = ({ fetchData }) => {
           </Link>
         </div>
         <a
-          href="#myLinks"
+          href="javascript:void(0)"
           className="icon"
-          onClick={() => showMenu(type, "show")}
+          // onClick={() => showMenu(type, "show")}
+          onClick={toggleMenu}
         >
           <i className="fa fa-bars"></i>
         </a>

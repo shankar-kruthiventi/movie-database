@@ -19,7 +19,7 @@
 }
 h1,
 h3 {
-  font-family: cursive;
+  font-family: monospace;
 }
 h1 {
   /* color: #cc0016; */
@@ -42,7 +42,7 @@ h3:hover {
     display: block;
     overflow: hidden;
     position: relative;
-    font-family: cursive;
+    font-family: monospace;
   }
   .header-mobile-container a {
     color: white;
