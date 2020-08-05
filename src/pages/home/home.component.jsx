@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./home.style.css";
 
-import MovieDetails from '../../components/movie-details/movie-details.component';
+import MovieDetails from "../../components/movie-details/movie-details.component";
 import Scrollbar from "react-smooth-scrollbar";
 
 const Home = () => {
@@ -9,7 +9,7 @@ const Home = () => {
   let [options, setOptions] = useState([]);
   const [search, setSearch] = useState("");
   const wrapperRef = useRef(null);
-  const [pokemon, setPokemon] = useState([]);
+  const [movies, setPokemon] = useState([]);
 
   useEffect(() => {
     window.addEventListener("mousedown", handleClickOutside);
@@ -25,38 +25,23 @@ const Home = () => {
     }
   };
 
-  /* const updatePokeDex = (poke) => {
-    setSearch(poke);
-    setDisplay(false);
-  }; */
-
   const searchMovie = (event) => {
-    console.log(event.target.value);
     options = [];
     setPokemon([]);
-    const promises = new Array(1)
-      .fill()
-      .map((value, i) =>
-        fetch(
-          `https://api.themoviedb.org/3/search/movie?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US&query=${event.target.value}&page=1`
-        )
-      );
-    Promise.all(promises).then((pokemonArr) => {
-      return pokemonArr.map((value, index) => {
-        value
-          .json()
-          .then(({ results }) => {
-            if (results && results.length !== 0) {
-              pokemon.push(...results);
-              setOptions(pokemon);
-            }
-          });
-      });
-    });
-  };
-//   -------------------------------
+    fetch(
+      `https://api.themoviedb.org/3/search/movie?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US&query=${event.target.value}&page=1`
+    )
+      .then((value) => value.json())
+      .then(value => {
+          if (value.results && value.results.length !== 0) {
+            movies.push(...value.results);
+            setOptions(movies);
+          }
+      })
+  }
+  //   -------------------------------
 
-const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const [details, setDetails] = useState({
     title: "",
@@ -117,38 +102,37 @@ const [open, setOpen] = useState(false);
                 }}
                 onKeyUp={searchMovie}
               />
-              {display && options &&
-                      options.length && (
+              {display && options && options.length && (
                 <div className="autoContainer">
-                  {
-                      options.map((movie, index) => {
-                        return (
-                          <div key={index}>
-                            {index < 3 && (
-                              <div
-                                // onClick={() => updatePokeDex(value.name)}
-                                className="option"
-                                key={index}
-                                onClick={() => handleClickOpen(movie.id)}
-                                tabIndex="0"
-                              >
-                                <span>{movie.original_title}</span>
-                                <div className="movie-search-poster-container">
-                                  <img
-                                    className="movie-search-poster"
-                                    src={
-                                      "https://image.tmdb.org/t/p/w500" +
-                                      movie.poster_path
-                                    }
-                                    alt="poster"
-                                  />
-                                </div>
-                              </div>
-                            )}
+                  {options.map((movie, index) => {
+                    return (
+                      <div key={index}>
+                        {index < 3 && (
+                          <div
+                            // onClick={() => updatePokeDex(value.name)}
+                            className="option"
+                            key={index}
+                            tabIndex="0"
+                            onKeyPress={(event) => { if(event.key === 'Enter') handleClickOpen(movie.id)}}
+                            onClick={() => handleClickOpen(movie.id)}
+                            tabIndex="0"
+                          >
+                            <span>{movie.original_title}</span>
+                            <div className="movie-search-poster-container">
+                              <img
+                                className="movie-search-poster"
+                                src={
+                                  "https://image.tmdb.org/t/p/w500" +
+                                  movie.poster_path
+                                }
+                                alt="poster"
+                              />
+                            </div>
                           </div>
-                        );
-                      })
-                  }
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -218,8 +202,11 @@ const [open, setOpen] = useState(false);
           </div>
         </div>
 
-        <MovieDetails open={open} details={details} handleClose={handleClose}></MovieDetails>
-
+        <MovieDetails
+          open={open}
+          details={details}
+          handleClose={handleClose}
+        ></MovieDetails>
       </div>
     </Scrollbar>
   );

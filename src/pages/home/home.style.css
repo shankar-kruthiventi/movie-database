@@ -105,9 +105,14 @@ input {
   border-style: solid;
   border-color: goldenrod;
   background-color: whitesmoke;
+  /* right: 0.75vw;
+  top: 8.5vh;
+  width: 34vw; */
   right: 0.75vw;
-  top: 8vh;
-  width: 34vw;
+  top: 8.5vh;
+  width: 38vw;
+  /* top: 8vh;
+   */
   /* height: 42vh; */
 }
 

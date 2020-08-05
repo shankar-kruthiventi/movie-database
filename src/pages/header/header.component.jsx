@@ -29,7 +29,7 @@ const Header = ({ fetchData }) => {
         <NavLink to="/home">
           <h3>Home</h3>
         </NavLink>
-        <NavLink extact activeClassName="active" onClick={() => fetchData("popular")} to="/popular">
+        <NavLink extact="true" activeClassName="active" onClick={() => fetchData("popular")} to="/popular">
           <h3>Popular Movies</h3>
         </NavLink>
         <NavLink onClick={() => fetchData("top_rated")} to="/top_rated">
@@ -83,7 +83,7 @@ const Header = ({ fetchData }) => {
           </Link>
         </div>
         <a
-          href="javascript:void(0)"
+          href=""
           className="icon"
           // onClick={() => showMenu(type, "show")}
           onClick={toggleMenu}
