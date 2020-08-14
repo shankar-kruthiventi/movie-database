@@ -55,6 +55,10 @@
 }
 
 @media only screen and (max-width: 600px) {
+  .home-contianer {
+    height: 100vh;
+    overflow:hidden;
+  }
   .home-view-container {
     flex-direction: column;
   }
