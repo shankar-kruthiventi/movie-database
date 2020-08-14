@@ -62,7 +62,7 @@ const MovieList = ({ movieList, append }) => {
           {movieList &&
             movieList.length >= 1 &&
             movieList.map((movie, index) => (
-              <div id={index} key={index} tabIndex="0" className="poster-container">
+              <div id={index} key={index} className="poster-container">
                 <img
                   src={"https://image.tmdb.org/t/p/w500" + movie.poster_path}
                   onClick={() => handleClickOpen(movie.id)}

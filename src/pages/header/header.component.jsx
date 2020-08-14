@@ -17,9 +17,9 @@ const Header = ({ fetchData }) => {
   const toggleMenu = () => {
     var element = document.getElementById("myLinks");
     if(element.style.display === 'block') {
-      element.style.display = 'none'
+      element.style.display = 'none';
     } else {
-      element.style.display = 'block'
+      element.style.display = 'block';
     }
   }
   return (
@@ -83,7 +83,7 @@ const Header = ({ fetchData }) => {
           </Link>
         </div>
         <a
-          href=""
+          href="javascript:void(0)"
           className="icon"
           // onClick={() => showMenu(type, "show")}
           onClick={toggleMenu}

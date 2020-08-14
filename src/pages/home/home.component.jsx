@@ -32,13 +32,13 @@ const Home = () => {
       `https://api.themoviedb.org/3/search/movie?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US&query=${event.target.value}&page=1`
     )
       .then((value) => value.json())
-      .then(value => {
-          if (value.results && value.results.length !== 0) {
-            movies.push(...value.results);
-            setOptions(movies);
-          }
-      })
-  }
+      .then((value) => {
+        if (value.results && value.results.length !== 0) {
+          movies.push(...value.results);
+          setOptions(movies);
+        }
+      });
+  };
   //   -------------------------------
 
   const [open, setOpen] = useState(false);
@@ -83,61 +83,7 @@ const Home = () => {
   return (
     <Scrollbar>
       <div className="home-contianer">
-        <div className="finder-container">
-          <div className="finder">
-            <div className="find-text">Search for movies</div>
-
-            <div
-              ref={wrapperRef}
-              className="flex-container flex-column pos-rel"
-            >
-              <input
-                id="auto"
-                onClick={() => setDisplay(!display)}
-                placeholder="Type to search"
-                value={search}
-                autoComplete="off"
-                onChange={(event) => {
-                  setSearch(event.target.value);
-                }}
-                onKeyUp={searchMovie}
-              />
-              {display && options && options.length && (
-                <div className="autoContainer">
-                  {options.map((movie, index) => {
-                    return (
-                      <div key={index}>
-                        {index < 3 && (
-                          <div
-                            // onClick={() => updatePokeDex(value.name)}
-                            className="option"
-                            key={index}
-                            tabIndex="0"
-                            onKeyPress={(event) => { if(event.key === 'Enter') handleClickOpen(movie.id)}}
-                            onClick={() => handleClickOpen(movie.id)}
-                            tabIndex="0"
-                          >
-                            <span>{movie.original_title}</span>
-                            <div className="movie-search-poster-container">
-                              <img
-                                className="movie-search-poster"
-                                src={
-                                  "https://image.tmdb.org/t/p/w500" +
-                                  movie.poster_path
-                                }
-                                alt="poster"
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <div className="wallpaper-container">
         <div className="home-view-container">
           <div className="about-container">
             <div className="about">About this app</div>
@@ -202,6 +148,63 @@ const Home = () => {
           </div>
         </div>
 
+        <div className="finder-container">
+          <div className="finder">
+            <div className="find-text">Search for movies here</div>
+
+            <div
+              ref={wrapperRef}
+              className="flex-container flex-column pos-rel"
+            >
+              <input
+                id="auto"
+                onClick={() => setDisplay(!display)}
+                placeholder="Type to search"
+                value={search}
+                autoComplete="off"
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                }}
+                onKeyUp={searchMovie}
+              />
+              {display && options && options.length && (
+                <div className="autoContainer">
+                  {options.map((movie, index) => {
+                    return (
+                      <div key={index}>
+                        {index < 3 && (
+                          <div
+                            // onClick={() => updatePokeDex(value.name)}
+                            className="option"
+                            key={index}
+                            onKeyPress={(event) => {
+                              if (event.key === "Enter")
+                                handleClickOpen(movie.id);
+                            }}
+                            onClick={() => handleClickOpen(movie.id)}
+                          >
+                            <span>{movie.original_title}</span>
+                            <div className="movie-search-poster-container">
+                              <img
+                                className="movie-search-poster"
+                                src={
+                                  "https://image.tmdb.org/t/p/w500" +
+                                  movie.poster_path
+                                }
+                                alt="poster"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        </div>
         <MovieDetails
           open={open}
           details={details}
