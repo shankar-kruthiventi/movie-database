@@ -41,55 +41,71 @@ const MovieList = ({ movieList, append }) => {
           vote_average: data.vote_average,
         });
       });
-    console.log(details.original_title);
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
   };
 
+  const scrollDown = () => {
+    let movie = document.querySelector('[data-scrollbar]');
+    if (
+      movie.scrollTop + movie.clientHeight >=
+      movie.scrollHeight
+    ) {
+      append();
+    }
+  }
+
   return (
-    <Scrollbar>
+    <Scrollbar onScroll={scrollDown}>
       <div className="movies-container">
-        <div className="movieList-container">
-          {movieList && !movieList.length && (
-            <Redirect
-              to={{
-                pathname: "/home",
-              }}
-            />
-          )}
-          {movieList &&
-            movieList.length >= 1 &&
-            movieList.map((movie, index) => (
-              <div id={index} key={index} tabIndex="0" className="poster-container">
-                <img
-                  src={"https://image.tmdb.org/t/p/w500" + movie.poster_path}
-                  onClick={() => handleClickOpen(movie.id)}
-                  onKeyPress={(event) => { if(event.key === 'Enter') handleClickOpen(movie.id)}}
-                  alt={movie.original_title}
-                  className="poster"
-                />
-              </div>
-            ))}
-        </div>
-        <div className="next-button-container">
-          {movieList && movieList.length && (
-            <Button
-              onClick={append}
-              className="next-button"
-              variant="outlined"
-              color="secondary"
-            >
-              Show More
-            </Button>
-          )}
-        </div>
-        <MovieDetails
-          open={open}
-          details={details}
-          handleClose={handleClose}
-        ></MovieDetails>
+          <div className="movieList-container">
+            {movieList && !movieList.length && (
+              <Redirect
+                to={{
+                  pathname: "/home",
+                }}
+              />
+            )}
+            {movieList &&
+              movieList.length >= 1 &&
+              movieList.map((movie, index) => (
+                <div
+                  id={index}
+                  key={index}
+                  tabIndex="0"
+                  className="poster-container"
+                >
+                  <img
+                    src={"https://image.tmdb.org/t/p/w500" + movie.poster_path}
+                    onClick={() => handleClickOpen(movie.id)}
+                    onKeyPress={(event) => {
+                      if (event.key === "Enter") handleClickOpen(movie.id);
+                    }}
+                    alt={movie.original_title}
+                    className="poster"
+                  />
+                </div>
+              ))}
+          </div>
+          {/* <div className="next-button-container">
+            {movieList && movieList.length && (
+              <Button
+                onClick={append}
+                className="next-button"
+                variant="outlined"
+                color="secondary"
+              >
+                Show More
+              </Button>
+            )}
+          </div> */}
+          <MovieDetails
+            open={open}
+            details={details}
+            handleClose={handleClose}
+          ></MovieDetails>
       </div>
     </Scrollbar>
   );
