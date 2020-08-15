@@ -1,9 +1,18 @@
 .home-contianer {
   height: 87.6vh;
+  /* height: 100%; */
 }
-.wallpaper-container {
+/* .home {
+  height: 87.6vh;
+} */
+/* .wallpaper-container {
   background: url("./collection.jpg");
   background-size: cover;
+} */
+body {
+  background: url("./collection.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 .finder-container {
   padding: 2vw 5vw;
@@ -15,7 +24,7 @@
 }
 .finder {
   display: flex;
-  margin-top: 15vh;
+  margin-top: 20vh;
   flex-direction: column;
   align-items: center;
 }
@@ -55,19 +64,15 @@
 }
 
 @media only screen and (max-width: 600px) {
-  .home-contianer {
-    height: 100vh;
-    overflow:hidden;
-  }
   .home-view-container {
     flex-direction: column;
   }
   .finder-container {
     height: 35vh;
   }
-  .find-text {
+  /* .find-text {
     font-size: 8vw;
-  }
+  } */
   .about-container {
     margin-bottom: 5vw;
     flex-basis: 100%;

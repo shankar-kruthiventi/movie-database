@@ -20,7 +20,6 @@ function App() {
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         setMovieCategory(movieCategory);
         setMoviesList(data.results);
       });
@@ -33,7 +32,6 @@ function App() {
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         let newMovieList = [...movieList, ...data.results];
         setMoviesList(newMovieList);
       });

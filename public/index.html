@@ -41,9 +41,6 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <style type="text/css">
-      body {
-        background: #000000;
-      }
       #landscape {
         position: absolute;
         top: 0px;
@@ -88,6 +85,49 @@
 
       //Listen to orientation change
       window.addEventListener("orientationchange", doOnOrientationChange);
+
+      /* function responsive() {
+        if (document.body.offsetWidth < 600) {
+          const body = document.body.offsetHeight;
+          const header = document.getElementsByClassName("header-view")[0]
+            .offsetHeight;
+          const home = document.getElementsByClassName("home-contianer")[0]
+            .offsetHeight;
+          if (home && body && header) {
+            console.log(header);
+            document.getElementsByClassName("header-view")[0].style.minHeight =
+              header + "px !important";
+            home.style.minHeight = body - header + "px";
+          }
+          if (
+            home &&
+            document.getElementsByClassName("finder-contianer")[0] &&
+            document.getElementsByClassName("home-view-container")[0]
+          ) {
+            document.getElementsByClassName("header-view")[0].style.minHeight =
+              header + "px !important";
+
+            document.getElementsByClassName(
+              "finder-contianer"
+            )[0].style.minHeight =
+              home -
+              document.getElementsByClassName("home-view-container")[0]
+                .offsetHeight +
+              "px";
+          }
+        } else {
+          if (document.getElementsByClassName("home-contianer")[0]) {
+            document
+              .getElementsByClassName("home-contianer")[0]
+              .classList.add("home");
+          }
+
+          if (document.getElementsByClassName("finder-contianer")[0]) {
+            document
+              .getElementsByClassName("finder-contianer")[0]
+              .classList.add("find-toggle");
+          }
+        } */
     </script>
     <title>React App</title>
   </head>

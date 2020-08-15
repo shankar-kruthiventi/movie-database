@@ -29,7 +29,6 @@ const MovieList = ({ movieList, append }) => {
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         setDetails({
           title: data.original_title,
           poster: data.poster_path,
@@ -41,7 +40,6 @@ const MovieList = ({ movieList, append }) => {
           vote_average: data.vote_average,
         });
       });
-    console.log(details.original_title);
     setOpen(true);
   };
   const handleClose = () => {
