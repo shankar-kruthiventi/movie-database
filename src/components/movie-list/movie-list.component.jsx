@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./movie-list.style.css";
 
 import MovieDetails from "../../components/movie-details/movie-details.component";
@@ -46,8 +46,49 @@ const MovieList = ({ movieList, append }) => {
     setOpen(false);
   };
 
+  /* let timer;
+  const debounce = (fn, d) => {
+    clearTimeout(timer);
+    timer = setTimeout(fn, d);
+  }
+  const betterScroll = () => debounce(scrollDown, 600);
+
+  const scrollDown = () => {
+    let lastMovie = document.getElementById(movieList.length - 1);
+    let callback = (entries) => {
+      for (let i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          append();
+          break;
+        }
+      }
+    };
+    let observer = new IntersectionObserver(callback);
+    if(lastMovie) {
+      observer.observe(lastMovie);
+    }
+  }; */
+  useEffect(() => {
+    const nextButton = document.getElementsByClassName('next-button')[0];
+    if(window.innerWidth >= 768 && window.innerWidth <= 1024 && nextButton) {
+      for(let click=0; click <=4; click++) {
+        nextButton.click();
+        console.log('clicked');
+      }
+    }
+  }, []);
+
+  const scrollDown = () => {
+    let movie = document.querySelector('[data-scrollbar]');
+    if (
+      movie.scrollTop + movie.clientHeight >=
+      movie.scrollHeight
+    ) {
+      append();
+    }
+  }
   return (
-    <Scrollbar>
+    <Scrollbar onScroll={scrollDown}>
       <div className="movies-container">
         <div className="movieList-container">
           {movieList && !movieList.length && (
@@ -64,7 +105,9 @@ const MovieList = ({ movieList, append }) => {
                 <img
                   src={"https://image.tmdb.org/t/p/w500" + movie.poster_path}
                   onClick={() => handleClickOpen(movie.id)}
-                  onKeyPress={(event) => { if(event.key === 'Enter') handleClickOpen(movie.id)}}
+                  onKeyPress={(event) => {
+                    if (event.key === "Enter") handleClickOpen(movie.id);
+                  }}
                   alt={movie.original_title}
                   className="poster"
                 />

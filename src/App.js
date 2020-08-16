@@ -32,8 +32,10 @@ function App() {
     )
       .then((response) => response.json())
       .then((data) => {
-        let newMovieList = [...movieList, ...data.results];
-        setMoviesList(newMovieList);
+        if(data && data.results && data.results.length) {
+          let newMovieList = [...movieList, ...data.results];
+          setMoviesList(newMovieList);
+        }
       });
   };
 

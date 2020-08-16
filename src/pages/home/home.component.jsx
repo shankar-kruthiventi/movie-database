@@ -28,6 +28,7 @@ const Home = () => {
   const searchMovie = (event) => {
     options = [];
     setPokemon([]);
+
     fetch(
       `https://api.themoviedb.org/3/search/movie?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US&query=${event.target.value}&page=1`
     )
@@ -162,8 +163,14 @@ const Home = () => {
                   autoComplete="off"
                   onChange={(event) => {
                     setSearch(event.target.value);
+                    document.getElementById("test").scrollIntoView();
+                    // let movie = document.querySelector("[data-scrollbar]");
+                    // var myElement = document.getElementById("test");
+                    // var topPos = myElement.offsetTop;
+                    // movie.scroll(0, topPos)
+                    // console.log(movie.scrollTop, topPos);
                   }}
-                  onKeyUp={searchMovie}
+                  onKeyUp={(event) => {searchMovie(event)}}
                 />
                 {display && options && options.length && (
                   <div className="autoContainer">
@@ -179,7 +186,9 @@ const Home = () => {
                                 if (event.key === "Enter")
                                   handleClickOpen(movie.id);
                               }}
-                              onClick={() => handleClickOpen(movie.id)}
+                              onClick={() => {
+                                handleClickOpen(movie.id);
+                              }}
                             >
                               <span>{movie.original_title}</span>
                               <div className="movie-search-poster-container">
@@ -202,6 +211,7 @@ const Home = () => {
               </div>
             </div>
           </div>
+          <div id="test"></div>
         </div>
         <MovieDetails
           open={open}

@@ -36,10 +36,11 @@
 .next-button {
   /* width: 12vw; */
   width: auto;
+  visibility: hidden;
 }
-.next-button:hover {
+/* .next-button:hover {
   color: #ffffff;
-}
+} */
 a[target="_blank"] {
   color: #ffffff;
 }
