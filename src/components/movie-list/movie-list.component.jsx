@@ -46,7 +46,7 @@ const MovieList = ({ movieList, append }) => {
     setOpen(false);
   };
 
-  /* let timer;
+  let timer;
   const debounce = (fn, d) => {
     clearTimeout(timer);
     timer = setTimeout(fn, d);
@@ -67,7 +67,7 @@ const MovieList = ({ movieList, append }) => {
     if(lastMovie) {
       observer.observe(lastMovie);
     }
-  }; */
+  };
   useEffect(() => {
     const nextButton = document.getElementsByClassName('next-button')[0];
     if(window.innerWidth >= 768 && window.innerWidth <= 1024 && nextButton) {
@@ -78,7 +78,7 @@ const MovieList = ({ movieList, append }) => {
     }
   }, []);
 
-  const scrollDown = () => {
+  /* const scrollDown = () => {
     let movie = document.querySelector('[data-scrollbar]');
     if (
       movie.scrollTop + movie.clientHeight >=
@@ -86,9 +86,9 @@ const MovieList = ({ movieList, append }) => {
     ) {
       append();
     }
-  }
+  } */
   return (
-    <Scrollbar onScroll={scrollDown}>
+    <Scrollbar onScroll={betterScroll}>
       <div className="movies-container">
         <div className="movieList-container">
           {movieList && !movieList.length && (

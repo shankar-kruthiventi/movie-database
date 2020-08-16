@@ -21,18 +21,24 @@ body {
   background-repeat: no-repeat;
 }
 .finder-container {
-  padding: 2vw 5vw;
+  /* padding: 2vw 5vw; */
   height: 78vh;
+  width: 90%;
+  margin: 0 auto;
   /* display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column; */
 }
 .finder {
-  display: flex;
+  max-width: 100%;
+  width: 90%;
+  margin: 0 auto;
+  text-align: center;
   /* margin-top: 20vh; */
+  /* display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: center; */
 }
 .find-text {
   color: #64dcb0;
@@ -102,12 +108,21 @@ body {
 }
 
 input {
-  padding: 10px;
+  /* padding: 10px;
   height: 20px;
   width: 500px;
   border: 1px solid purple;
   border-radius: 8px;
   margin: 10px;
+  font-size: 18px;
+  text-transform: capitalize; */
+  padding: 10px;
+  height: 20px;
+  width: 50%;
+  max-width: 50%;
+  border: 1px solid purple;
+  border-radius: 8px;
+  /* margin: 10px; */
   font-size: 18px;
   text-transform: capitalize;
 }
@@ -117,17 +132,20 @@ input {
 }
 
 .autoContainer {
-  position: absolute;
+  /* position: absolute; */
   border-width: 0px 1px 1px 1px;
   border-style: solid;
   border-color: goldenrod;
   background-color: whitesmoke;
+  width: 52%;
+  max-width: 52%;
+  margin: 0 auto;
   /* right: 0.75vw;
   top: 8.5vh;
   width: 34vw; */
-  right: 0.75vw;
+  /* right: 0.75vw;
   top: 8.5vh;
-  width: 38vw;
+  width: 38vw; */
   /* top: 8vh;
    */
   /* height: 42vh; */
@@ -148,11 +166,14 @@ input {
 }
 
 .flex-container {
-  display: flex;
+  /* display: flex; */
+  max-width: 100%;
+  width: 90%;
+  margin: 0 auto;
+  text-align: center;
 }
-
 .flex-column {
-  flex-direction: column;
+  /* flex-direction: column; */
 }
 .movie-search-poster-container {
   height: 12.5vh;
@@ -169,13 +190,17 @@ input {
     font-size: 8vw;
   }
   input {
-    width: 70vw;
+    /* width: 70vw; */
+    width: 94%;
+    max-width: 94%;
   }
   .autoContainer {
-    right: 2.75vw;
+    /* right: 2.75vw;
     top: 8.5vh;
-    width: 75vw;
+    width: 75vw; */
     /* height: 25vh; */
+    width: 94%;
+    max-width: 94%;
   }
   .option {
     text-align: center;
@@ -196,9 +221,9 @@ input {
 /* ipad, ipad pro styles */
 @media only screen and (width: 1024px) {
   .autoContainer {
-    right: 1.5vw;
+    /* right: 1.5vw;
     top: 5vh;
-    width: 50vw;
+    width: 50vw; */
     /* height: 24vh; */
   }
   .movie-search-poster-container {
@@ -211,9 +236,9 @@ input {
 
 @media only screen and (width: 768px) {
   .autoContainer {
-    right: 1.5vw;
+    /* right: 1.5vw;
     top: 6vh;
-    width: 66.5vw;
+    width: 66.5vw; */
     /* height: 24vh; */
   }
   .movie-search-poster-container {
