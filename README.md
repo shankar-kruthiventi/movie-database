@@ -1,4 +1,14 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Project Title
+
+Movie-Database
+
+## Description
+
+A Movie-Database App developed using react. This project is hosted on Github Pages [link](https://shankar-kruthiventi.github.io/movie-database/#/home)
+
+## Author
+
+shankar-kruthiventi
 
 ## Available Scripts
 
