@@ -29,7 +29,8 @@ const Header = ({ fetchData }) => {
         <NavLink to="/home">
           <h3>Home</h3>
         </NavLink>
-        <NavLink extact="true" activeClassName="active" onClick={() => fetchData("popular")} to="/popular">
+        <NavLink onClick={() => fetchData("popular")} to="/popular">
+        {/* activeClassName="active" */}
           <h3>Popular Movies</h3>
         </NavLink>
         <NavLink onClick={() => fetchData("top_rated")} to="/top_rated">
@@ -41,7 +42,7 @@ const Header = ({ fetchData }) => {
       </div>
       <div className="header-mobile-container">
         <Link 
-          // to="/home"
+          to="/home"
           id="home">
           <span>{type}</span>
         </Link>

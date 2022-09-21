@@ -82,7 +82,7 @@ const MovieDetails = ({ open, details, handleClose }) => {
 
 export default MovieDetails;
 
-const styles = (theme) => ({
+const styles: any = (theme) => ({
   root: {
     margin: 0,
     padding: theme.spacing(2),
@@ -95,8 +95,8 @@ const styles = (theme) => ({
   },
 });
 
-const DialogTitle = withStyles(styles)((props) => {
-  const { children, classes, onClose, ...other } = props;
+const DialogTitle = withStyles(styles)(({ children, classes, onClose, ...other }: any) => {
+  // const { children, classes, onClose, ...other } = props;
   return (
     <MuiDialogTitle disableTypography className={classes.root} {...other}>
       <Typography variant="h6">{children}</Typography>

@@ -3,7 +3,7 @@ import "./movie-list.style.css";
 
 import MovieDetails from "../../components/movie-details/movie-details.component";
 
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import Button from "@material-ui/core/Button";
 
@@ -54,7 +54,7 @@ const MovieList = ({ movieList, append }) => {
   const betterScroll = () => debounce(scrollDown, 600);
 
   const scrollDown = () => {
-    let lastMovie = document.getElementById(movieList.length - 1);
+    let lastMovie = document.getElementById((movieList.length - 1).toString());
     let callback = (entries) => {
       for (let i = 0; i < entries.length; i++) {
         if (entries[i].isIntersecting) {
@@ -69,13 +69,13 @@ const MovieList = ({ movieList, append }) => {
     }
   };
   useEffect(() => {
-    const nextButton = document.getElementsByClassName('next-button')[0];
+    /* const nextButton = document.getElementsByClassName('next-button')[0];
     if(window.innerWidth >= 768 && window.innerWidth <= 1024 && nextButton) {
       for(let click=0; click <=4; click++) {
         nextButton.click();
         console.log('clicked');
       }
-    }
+    } */
   }, []);
 
   /* const scrollDown = () => {
@@ -92,7 +92,7 @@ const MovieList = ({ movieList, append }) => {
       <div className="movies-container">
         <div className="movieList-container">
           {movieList && !movieList.length && (
-            <Redirect
+            <Navigate
               to={{
                 pathname: "/home",
               }}
