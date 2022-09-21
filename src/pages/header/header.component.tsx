@@ -7,7 +7,7 @@ const Header = ({ fetchData }) => {
   let [type, setType] = useState("Home");
   const showMenu = (type, value) => {
     setType(type);
-    var element = document.getElementById("myLinks");
+    const element = document.getElementById("myLinks") as HTMLElement;
     if (value === "hide") {
       element.style.display = "none";
     } else {
@@ -15,7 +15,7 @@ const Header = ({ fetchData }) => {
     }
   };
   const toggleMenu = () => {
-    var element = document.getElementById("myLinks");
+    var element = document.getElementById("myLinks") as HTMLElement;
     if(element.style.display === 'block') {
       element.style.display = 'none';
     } else {
