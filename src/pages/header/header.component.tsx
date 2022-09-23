@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
+import { HeaderProps } from "../../types";
 
 import "./header.style.css";
 
-const Header = ({ fetchData }) => {
+const Header = ({ fetchData }: HeaderProps) => {
   let [type, setType] = useState("Home");
-  const showMenu = (type, value) => {
+  const showMenu = (type: string, value: string) => {
     setType(type);
     const element = document.getElementById("myLinks") as HTMLElement;
     if (value === "hide") {

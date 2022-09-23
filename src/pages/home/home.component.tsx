@@ -3,13 +3,23 @@ import "./home.style.css";
 
 import MovieDetails from "../../components/movie-details/movie-details.component";
 import Scrollbar from "react-smooth-scrollbar";
+import { Movie } from "../../types";
+import { 
+  facebook_url, 
+  fetchMovieDetails, 
+  fetchPoster, 
+  github_url, 
+  instagram_url, 
+  linkedin_url, 
+  searchMovies 
+} from "../../url-formatter";
 
 const Home = () => {
-  const [display, setDisplay] = useState(false);
-  let [options, setOptions] = useState([]);
-  const [search, setSearch] = useState("");
-  const wrapperRef = useRef(null);
-  const [movies, setPokemon] = useState([]);
+  const [display, setDisplay] = useState<boolean>(false);
+  let [options, setOptions] = useState<Movie[]>([]);
+  const [search, setSearch] = useState<string>("");
+  const wrapperRef = useRef<HTMLInputElement>(null);
+  const [movies, setMovies] = useState<Movie[]>([]);
 
   useEffect(() => {
     window.addEventListener("mousedown", handleClickOutside);
@@ -18,22 +28,22 @@ const Home = () => {
     };
   });
 
-  const handleClickOutside = (event) => {
-    const { current: wrap } = wrapperRef;
-    if (wrap && !wrap.contains(event.target)) {
+  const handleClickOutside = (event: MouseEvent): void => {
+    // const { current: wrap } = wrapperRef;
+    if (wrapperRef.current && event.target instanceof HTMLElement && !wrapperRef.current.contains(event.target)) {
       setDisplay(false);
     }
   };
 
-  const searchMovie = (event) => {
+  const searchMovie = (event: React.SyntheticEvent) => {
     options = [];
-    setPokemon([]);
+    setMovies([]);
 
     fetch(
-      `https://api.themoviedb.org/3/search/movie?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US&query=${event.target.value}&page=1`
+      searchMovies(event)
     )
       .then((value) => value.json())
-      .then((value) => {
+      .then((value: { results: Array<any>}) => {
         if (value.results && value.results.length !== 0) {
           movies.push(...value.results);
           setOptions(movies);
@@ -55,9 +65,9 @@ const Home = () => {
     vote_average: 0,
   });
 
-  const handleClickOpen = async (movieId) => {
+  const handleClickOpen = async (movieId: number) => {
     await fetch(
-      `https://api.themoviedb.org/3/movie/${movieId}?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US`
+      fetchMovieDetails(movieId)  
     )
       .then((response) => response.json())
       .then((data) => {
@@ -108,7 +118,7 @@ const Home = () => {
               <ul>
                 <li>
                   <a
-                    href={"https://www.linkedin.com/in/shankarkruthiventi/"}
+                    href={linkedin_url}
                     rel="noopener noreferrer"
                     target="_blank"
                   >
@@ -117,7 +127,7 @@ const Home = () => {
                 </li>
                 <li>
                   <a
-                    href={"https://github.com/shankar-kruthiventi"}
+                    href={github_url}
                     rel="noopener noreferrer"
                     target="_blank"
                   >
@@ -127,7 +137,7 @@ const Home = () => {
 
                 <li>
                   <a
-                    href={"https://www.facebook.com/shankar.kruthiventi/"}
+                    href={facebook_url}
                     rel="noopener noreferrer"
                     target="_blank"
                   >
@@ -136,7 +146,7 @@ const Home = () => {
                 </li>
                 <li>
                   <a
-                    href={"https://www.instagram.com/madhav_kruthiventi/"}
+                    href={instagram_url}
                     rel="noopener noreferrer"
                     target="_blank"
                   >
@@ -163,18 +173,18 @@ const Home = () => {
                   autoComplete="off"
                   onChange={(event) => {
                     setSearch(event.target.value);
-                    document.getElementById("test").scrollIntoView();
+                    (document.getElementById("test") as HTMLElement).scrollIntoView();
                     // let movie = document.querySelector("[data-scrollbar]");
                     // var myElement = document.getElementById("test");
                     // var topPos = myElement.offsetTop;
                     // movie.scroll(0, topPos)
                     // console.log(movie.scrollTop, topPos);
                   }}
-                  onKeyUp={(event) => {searchMovie(event)}}
+                  onKeyUp={(event: React.SyntheticEvent) => {searchMovie(event)}}
                 />
                 {display && options && options.length && (
                   <div className="autoContainer">
-                    {options.map((movie, index) => {
+                    {options.map((movie: Movie, index: number) => {
                       return (
                         <div key={index}>
                           {index < 3 && (
@@ -194,10 +204,7 @@ const Home = () => {
                               <div className="movie-search-poster-container">
                                 <img
                                   className="movie-search-poster"
-                                  src={
-                                    "https://image.tmdb.org/t/p/w500" +
-                                    movie.poster_path
-                                  }
+                                  src={fetchPoster(movie.poster_path)}
                                   alt="poster"
                                 />
                               </div>

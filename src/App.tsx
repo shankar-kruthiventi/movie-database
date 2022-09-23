@@ -4,19 +4,21 @@ import { HashRouter, Route, Routes, Navigate } from 'react-router-dom';
 import Header from './pages/header/header.component';
 import Home from './pages/home/home.component';
 import MovieList from './components/movie-list/movie-list.component';
+import { Movie } from './types';
+import { appendMoviesByCategory, fetchMoviesByCategory } from './url-formatter';
 
 function App() {
 
-  let [movieCategory, setMovieCategory] = useState("");
-  let [page, setPage] = useState(2);
-  const [movieList, setMoviesList] = useState([]);
+  let [movieCategory, setMovieCategory] = useState<string>("");
+  let [page, setPage] = useState<number>(2);
+  const [movieList, setMoviesList] = useState<Movie[]>([]);
 
-  function fetchData(movieCategory) {
+  function fetchData(movieCategory: string): void {
     if (!movieCategory) {
-      alert("no type");
+      return fetchData('popular');
     }
     fetch(
-      `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US&page=1`
+      fetchMoviesByCategory(movieCategory)
     )
       .then((response) => response.json())
       .then((data) => {
@@ -26,9 +28,9 @@ function App() {
   }
 
   const append = () => {
-    setPage((page) => page + 1);
+    setPage((page: number) => page + 1);
     fetch(
-      `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US&page=${page}`
+      appendMoviesByCategory(movieCategory, page)
     )
       .then((response) => response.json())
       .then((data) => {
@@ -48,17 +50,11 @@ function App() {
     <div className="app-container">
       <Header fetchData={fetchData}></Header>
       <Routes>
-        {/* <Route path="/">
-          <Navigate to="/home" />
-        </Route> */}
         <Route path="/" element={<Navigate to="/home" />}></Route>
         <Route path="/home" element={<Home />} />
         <Route path="/popular" element={<MovieList append={append} key={'popular'} movieList={movieList} />} />
-        {/* movieType={'popular'} */}
         <Route path="/top_rated" element={<MovieList append={append} key={'top_rated'} movieList={movieList} />} />
-        {/* movieType={'top_rated'} */}
         <Route path="/now_playing" element={<MovieList append={append} key={'now_playing'} movieList={movieList} />}/>
-        {/* movieType={'now_playing'} */}
       </Routes>
     </div>
   </HashRouter>

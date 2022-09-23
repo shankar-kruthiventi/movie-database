@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./movie-list.style.css";
 
 import MovieDetails from "../../components/movie-details/movie-details.component";
@@ -9,10 +9,14 @@ import Button from "@material-ui/core/Button";
 
 import Scrollbar from "react-smooth-scrollbar";
 
-const MovieList = ({ movieList, append }) => {
+import { Details, MovieListProps } from "../../types";
+import { fetchMovieDetails } from "../../url-formatter";
+import Movie from "../movie/movie";
+
+const MovieList = ({ movieList, append }: MovieListProps) => {
   const [open, setOpen] = useState(false);
 
-  const [details, setDetails] = useState({
+  const [details, setDetails] = useState<Details>({
     title: "",
     poster: "",
     genres: [],
@@ -23,9 +27,9 @@ const MovieList = ({ movieList, append }) => {
     vote_average: 0,
   });
 
-  const handleClickOpen = async (movieId) => {
+  const handleClickOpen = async (movieId: number) => {
     await fetch(
-      `https://api.themoviedb.org/3/movie/${movieId}?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US`
+      fetchMovieDetails(movieId)
     )
       .then((response) => response.json())
       .then((data) => {
@@ -46,16 +50,16 @@ const MovieList = ({ movieList, append }) => {
     setOpen(false);
   };
 
-  let timer;
-  const debounce = (fn, d) => {
+   let timer :ReturnType<typeof setTimeout>;
+   const debounce = (fn: () => void, d: number) => {
     clearTimeout(timer);
     timer = setTimeout(fn, d);
   }
-  const betterScroll = () => debounce(scrollDown, 600);
+   const betterScroll = () => debounce(scrollDown, 600);
 
   const scrollDown = () => {
     let lastMovie = document.getElementById((movieList.length - 1).toString());
-    let callback = (entries) => {
+    let callback = (entries: IntersectionObserverEntry[]) => {
       for (let i = 0; i < entries.length; i++) {
         if (entries[i].isIntersecting) {
           append();
@@ -68,25 +72,7 @@ const MovieList = ({ movieList, append }) => {
       observer.observe(lastMovie);
     }
   };
-  useEffect(() => {
-    /* const nextButton = document.getElementsByClassName('next-button')[0];
-    if(window.innerWidth >= 768 && window.innerWidth <= 1024 && nextButton) {
-      for(let click=0; click <=4; click++) {
-        nextButton.click();
-        console.log('clicked');
-      }
-    } */
-  }, []);
 
-  /* const scrollDown = () => {
-    let movie = document.querySelector('[data-scrollbar]');
-    if (
-      movie.scrollTop + movie.clientHeight >=
-      movie.scrollHeight
-    ) {
-      append();
-    }
-  } */
   return (
     <Scrollbar onScroll={betterScroll}>
       <div className="movies-container">
@@ -101,17 +87,12 @@ const MovieList = ({ movieList, append }) => {
           {movieList &&
             movieList.length >= 1 &&
             movieList.map((movie, index) => (
-              <div id={index} key={index} className="poster-container">
-                <img
-                  src={"https://image.tmdb.org/t/p/w500" + movie.poster_path}
-                  onClick={() => handleClickOpen(movie.id)}
-                  onKeyPress={(event) => {
-                    if (event.key === "Enter") handleClickOpen(movie.id);
-                  }}
-                  alt={movie.original_title}
-                  className="poster"
-                />
-              </div>
+              <Movie 
+                movie={movie} 
+                key={index} 
+                index={index} 
+                handleClickOpen={handleClickOpen}  
+              />
             ))}
         </div>
         <div className="next-button-container">
