@@ -1,7 +1,13 @@
 /* movie-details */
 #dialog-content {
-    background: #2d2626;
-    color: #ffffff;
+    background: var(--dialog-body-bg);
+    color: var(--dialog-body-text);
+  }
+  #dialog-content a {
+    color: var(--dialog-link);
+  }
+  #dialog-content :focus-visible {
+    outline-color: var(--dialog-body-focus);
   }
   .movie-details-container {
     display: flex;

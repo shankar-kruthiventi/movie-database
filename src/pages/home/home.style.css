@@ -16,7 +16,8 @@
   position:relative;
 }
 body {
-  background: url("./collection.jpg");
+  /* --wash: none in dark mode; a semi-transparent white layer over the same image in light mode */
+  background: var(--wash), url("./collection.jpg");
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -41,7 +42,7 @@ body {
   align-items: center; */
 }
 .find-text {
-  color: #64dcb0;
+  color: var(--heading);
   font-size: 4vw;
 }
 .autocomplete {
@@ -53,7 +54,7 @@ body {
   padding: 0 1vw !important;
 }
 .home-view-container {
-  color: #ffffff;
+  color: var(--card-text);
   /* font-family: monospace; */
   padding: 2vw 4vw;
   display: flex;
@@ -61,8 +62,8 @@ body {
   justify-content: space-between;
 }
 .about-container {
-  border: 1px solid #ffffff;
-  background: #000000;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
   border-radius: 8px;
   flex-basis: 45%;
   padding: 1vw;
@@ -72,7 +73,7 @@ body {
   padding: 10px;
   margin-bottom: 1vw;
   font-size: 24px;
-  border-bottom: 1px solid #ffffff;
+  border-bottom: 1px solid var(--card-border);
 }
 
 @media only screen and (max-width: 600px) {
@@ -120,11 +121,18 @@ input {
   height: 20px;
   width: 50%;
   max-width: 50%;
-  border: 1px solid purple;
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
   border-radius: 8px;
   /* margin: 10px; */
   font-size: 18px;
   text-transform: capitalize;
+}
+
+input::placeholder {
+  color: var(--input-placeholder);
+  opacity: 1;
 }
 
 .pos-rel {
@@ -135,8 +143,9 @@ input {
   /* position: absolute; */
   border-width: 0px 1px 1px 1px;
   border-style: solid;
-  border-color: goldenrod;
-  background-color: whitesmoke;
+  border-color: var(--option-border);
+  background-color: var(--option-bg);
+  color: var(--option-text);
   width: 52%;
   max-width: 52%;
   margin: 0 auto;
@@ -149,6 +158,10 @@ input {
   /* top: 8vh;
    */
   /* height: 42vh; */
+}
+
+.autoContainer :focus-visible {
+  outline-color: var(--option-focus);
 }
 
 .option {

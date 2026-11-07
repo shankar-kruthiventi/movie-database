@@ -10,7 +10,7 @@ async function settle(page) {
 const goList = async (page, name) => {
   if (name === 'mobile') {
     await open(page, '/home');
-    await page.locator('.header-mobile-container a.icon').click();
+    await page.locator('.header-mobile-container button.icon').click();
     await page.locator('#myLinks a', { hasText: 'Popular Movies' }).click();
     await page.locator('.poster').first().waitFor();
   } else {

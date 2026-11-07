@@ -113,7 +113,12 @@ const DialogTitle = (props: CustomDialogTitleProps) => {
             position: "absolute",
             right: (theme) => theme.spacing(1),
             top: (theme) => theme.spacing(1),
-            color: (theme) => theme.palette.grey[500],
+            // grey[500] was 2.7:1 on the white title bar (needs 3:1); the token is 6:1 / 7:1.
+            color: "var(--dialog-close)",
+            "&.Mui-focusVisible": {
+              outline: "2px solid var(--dialog-title-focus)",
+              outlineOffset: "2px",
+            },
           }}
           onClick={onClose}
         >

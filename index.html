@@ -40,6 +40,17 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
+    <script>
+      // Theme before first paint (no flash): dark is the default, "light" only if the visitor chose it.
+      // The system colour scheme is ignored on purpose. Storage may be blocked, so guard it.
+      (function () {
+        var mode = "dark";
+        try {
+          if (window.localStorage.getItem("movie-atlas-theme") === "light") mode = "light";
+        } catch (e) {}
+        document.documentElement.setAttribute("data-theme", mode);
+      })();
+    </script>
     <style type="text/css">
       #landscape {
         position: absolute;

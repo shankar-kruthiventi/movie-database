@@ -27,7 +27,7 @@ test.describe('mobile 390x844', () => {
     await expect(page.locator('.header-container')).toBeHidden();
     await expect(page.locator('#home span')).toHaveText('Home');
     await expect(page.locator('#myLinks')).toBeHidden();
-    const burger = page.locator('.header-mobile-container a.icon');
+    const burger = page.locator('.header-mobile-container button.icon');
     await burger.click();
     await expect(page.locator('#myLinks')).toBeVisible();
     await burger.click();

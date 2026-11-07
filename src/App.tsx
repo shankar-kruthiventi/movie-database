@@ -48,7 +48,19 @@ function App() {
   return (
   <HashRouter basename='/'>
     <div className="app-container">
+      <a
+        className="skip-link"
+        href="#main-content"
+        onClick={(event) => {
+          // HashRouter owns the URL hash: do not navigate to #main-content, just move focus.
+          event.preventDefault();
+          document.getElementById("main-content")?.focus();
+        }}
+      >
+        Skip to main content
+      </a>
       <Header fetchData={fetchData}></Header>
+      <main id="main-content" tabIndex={-1}>
       <Routes>
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/home" element={<Home />} />
@@ -56,6 +68,7 @@ function App() {
         <Route path="/top_rated" element={<MovieList append={append} key={'top_rated'} movieList={movieList} movieType={'top_rated'}/>} />
         <Route path="/now_playing" element={<MovieList append={append} key={'now_playing'} movieList={movieList} movieType={'now_playing'}/>}/>
       </Routes>
+      </main>
     </div>
   </HashRouter>
   );
