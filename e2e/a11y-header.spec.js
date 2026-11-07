@@ -86,6 +86,7 @@ for (const mode of MODES) {
 
     test(`BC-20 keyboard activation of nav links keeps BC-15 fetch-on-click (${mode})`, async ({ page, app }) => {
       await open(page, '/home');
+      await expect(page.locator('.home-contianer')).toBeVisible(); // wait for mount: Tab before React renders hits nothing
       await tabTo(page, 3); // skip, Home, Popular
       await page.keyboard.press('Enter');
       await expect(page).toHaveURL(/#\/popular$/);

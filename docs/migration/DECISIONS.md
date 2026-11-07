@@ -141,3 +141,6 @@ Owner-approved goal: make the Home autocomplete a WAI-ARIA APG editable combobox
   5. Escape with an open popup and the arrows are `preventDefault`ed (no caret movement).
 - Unchanged on purpose: every keyup (including arrows, Esc, Tab, Enter) still calls `GET /3/search/movie` (BC-14 "every keyup"); results stay accumulated by mutating the `movies` array; the query is not URL-encoded.
 - Tests: `e2e/a11y-autocomplete.spec.js` (BC-22, 22 tests = 11 per mode): roles/attributes, arrows with wrap, Enter, hover, Esc, Tab, click/tap/focus outside, press inside the list, listener cleanup on unmount, ring/fill contrast from computed styles, live region (including a mocked empty search), axe on the open popup.
+- Test sync fix (not a weakening): `e2e/a11y-header.spec.js` 'keyboard activation of nav links' pressed Tab right after `goto`, before React had rendered the header, and failed consistently in the full run (Enter landed on Home, URL stayed `#/home`). It now waits for `.home-container` like its sibling tests do; assertions are unchanged.
+- Screenshots: no snapshot changed in this step (the autocomplete is closed in every baseline); `visual*.spec.js` pass unchanged.
+
