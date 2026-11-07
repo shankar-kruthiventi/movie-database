@@ -24,3 +24,9 @@
 - Node floor: >= 22.13 (Vite 7 needs ^20.19 or >=22.12; jsdom 29 needs ^22.13). Add `engines`/`.nvmrc`. Cloudflare: `NODE_VERSION=22`, not 16. This supersedes the interim CRA/Node 16 Cloudflare notes above once Phase 1 lands, as do `VITE_TMDB_API_KEY` and `VITE_BASE=/`. The `CI=false` and `NODE_OPTIONS=--openssl-legacy-provider` settings are no longer needed.
 - `src/App.test.js` (stale CRA template, failing): replaced with a minimal Vitest smoke test that renders App. Approved by owner.
 - Risk noted: jest-dom 4.2.4 `extend-expect` under Vitest is unverified; fallback is jest-dom 6.x via `@testing-library/jest-dom/vitest`. RTL stays on 9.x until Phase 5 (RTL 16 needs React 18).
+
+## 2026-11-07 - Phase 1 - jest-dom 6.x fallback, vitest include, npm 11 for installs
+- `@testing-library/jest-dom` 4.2.4 -> `^6.9.1` (moved to devDependencies), setup import `@testing-library/jest-dom/vitest`. Reason: the risk noted above materialised, jest-dom 4 matchers do not register under Vitest ("Invalid Chai property: toBeEmptyDOMElement"). This is the fallback already named in the previous entry. RTL stays 9.x.
+- `vite.config.js` `test.include: ['src/**/*.test.{js,jsx}']`: Vitest's default glob would otherwise pick up the Playwright `e2e/*.spec.js` files.
+- npm 10.9.2 crashes (`Cannot read properties of null (reading 'edgesOut')` in arborist `#loadPeerSet`) when adding vitest to this tree. `vitest` and `jest-dom` were added with `npx npm@11`; the lockfile was written by npm 11. No `--legacy-peer-deps`/`--force` used.
+- Approved by: none yet (applied by build-migrator following the recorded fallback; owner please confirm).
