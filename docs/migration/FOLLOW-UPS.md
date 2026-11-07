@@ -21,3 +21,11 @@ Quirks below are preserved on purpose (behavior parity). Fix them after the migr
 - TypeScript step (Movie Atlas step 2): `MovieDetails` reads `details.original_title` for the poster `alt`, but the details state never sets it (`title` holds `original_title`), so the `alt` attribute is always missing. Preserved as is (`original_title?: string` is declared on `MovieDetailsData` with a comment). Fix: use `details.title` (a11y improvement; changes DOM).
 - TypeScript step: `poster_path` can be `null` in TMDB data and is concatenated into the URL (`.../w500null`), as before; the types say `string | null` and the template literal keeps the same output. Fix: render a placeholder.
 - TypeScript step: `npm run typecheck` is not part of `scripts/migration/gate.mjs` (protected gate); run it by hand.
+- Step 3 (theme/a11y): the dark-mode dialog keeps today's white title bar over the dark body (pinned in `src/theme.ts`). A truly dark dialog is a one-place change (delete the dark pins) plus dialog tokens; owner call.
+- Step 3: the active nav link is distinguished by colour only (WCAG 1.4.1, level A). Contrast passes; an underline or marker for the current page would be a second cue. Not done: it changes the dark look.
+- Step 3: `Show More` (`.next-button`) is `visibility: hidden` in the CSS, so it is never visible or focusable; its colours are compliant in case it is revealed.
+- Step 3: the `#home` mobile label is a non-interactive no-op label (the earlier fake button semantics were removed). If it should ever act (e.g. open the menu), make it a real button then.
+- Step 3: the empty strip below short pages on mobile (white before, #121212 in dark mode now) comes from the page being shorter than the viewport; belongs to the responsiveness step.
+- Step 3: poster tiles are still not keyboard focusable; dialog focus work and the autocomplete combobox semantics are later steps (the `.autoContainer` colours and focus ring are already tokenised for them).
+- Step 3: in light mode the header edge is a 1px box-shadow (#5f6b76); desktop header spacing shifted slightly because the toggle is a 5th space-around item.
+- Step 3: light-mode contrast margins on the wallpaper are the thinnest (card border 3.40:1, input focus ring 3.31:1 against the worst pixel); re-run `e2e/a11y-contrast.spec.js` if the wash opacity (0.8) changes.
