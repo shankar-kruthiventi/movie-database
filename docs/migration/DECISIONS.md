@@ -17,3 +17,10 @@
 - Routing: HashRouter means no SPA redirect rules are needed on Cloudflare.
 - Security note: a Cloudflare variable does not hide the key, because it is inlined into the bundle at build time. Hiding it needs a Pages Function/Worker proxy, which is a behavior change and is NOT planned. Log it in FOLLOW-UPS.md if wanted.
 - Approved by: owner.
+
+## 2026-11-07 - Phase 1 - Toolchain versions and options (dependency-auditor, live `npm view`)
+- Versions: `vite@^7.3.7`, `@vitejs/plugin-react@^5.2.0`, `vitest@^4.1.12`, `jsdom@^29.1.1` (devDependencies). Chosen over the Vite 8 / rolldown set to minimise behavior-parity risk. `jsdom@31` is excluded: it needs Node >= 22.22.2, local Node is 22.15.
+- JSX runtime: `react({ jsxRuntime: 'classic' })`, because installed React 16.13.1 has no `react/jsx-runtime` (arrived in 16.14.0). All JSX files already `import React`. No React bump in Phase 1.
+- Node floor: >= 22.13 (Vite 7 needs ^20.19 or >=22.12; jsdom 29 needs ^22.13). Add `engines`/`.nvmrc`. Cloudflare: `NODE_VERSION=22`, not 16. This supersedes the interim CRA/Node 16 Cloudflare notes above once Phase 1 lands, as do `VITE_TMDB_API_KEY` and `VITE_BASE=/`. The `CI=false` and `NODE_OPTIONS=--openssl-legacy-provider` settings are no longer needed.
+- `src/App.test.js` (stale CRA template, failing): replaced with a minimal Vitest smoke test that renders App. Approved by owner.
+- Risk noted: jest-dom 4.2.4 `extend-expect` under Vitest is unverified; fallback is jest-dom 6.x via `@testing-library/jest-dom/vitest`. RTL stays on 9.x until Phase 5 (RTL 16 needs React 18).
