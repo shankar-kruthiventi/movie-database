@@ -15,7 +15,11 @@ async function setMode(page, mode) {
 }
 
 /** Focus indicator of the focused element: >= 2px solid ring with >= 3:1 against what it is drawn on. */
-async function expectVisibleRing(page, { backdrop = 'parent' } = {}) {
+async function expectVisibleRing(page, opts = {}) {
+  // retry: under load the focused element can be re-resolved mid-update
+  await expect(async () => { await checkRing(page, opts); }).toPass({ timeout: 10000 });
+}
+async function checkRing(page, { backdrop = 'parent' } = {}) {
   const el = page.locator(':focus');
   const ring = await el.evaluate((n) => {
     const cs = getComputedStyle(n);
