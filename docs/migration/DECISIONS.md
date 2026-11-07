@@ -29,4 +29,4 @@
 - `@testing-library/jest-dom` 4.2.4 -> `^6.9.1` (moved to devDependencies), setup import `@testing-library/jest-dom/vitest`. Reason: the risk noted above materialised, jest-dom 4 matchers do not register under Vitest ("Invalid Chai property: toBeEmptyDOMElement"). This is the fallback already named in the previous entry. RTL stays 9.x.
 - `vite.config.js` `test.include: ['src/**/*.test.{js,jsx}']`: Vitest's default glob would otherwise pick up the Playwright `e2e/*.spec.js` files.
 - npm 10.9.2 crashes (`Cannot read properties of null (reading 'edgesOut')` in arborist `#loadPeerSet`) when adding vitest to this tree. `vitest` and `jest-dom` were added with `npx npm@11`; the lockfile was written by npm 11. No `--legacy-peer-deps`/`--force` used.
-- Approved by: none yet (applied by build-migrator following the recorded fallback; owner please confirm).
+- Approved by: owner, 2026-11-07 (applied by build-migrator following the recorded fallback).
