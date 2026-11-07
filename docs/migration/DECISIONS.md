@@ -38,3 +38,11 @@
 - Source review of react-smooth-scrollbar dist: no `findDOMNode`, no string refs. It uses legacy `childContextTypes`/`getChildContext` and `componentWillReceiveProps` (still supported in 17; warnings only under StrictMode in dev), plus a callback ref and `componentDidMount` init. Verified via BC-09/BC-10 e2e on the production build.
 - Installs run with `npx npm@11` (npm 10.9.2 crashes on this tree, see Phase 1).
 - Approved by: owner, 2026-11-07 (approval relayed to the implementing agent by the coordinating agent; not seen directly).
+
+## 2026-11-07 - Phase 3 - react-router-dom 5 -> 6.30.6 (HashRouter kept)
+- Target: `react-router-dom@^6.30.6` (latest 6.x via live `npm view`; peers `react >=16.8`, `react-dom >=16.8`, so React 17.0.2 is fine). Owner chose v6 over v7 in chat on 2026-11-07; a later move to v7 is its own step.
+- Edits per skill `router-v5-to-v6`: `Switch`->`Routes`, `component`/`render`->`element`, `Redirect`->`Navigate replace` (App `/` and MovieList empty-list BC-07), `exact`/`extact` and NavLink `activeClassName`/`extact` dropped (v6 adds `active` itself), `<Link id="home">` (no `to`) -> `<a id="home">` (same `.header-mobile-container a` and `#home` CSS applies). HashRouter and hash URLs unchanged; no wildcard route added (BC-02).
+- Deviation from the task wording "keep the nested BrowserRouter quirk": impossible in v6 (throws "You cannot render a <Router> inside another <Router>"), so the outer `BrowserRouter` in `src/index.jsx` was removed as the skill and CLAUDE.md prescribe. No user-visible effect: only hash URLs are used.
+- Minor DOM difference: v5 leaked `extact="true"` as an HTML attribute on the Popular link; it is gone. No test or CSS depends on it.
+- Installed with `npx npm@11`; no `--force`/`--legacy-peer-deps`.
+- Approved by: owner (v6 choice, 2026-11-07, relayed by the coordinating agent).
