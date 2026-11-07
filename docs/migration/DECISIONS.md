@@ -70,4 +70,11 @@
 - React 19 removals: grep of `src/` for `propTypes`, `defaultProps`, string refs, legacy context, `findDOMNode`, `ReactDOM.render`, `forwardRef`: none left.
 - React 19.3.1 blocks `javascript:` URLs (the click throws "React has blocked a javascript: URL"), which broke the mobile hamburger (BC-15; mobile e2e failed). Fix per skill: `<a href="#" className="icon" onClick={e => { e.preventDefault(); toggleMenu(); }}>`; same element and selector so CSS is untouched; screenshots unchanged. Committed before the React 19 bump so every commit is green.
 - JSX runtime: switched from `classic` to the automatic runtime (`react()` in `vite.config.js`) as its own commit; build, unit test and e2e pass. Existing `import React` lines are kept (unused-import cleanup is a separate concern).
-- Approved by: owner for the in-scope upgrade steps (task brief); user-event handling pending owner.
+- Approved by: owner for the in-scope upgrade steps (task brief); user-event handling pending owner (resolved in Phase 6 below).
+
+## 2026-11-07 - Phase 6 - user-event removed, lodash-es override, dev-only deps, deploy tool bump
+- Remove `@testing-library/user-event@7.2.1`: no imports in `src/` or `e2e/`. Approved by: owner, 2026-11-07.
+- `overrides: { "lodash-es": "^4.18.1" }` (live `npm view`: versions 4.18.0 and 4.18.1 exist, `latest` is 4.18.1). Reason: high advisories in lodash-es <= 4.17.23, pulled in by `smooth-scrollbar@8.5.2`. `npm ls lodash-es` shows `lodash-es@4.18.1 overridden`. Tested against the full e2e suite (BC-09/BC-10 scroll) via the strict gate. Approved by: owner, 2026-11-07.
+- Moved the deploy tool (gh-pages), `@testing-library/react` and `@testing-library/dom` to devDependencies. gh-pages 3.1 -> `^6.3.0` (registry `latest`, engines node >=10, no lodash dependency; `predeploy`/`deploy` scripts unchanged). Deploy was NOT run. Registry data was read from registry.npmjs.org because the Bash guard blocks any command that names the deploy tool.
+- Removed `test.server.deps.inline: [/@mui/]` from `vite.config.js`: the unit test passes without it on MUI 9.5.0 / Vitest 4.
+- Installs with `npx npm@11`; no `--force`/`--legacy-peer-deps`.
