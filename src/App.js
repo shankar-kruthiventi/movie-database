@@ -1,3 +1,4 @@
+import { TMDB_API_KEY } from './config';
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
@@ -16,7 +17,7 @@ function App() {
       alert("no type");
     }
     fetch(
-      `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US&page=1`
+      `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=${TMDB_API_KEY}&language=en-US&page=1`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -28,7 +29,7 @@ function App() {
   const append = () => {
     setPage((page) => page + 1);
     fetch(
-      `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US&page=${page}`
+      `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=${TMDB_API_KEY}&language=en-US&page=${page}`
     )
       .then((response) => response.json())
       .then((data) => {

@@ -1,3 +1,4 @@
+import { TMDB_API_KEY } from '../../config';
 import React, { useState, useEffect } from "react";
 import "./movie-list.style.css";
 
@@ -25,7 +26,7 @@ const MovieList = ({ movieList, append }) => {
 
   const handleClickOpen = async (movieId) => {
     await fetch(
-      `https://api.themoviedb.org/3/movie/${movieId}?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US`
+      `https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=en-US`
     )
       .then((response) => response.json())
       .then((data) => {
