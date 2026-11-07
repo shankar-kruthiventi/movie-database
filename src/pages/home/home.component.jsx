@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import "./home.style.css";
 
 import MovieDetails from "../../components/movie-details/movie-details.component";
-import Scrollbar from "react-smooth-scrollbar";
+import Scrollbar from "../../components/smooth-scrollbar/smooth-scrollbar.component";
 
 const Home = () => {
   const [display, setDisplay] = useState(false);

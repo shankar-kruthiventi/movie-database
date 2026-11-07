@@ -8,7 +8,7 @@ import { Navigate } from "react-router-dom";
 
 import Button from "@mui/material/Button";
 
-import Scrollbar from "react-smooth-scrollbar";
+import Scrollbar from "../smooth-scrollbar/smooth-scrollbar.component";
 
 const MovieList = ({ movieList, append }) => {
   const [open, setOpen] = useState(false);
