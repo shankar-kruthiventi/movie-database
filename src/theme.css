@@ -29,6 +29,7 @@
   --option-text: #000000;
   --option-border: #8a6a00;
   --option-focus: #0b7a5a;
+  --option-active-bg: #dcefe7;
   --wash: none;
   --dialog-body-bg: #2d2626;
   --dialog-body-text: #ffffff;
@@ -65,6 +66,7 @@
   --option-text: #1a1f26;
   --option-border: #5f6b76;
   --option-focus: #0b7a5a;
+  --option-active-bg: #dcefe7;
   --wash: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8));
   --dialog-body-bg: #f6f8fa;
   --dialog-body-text: #1a1f26;

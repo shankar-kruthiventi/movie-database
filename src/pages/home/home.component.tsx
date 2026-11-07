@@ -1,6 +1,6 @@
 import { TMDB_API_KEY } from '../../config';
 import React, { useEffect, useState, useRef } from "react";
-import type { KeyboardEvent } from "react";
+import type { KeyboardEvent, MouseEvent as ReactMouseEvent } from "react";
 import "./home.style.css";
 
 import MovieDetails from "../../components/movie-details/movie-details.component";
@@ -14,17 +14,67 @@ const Home = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [movies, setPokemon] = useState<MovieListItem[]>([]);
 
-  useEffect(() => {
-    window.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      window.removeEventListener("mousedown", handleClickOutside);
-    };
-  });
+  const [activeIndex, setActiveIndex] = useState(-1);
 
-  const handleClickOutside = (event: MouseEvent) => {
-    const { current: wrap } = wrapperRef;
-    if (wrap && event.target instanceof Node && !wrap.contains(event.target)) {
-      setDisplay(false);
+  // Click/tap outside closes the popup. Document level, capture phase (so a component that stops
+  // propagation, e.g. the custom scrollbar, cannot swallow it), pointer events cover mouse, touch and pen.
+  useEffect(() => {
+    const handleClickOutside = (event: PointerEvent) => {
+      const { current: wrap } = wrapperRef;
+      if (wrap && event.target instanceof Node && !wrap.contains(event.target)) {
+        setDisplay(false);
+        setActiveIndex(-1);
+      }
+    };
+    document.addEventListener("pointerdown", handleClickOutside, true);
+    return () => {
+      document.removeEventListener("pointerdown", handleClickOutside, true);
+    };
+  }, []);
+
+  // Combobox state (WAI-ARIA APG: editable combobox with list autocomplete). Only the first 3 results are shown.
+  const visibleOptions = options ? options.slice(0, 3) : [];
+  const expanded = display && visibleOptions.length > 0;
+  const activeValid = expanded && activeIndex >= 0 && activeIndex < visibleOptions.length;
+  const optionId = (index: number) => `movie-search-option-${index}`;
+  let liveMessage = "";
+  if (expanded) {
+    liveMessage = `${visibleOptions.length} ${visibleOptions.length === 1 ? "result" : "results"} available`;
+  } else if (display && search.trim() !== "") {
+    liveMessage = "No results";
+  }
+
+  const closePopup = () => {
+    setDisplay(false);
+    setActiveIndex(-1);
+  };
+
+  const handleComboKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    const count = visibleOptions.length;
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      if (count === 0) return;
+      event.preventDefault();
+      const down = event.key === "ArrowDown";
+      if (!expanded) {
+        setDisplay(true);
+        setActiveIndex(down ? 0 : count - 1);
+      } else if (!activeValid) {
+        setActiveIndex(down ? 0 : count - 1);
+      } else {
+        setActiveIndex((activeIndex + (down ? 1 : count - 1)) % count);
+      }
+    } else if (event.key === "Enter") {
+      if (activeValid) {
+        event.preventDefault();
+        handleClickOpen(visibleOptions[activeIndex].id);
+      }
+    } else if (event.key === "Escape") {
+      if (expanded) {
+        event.preventDefault();
+        closePopup();
+      }
+    } else if (event.key === "Tab") {
+      closePopup();
     }
   };
 
@@ -58,7 +108,7 @@ const Home = () => {
     vote_average: 0,
   });
 
-  const handleClickOpen = async (movieId: number) => {
+  async function handleClickOpen(movieId: number) {
     await fetch(
       `https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=en-US`
     )
@@ -76,8 +126,8 @@ const Home = () => {
         });
       });
     setOpen(true);
-    setDisplay(false);
-  };
+    closePopup();
+  }
   const handleClose = () => {
     setOpen(false);
   };
@@ -152,7 +202,7 @@ const Home = () => {
 
           <div className="finder-container">
             <div className="finder">
-              <div className="find-text">Search for movies here</div>
+              <div className="find-text" id="auto-label">Search for movies here</div>
 
               <div
                 ref={wrapperRef}
@@ -160,12 +210,30 @@ const Home = () => {
               >
                 <input
                   id="auto"
-                  onClick={() => setDisplay(!display)}
+                  role="combobox"
+                  aria-labelledby="auto-label"
+                  aria-autocomplete="list"
+                  aria-expanded={expanded}
+                  aria-controls="movie-search-listbox"
+                  aria-activedescendant={activeValid ? optionId(activeIndex) : undefined}
+                  onClick={() => {
+                    setDisplay(!display);
+                    setActiveIndex(-1);
+                  }}
+                  onKeyDown={handleComboKeyDown}
+                  onBlur={(event) => {
+                    const { current: wrap } = wrapperRef;
+                    if (!(wrap && event.relatedTarget instanceof Node && wrap.contains(event.relatedTarget))) {
+                      closePopup();
+                    }
+                  }}
                   placeholder="Type to search"
                   value={search}
                   autoComplete="off"
                   onChange={(event) => {
                     setSearch(event.target.value);
+                    setDisplay(true);
+                    setActiveIndex(-1);
                     document.getElementById("test")?.scrollIntoView();
                     // let movie = document.querySelector("[data-scrollbar]");
                     // var myElement = document.getElementById("test");
@@ -175,41 +243,48 @@ const Home = () => {
                   }}
                   onKeyUp={(event) => {searchMovie(event)}}
                 />
-                {display && options && options.length && (
-                  <div className="autoContainer">
-                    {options.map((movie, index) => {
-                      return (
-                        <div key={index}>
-                          {index < 3 && (
-                            <div
-                              // onClick={() => updatePokeDex(value.name)}
-                              className="option"
-                              key={index}
-                              onKeyPress={(event) => {
-                                if (event.key === "Enter")
-                                  handleClickOpen(movie.id);
-                              }}
-                              onClick={() => {
-                                handleClickOpen(movie.id);
-                              }}
-                            >
-                              <span>{movie.original_title}</span>
-                              <div className="movie-search-poster-container">
-                                <img
-                                  className="movie-search-poster"
-                                  src={
-                                    `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                                  }
-                                  alt="poster"
-                                />
-                              </div>
-                            </div>
-                          )}
+                {expanded && (
+                  <div
+                    id="movie-search-listbox"
+                    role="listbox"
+                    aria-label="Movie suggestions"
+                    className="autoContainer"
+                    // keep focus in the input when the list is pressed (a blur would close it before the click lands)
+                    onMouseDown={(event: ReactMouseEvent<HTMLDivElement>) => event.preventDefault()}
+                  >
+                    {visibleOptions.map((movie, index) => (
+                      <div
+                        id={optionId(index)}
+                        role="option"
+                        aria-selected={activeValid && index === activeIndex}
+                        className={activeValid && index === activeIndex ? "option option-active" : "option"}
+                        key={index}
+                        onMouseMove={() => {
+                          if (activeIndex !== index) setActiveIndex(index);
+                        }}
+                        onKeyPress={(event) => {
+                          // options are not focusable (focus stays in the input); kept for parity with the old handler
+                          if (event.key === "Enter") handleClickOpen(movie.id);
+                        }}
+                        onClick={() => {
+                          handleClickOpen(movie.id);
+                        }}
+                      >
+                        <span>{movie.original_title}</span>
+                        <div className="movie-search-poster-container">
+                          <img
+                            className="movie-search-poster"
+                            src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                            alt=""
+                          />
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 )}
+                <div role="status" aria-live="polite" aria-atomic="true" className="visually-hidden">
+                  {liveMessage}
+                </div>
               </div>
             </div>
           </div>

@@ -32,6 +32,9 @@ Tool choice: `@axe-core/playwright@4.14.0` (devDependency; live `npm view` 4.14.
 | Autocomplete option text | `#000000` | `#f5f5f5` | 19.26 | 4.5 | pass |
 | Autocomplete border vs option fill | `#8a6a00` | `#f5f5f5` | 4.65 | 3 | pass |
 | Autocomplete option focus ring | `#0b7a5a` | `#f5f5f5` | 4.88 | 3 | pass |
+| Autocomplete active option text | `#000000` | `#dcefe7` | 17.54 | 4.5 | pass |
+| Autocomplete active option ring (inset) vs active fill | `#0b7a5a` | `#dcefe7` | 4.45 | 3 | pass |
+| Autocomplete active option ring (inset) vs option fill | `#0b7a5a` | `#f5f5f5` | 4.88 | 3 | pass |
 | Show More text (outlined button) | `#f50057` | `#000000` | 5.02 | 4.5 | pass |
 | Show More focus ring | `#64dcb0` | `#000000` | 12.41 | 3 | pass |
 | Dialog title text (white title bar) | `#212121` | `#ffffff` | 16.10 | 4.5 | pass |
@@ -67,6 +70,9 @@ Tool choice: `@axe-core/playwright@4.14.0` (devDependency; live `npm view` 4.14.
 | Autocomplete option text | `#1a1f26` | `#ffffff` | 16.56 | 4.5 | pass |
 | Autocomplete border vs option fill | `#5f6b76` | `#ffffff` | 5.45 | 3 | pass |
 | Autocomplete option focus ring | `#0b7a5a` | `#ffffff` | 5.32 | 3 | pass |
+| Autocomplete active option text | `#1a1f26` | `#dcefe7` | 13.84 | 4.5 | pass |
+| Autocomplete active option ring (inset) vs active fill | `#0b7a5a` | `#dcefe7` | 4.45 | 3 | pass |
+| Autocomplete active option ring (inset) vs option fill | `#0b7a5a` | `#ffffff` | 5.32 | 3 | pass |
 | Show More text (outlined button) | `#c51162` | `#f3f5f7` | 5.29 | 4.5 | pass |
 | Show More focus ring | `#0b7a5a` | `#f3f5f7` | 4.87 | 3 | pass |
 | Dialog title text (white title bar) | `#212121` | `#ffffff` | 16.10 | 4.5 | pass |
@@ -120,3 +126,6 @@ Unchanged in dark mode (already passing): header, nav (normal/hover/active), Abo
 - Hover states keep the 1.2em size bump from before; hover colors pass.
 - Focus rings: `:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px }` globally; inset (-4px) rings on the mobile hamburger, theme toggle and menu links because the bar clips (`overflow: hidden`); the skip link uses a 3px ring.
 - MUI Button/Typography/Dialog colors follow `src/theme.ts` (per mode). In dark mode the dialog chrome keeps today's white title bar (owner decision: dark = current look), which is why the close icon token is evaluated on `#ffffff` in both modes.
+
+
+Step 4 (2026-11-07): the open autocomplete marks the active option (aria-activedescendant) with the new token `--option-active-bg` (`#dcefe7` in both modes) and a 2px inset `--option-focus` ring; rows added to the tables above.
