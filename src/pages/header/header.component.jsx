@@ -40,7 +40,7 @@ const Header = ({ fetchData }) => {
         </NavLink>
       </div>
       <div className="header-mobile-container">
-        <a id="home">
+        <a id="home" role="button" tabIndex={0} style={{ cursor: "pointer" }}>
           <span>{type}</span>
         </a>
         <div id="myLinks">

@@ -10,4 +10,7 @@ Quirks below are preserved on purpose (behavior parity). Fix them after the migr
 - Search shows a literal `0` when the input is clicked with no options (BC-14).
 - CDN stylesheets (Google Fonts, font-awesome) have no SRI/`crossorigin`; self-hosting is an owner decision.
 - TMDB key is inlined in the public bundle (rotate it; a Pages Function/Worker proxy would hide it).
+- Home label (`#home` in `header.component.jsx`): v5 `<Link id="home">` had no `to` (broken usage; its click re-navigated to the current location, a no-op). Phase 3 replaced it with `<a id="home">`; to keep the old look and feel it has `role="button"`, `tabIndex={0}` and an inline `cursor: pointer` (owner-approved, 2026-11-07). The click is now a no-op. Later: decide whether the label should do anything, then replace the inline style with CSS.
+- Phase 3 dropped the stray `extact="true"` DOM attribute (typo for `exact`, never effective) and the redundant `activeClassName="active"` (v6 `NavLink` adds `active` itself). No visible effect.
+- Remaining prod audit after Phase 3: the deploy tool in `dependencies` (critical + lodash/minimatch/brace-expansion) and two moderate `react-router` advisories (fixed only in v7.18.5+; the SSR one does not apply to this SPA).
 - Phase 6: move the deploy tool and `@testing-library/*` to devDependencies; bump the deploy tool by hand (critical advisory; the blanket audit auto-fix is banned).
