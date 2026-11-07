@@ -47,7 +47,7 @@
 - Installed with `npx npm@11`; no `--force`/`--legacy-peer-deps`.
 - Approved by: owner (v6 choice, 2026-11-07, relayed by the coordinating agent).
 
-## 2026-11-07 - Phase 4 - Material-UI 4 -> @mui/material 9.5.0 (pending owner approval)
+## 2026-11-07 - Phase 4 - Material-UI 4 -> @mui/material 9.5.0
 - Target (live `npm view`): `@mui/material@^9.5.0` and `@mui/icons-material@^9.5.0` (npm `latest`), `@emotion/react@^11.14.0`, `@emotion/styled@^11.14.1`. Peers of 9.5.0: `react`/`react-dom` `^17 || ^18 || ^19`, `@emotion/react ^11.5`, `@emotion/styled ^11.3`; emotion peers `react >=16.8`. So the latest major supports installed React 17.0.2 and no older major was needed (7.3.11, 6.5.0, 5.18.0 have the same React peers and remain a fallback).
 - `@material-ui/lab` was declared but grep over `src/`, `index.html`, `vite.config.js`, `e2e/` found no usage: removed together with `@material-ui/core` and `@material-ui/icons`. `@mui/styles` not used.
 - Theme pins (`src/theme.js`, applied in `src/index.jsx` with `StyledEngineProvider injectFirst` + `ThemeProvider`): primary/secondary palettes to v4 values (secondary main #f50057 for "Show More"), and v4 breakpoints (md 960, lg 1280, xl 1920). Without the breakpoint pin the `maxWidth="md"` dialog shrank from 960px to 900px (desktop snapshot failed, 30371 px different, ratio 0.03).
@@ -55,4 +55,4 @@
 - Hidden regression found by the mobile snapshot (17160 px, ratio 0.06): current DialogTitle is itself a Typography h6, so `.MuiTypography-root.MuiTypography-h6 { padding: 0 25px }` in `movie-details.style.css` also hit the title bar (v4 `disableTypography` did not). Fixed in the component with `"&&&": { p: 2 }` specificity, not by editing the CSS or using `!important`.
 - Vitest: `test.server.deps.inline: [/@mui/]` in `vite.config.js` because MUI's ESM imports `react/jsx-runtime` without extension and Node ESM resolution failed in the smoke test. Test-only.
 - Installed with `npx npm@11`; no `--force`/`--legacy-peer-deps`.
-- Approved by: pending owner.
+- Approved by: owner, 2026-11-07 (MUI 9.5.0 confirmed in chat after the regression review PASS).
