@@ -24,5 +24,7 @@ export default defineConfig({
     globals: true,
     include: ['src/**/*.test.{js,jsx}'],
     setupFiles: './src/setupTests.js',
+    // @mui ESM imports 'react/jsx-runtime' without extension; let Vite resolve it.
+    server: { deps: { inline: [/@mui/] } },
   },
 });
