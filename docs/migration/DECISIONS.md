@@ -78,3 +78,22 @@
 - Moved the deploy tool (gh-pages), `@testing-library/react` and `@testing-library/dom` to devDependencies. gh-pages 3.1 -> `^6.3.0` (registry `latest`, engines node >=10, no lodash dependency; `predeploy`/`deploy` scripts unchanged). Deploy was NOT run. Registry data was read from registry.npmjs.org because the Bash guard blocks any command that names the deploy tool.
 - Removed `test.server.deps.inline: [/@mui/]` from `vite.config.js`: the unit test passes without it on MUI 9.5.0 / Vitest 4.
 - Installs with `npx npm@11`; no `--force`/`--legacy-peer-deps`.
+
+## 2026-11-07 - Post-migration feature work on branch `migration/movie-atlas` (owner answers, chat)
+Migration Phases 0-6 are closed and untouched. This branch (from `migration/modernize`) intentionally changes behavior; BEHAVIOR-CONTRACT.md, e2e specs and snapshots are updated step by step, each change logged here. Owner approved this approach ("new branch, update tests"). Hooks still apply (no push/deploy by Claude, no key printing).
+Answers given by the owner:
+- Name: "Movie Atlas" (two words) everywhere: header (MOVIE ATLAS), About card text, README, manifest names, package name (`movie-atlas`), browser tab title ("React App" -> "Movie Atlas"). GitHub repo name and the `/movie-database/` GitHub Pages path are unchanged.
+- About card: "ShankarKruthiventi" -> "Sankar Kruthiventi". The pasted line ended with "on home page"; the owner confirmed it applies ONLY to this last item. All other items are app-wide.
+- Cloudflare URLs: only remove `/movie-database/` (build with `VITE_BASE=/`, already supported). Keep HashRouter and the `#/home` part of the URL and routing unchanged. GitHub Pages unchanged.
+- Dropped: "load all images before the UI renders". Instead: optimize the DOM so scrolling 20+ pages (400+ tiles) does not overload browser memory or lag. Requirement: scrolling back to the top must show exactly the same tiles as on first load.
+- Scroll approach: windowing (render only tiles near the viewport, fixed-size spacers, release far-off images), IntersectionObserver sentinel for loading the next page, keep the custom smooth-scrollbar feel. Fixes to target: blank/flickering tiles, scroll position jumps.
+- Responsiveness: test 320, 390, 768, 1024, 1280, 1920 px and phone landscape, light and dark, fix what is found, list each fix.
+- Theme: light/dark with dark as the default (today's look) and a header toggle remembered in localStorage; system preference is ignored. Contrast target WCAG 2.2 AA; light mode uses a darker teal accent.
+- Keyboard navigation: header and menu (hamburger, links, theme toggle, Esc, visible focus, skip link) and the Home search autocomplete (accessible combobox, arrow keys, Enter, Esc, click outside closes). Poster tiles and the dialog were NOT selected (a dialog already traps focus through MUI).
+- Cursor pointer on hover over a tile.
+- Router URLs: `top_rated` -> `top-rated`, `now_playing` -> `now-playing`; old `#/top_rated` and `#/now_playing` redirect to the new ones. API calls keep `top_rated`/`now_playing`.
+- Favicon: clapperboard with a globe on a dark rounded square with the mint accent (#64dcb0); replaces `public/favicon.ico`, `logo192.png`, `logo512.png` (public/ edit approved by the owner).
+- TypeScript: strict, covers `src/` (components, tests, config, theme) and `vite.config`; typed TMDB responses, no `any` in app code. Playwright e2e specs stay JavaScript.
+- Order: 1) rename + title + About name fix, 2) TypeScript, 3) light/dark + accessible colors + header keyboard nav, 4) autocomplete accessibility + click-outside, 5) windowing + IntersectionObserver + tile cursor, 6) favicon, 7) URL rename, 8) responsiveness pass, 9) Cloudflare config/README.
+- The animated wallpaper pan lives on its own branch `migration/home-bg-pan` (unreviewed, e2e not run) and is NOT part of this branch.
+- Open question to ask the owner at step 3: how the wallpaper (collection.jpg) should look in light mode.
