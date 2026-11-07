@@ -30,3 +30,11 @@
 - `vite.config.js` `test.include: ['src/**/*.test.{js,jsx}']`: Vitest's default glob would otherwise pick up the Playwright `e2e/*.spec.js` files.
 - npm 10.9.2 crashes (`Cannot read properties of null (reading 'edgesOut')` in arborist `#loadPeerSet`) when adding vitest to this tree. `vitest` and `jest-dom` were added with `npx npm@11`; the lockfile was written by npm 11. No `--legacy-peer-deps`/`--force` used.
 - Approved by: owner, 2026-11-07 (applied by build-migrator following the recorded fallback).
+
+## 2026-11-07 - Phase 2 - React 17 peer conflicts: MUI 4.x bump and react-smooth-scrollbar override
+- Target: `react@17.0.2`, `react-dom@17.0.2` (live `npm view`).
+- Conflict 1: `@material-ui/core@4.11.0`, `icons@4.9.1`, `lab@4.0.0-alpha.56` peer `react ^16.8.0` only. Decision: bump within the existing ranges to core 4.12.4, icons 4.11.3, lab 4.0.0-alpha.61 (peers `^16.8.0 || ^17.0.0`), as a separate commit before the React bump.
+- Conflict 2: `react-smooth-scrollbar@8.0.6` (latest published) peers `react ^0.14 || ^15 || ^16`. Decision: `overrides` in package.json widening its `react` peer range to include 17. No `--force`, no `--legacy-peer-deps`.
+- Source review of react-smooth-scrollbar dist: no `findDOMNode`, no string refs. It uses legacy `childContextTypes`/`getChildContext` and `componentWillReceiveProps` (still supported in 17; warnings only under StrictMode in dev), plus a callback ref and `componentDidMount` init. Verified via BC-09/BC-10 e2e on the production build.
+- Installs run with `npx npm@11` (npm 10.9.2 crashes on this tree, see Phase 1).
+- Approved by: owner, 2026-11-07 (approval relayed to the implementing agent by the coordinating agent; not seen directly).
