@@ -6,7 +6,7 @@ import MovieDetails from "../../components/movie-details/movie-details.component
 
 import { Navigate } from "react-router-dom";
 
-import Button from "@material-ui/core/Button";
+import Button from "@mui/material/Button";
 
 import Scrollbar from "react-smooth-scrollbar";
 
