@@ -81,10 +81,13 @@ const Header = ({ fetchData }) => {
           </Link>
         </div>
         <a
-          href="javascript:void(0)"
+          href="#"
           className="icon"
           // onClick={() => showMenu(type, "show")}
-          onClick={toggleMenu}
+          onClick={(event) => {
+            event.preventDefault();
+            toggleMenu();
+          }}
         >
           <i className="fa fa-bars"></i>
         </a>
