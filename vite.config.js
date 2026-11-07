@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react';
 // Base path: GitHub Pages default; Cloudflare builds set VITE_BASE=/ (see docs/migration/DECISIONS.md).
 export default defineConfig({
   base: process.env.VITE_BASE ?? '/movie-database/',
-  // React 16.13 has no react/jsx-runtime, so keep the classic runtime.
-  plugins: [react({ jsxRuntime: 'classic' })],
+  // React 19 ships react/jsx-runtime: use the plugin's default automatic runtime (existing `import React` lines are harmless).
+  plugins: [react()],
   build: {
     outDir: 'build',
     // Keep the CRA output layout (static/js, static/css, static/media): BC-17 asserts it.
