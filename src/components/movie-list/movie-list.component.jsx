@@ -4,7 +4,7 @@ import "./movie-list.style.css";
 
 import MovieDetails from "../../components/movie-details/movie-details.component";
 
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import Button from "@material-ui/core/Button";
 
@@ -93,11 +93,7 @@ const MovieList = ({ movieList, append }) => {
       <div className="movies-container">
         <div className="movieList-container">
           {movieList && !movieList.length && (
-            <Redirect
-              to={{
-                pathname: "/home",
-              }}
-            />
+            <Navigate to="/home" replace />
           )}
           {movieList &&
             movieList.length >= 1 &&
