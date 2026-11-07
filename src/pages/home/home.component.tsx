@@ -1,16 +1,18 @@
 import { TMDB_API_KEY } from '../../config';
 import React, { useEffect, useState, useRef } from "react";
+import type { KeyboardEvent } from "react";
 import "./home.style.css";
 
 import MovieDetails from "../../components/movie-details/movie-details.component";
 import Scrollbar from "../../components/smooth-scrollbar/smooth-scrollbar.component";
+import type { MovieDetailsData, MovieDetailsResponse, MovieListItem, MovieListResponse } from "../../types/tmdb";
 
 const Home = () => {
   const [display, setDisplay] = useState(false);
-  let [options, setOptions] = useState([]);
+  let [options, setOptions] = useState<MovieListItem[]>([]);
   const [search, setSearch] = useState("");
-  const wrapperRef = useRef(null);
-  const [movies, setPokemon] = useState([]);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [movies, setPokemon] = useState<MovieListItem[]>([]);
 
   useEffect(() => {
     window.addEventListener("mousedown", handleClickOutside);
@@ -19,21 +21,21 @@ const Home = () => {
     };
   });
 
-  const handleClickOutside = (event) => {
+  const handleClickOutside = (event: MouseEvent) => {
     const { current: wrap } = wrapperRef;
-    if (wrap && !wrap.contains(event.target)) {
+    if (wrap && event.target instanceof Node && !wrap.contains(event.target)) {
       setDisplay(false);
     }
   };
 
-  const searchMovie = (event) => {
+  const searchMovie = (event: KeyboardEvent<HTMLInputElement>) => {
     options = [];
     setPokemon([]);
 
     fetch(
-      `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=en-US&query=${event.target.value}&page=1`
+      `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=en-US&query=${event.currentTarget.value}&page=1`
     )
-      .then((value) => value.json())
+      .then((value): Promise<MovieListResponse> => value.json())
       .then((value) => {
         if (value.results && value.results.length !== 0) {
           movies.push(...value.results);
@@ -45,7 +47,7 @@ const Home = () => {
 
   const [open, setOpen] = useState(false);
 
-  const [details, setDetails] = useState({
+  const [details, setDetails] = useState<MovieDetailsData>({
     title: "",
     poster: "",
     genres: [],
@@ -56,11 +58,11 @@ const Home = () => {
     vote_average: 0,
   });
 
-  const handleClickOpen = async (movieId) => {
+  const handleClickOpen = async (movieId: number) => {
     await fetch(
       `https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=en-US`
     )
-      .then((response) => response.json())
+      .then((response): Promise<MovieDetailsResponse> => response.json())
       .then((data) => {
         setDetails({
           title: data.original_title,
@@ -164,7 +166,7 @@ const Home = () => {
                   autoComplete="off"
                   onChange={(event) => {
                     setSearch(event.target.value);
-                    document.getElementById("test").scrollIntoView();
+                    document.getElementById("test")?.scrollIntoView();
                     // let movie = document.querySelector("[data-scrollbar]");
                     // var myElement = document.getElementById("test");
                     // var topPos = myElement.offsetTop;
@@ -196,8 +198,7 @@ const Home = () => {
                                 <img
                                   className="movie-search-poster"
                                   src={
-                                    "https://image.tmdb.org/t/p/w500" +
-                                    movie.poster_path
+                                    `https://image.tmdb.org/t/p/w500${movie.poster_path}`
                                   }
                                   alt="poster"
                                 />

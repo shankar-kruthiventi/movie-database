@@ -5,21 +5,22 @@ import { HashRouter, Route, Routes, Navigate } from 'react-router-dom';
 import Header from './pages/header/header.component';
 import Home from './pages/home/home.component';
 import MovieList from './components/movie-list/movie-list.component';
+import type { MovieListItem, MovieListResponse } from './types/tmdb';
 
 function App() {
 
-  let [movieCategory, setMovieCategory] = useState("");
+  let [movieCategory, setMovieCategory] = useState<string>("");
   let [page, setPage] = useState(2);
-  const [movieList, setMoviesList] = useState([]);
+  const [movieList, setMoviesList] = useState<MovieListItem[]>([]);
 
-  function fetchData(movieCategory) {
+  function fetchData(movieCategory: string) {
     if (!movieCategory) {
       alert("no type");
     }
     fetch(
       `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=${TMDB_API_KEY}&language=en-US&page=1`
     )
-      .then((response) => response.json())
+      .then((response): Promise<MovieListResponse> => response.json())
       .then((data) => {
         setMovieCategory(movieCategory);
         setMoviesList(data.results);
@@ -31,7 +32,7 @@ function App() {
     fetch(
       `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=${TMDB_API_KEY}&language=en-US&page=${page}`
     )
-      .then((response) => response.json())
+      .then((response): Promise<MovieListResponse> => response.json())
       .then((data) => {
         if(data && data.results && data.results.length) {
           let newMovieList = [...movieList, ...data.results];

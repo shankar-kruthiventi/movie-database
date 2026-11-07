@@ -5,7 +5,10 @@ import App from './App';
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
 
-createRoot(document.getElementById('root')).render(
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Root element #root not found');
+
+createRoot(rootElement).render(
   <React.StrictMode>
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>

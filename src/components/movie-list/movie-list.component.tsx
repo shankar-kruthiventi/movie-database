@@ -9,11 +9,19 @@ import { Navigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 
 import Scrollbar from "../smooth-scrollbar/smooth-scrollbar.component";
+import type { MovieDetailsData, MovieDetailsResponse, MovieListItem } from "../../types/tmdb";
 
-const MovieList = ({ movieList, append }) => {
+interface MovieListProps {
+  movieList: MovieListItem[];
+  append: () => void;
+  // Passed by App's routes but never read (kept to leave the route elements untouched).
+  movieType?: string;
+}
+
+const MovieList = ({ movieList, append }: MovieListProps) => {
   const [open, setOpen] = useState(false);
 
-  const [details, setDetails] = useState({
+  const [details, setDetails] = useState<MovieDetailsData>({
     title: "",
     poster: "",
     genres: [],
@@ -24,11 +32,11 @@ const MovieList = ({ movieList, append }) => {
     vote_average: 0,
   });
 
-  const handleClickOpen = async (movieId) => {
+  const handleClickOpen = async (movieId: number) => {
     await fetch(
       `https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=en-US`
     )
-      .then((response) => response.json())
+      .then((response): Promise<MovieDetailsResponse> => response.json())
       .then((data) => {
         setDetails({
           title: data.original_title,
@@ -47,16 +55,16 @@ const MovieList = ({ movieList, append }) => {
     setOpen(false);
   };
 
-  let timer;
-  const debounce = (fn, d) => {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const debounce = (fn: () => void, d: number) => {
     clearTimeout(timer);
     timer = setTimeout(fn, d);
   }
   const betterScroll = () => debounce(scrollDown, 600);
 
   const scrollDown = () => {
-    let lastMovie = document.getElementById(movieList.length - 1);
-    let callback = (entries) => {
+    let lastMovie = document.getElementById(String(movieList.length - 1));
+    let callback = (entries: IntersectionObserverEntry[]) => {
       for (let i = 0; i < entries.length; i++) {
         if (entries[i].isIntersecting) {
           append();
@@ -70,7 +78,7 @@ const MovieList = ({ movieList, append }) => {
     }
   };
   useEffect(() => {
-    const nextButton = document.getElementsByClassName('next-button')[0];
+    const nextButton = document.querySelector<HTMLElement>('.next-button');
     if(window.innerWidth >= 768 && window.innerWidth <= 1024 && nextButton) {
       for(let click=0; click <=4; click++) {
         nextButton.click();
@@ -98,9 +106,9 @@ const MovieList = ({ movieList, append }) => {
           {movieList &&
             movieList.length >= 1 &&
             movieList.map((movie, index) => (
-              <div id={index} key={index} className="poster-container">
+              <div id={String(index)} key={index} className="poster-container">
                 <img
-                  src={"https://image.tmdb.org/t/p/w500" + movie.poster_path}
+                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                   onClick={() => handleClickOpen(movie.id)}
                   onKeyPress={(event) => {
                     if (event.key === "Enter") handleClickOpen(movie.id);

@@ -3,11 +3,16 @@ import { NavLink, Link } from "react-router-dom";
 
 import "./header.style.css";
 
-const Header = ({ fetchData }) => {
-  let [type, setType] = useState("Home");
-  const showMenu = (type, value) => {
+interface HeaderProps {
+  fetchData: (category: string) => void;
+}
+
+const Header = ({ fetchData }: HeaderProps) => {
+  let [type, setType] = useState<string>("Home");
+  const showMenu = (type: string, value: string) => {
     setType(type);
     var element = document.getElementById("myLinks");
+    if (!element) return; // #myLinks is always rendered below; the guard only satisfies the types
     if (value === "hide") {
       element.style.display = "none";
     } else {
@@ -16,6 +21,7 @@ const Header = ({ fetchData }) => {
   };
   const toggleMenu = () => {
     var element = document.getElementById("myLinks");
+    if (!element) return; // #myLinks is always rendered below; the guard only satisfies the types
     if(element.style.display === 'block') {
       element.style.display = 'none';
     } else {

@@ -7,8 +7,17 @@ import MuiDialogContent from "@mui/material/DialogContent";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Typography from "@mui/material/Typography";
+import type { DialogContentProps } from "@mui/material/DialogContent";
+import type { DialogTitleProps } from "@mui/material/DialogTitle";
+import type { MovieDetailsData } from "../../types/tmdb";
 
-const MovieDetails = ({ open, details, handleClose }) => {
+interface MovieDetailsProps {
+  open: boolean;
+  details: MovieDetailsData;
+  handleClose: () => void;
+}
+
+const MovieDetails = ({ open, details, handleClose }: MovieDetailsProps) => {
   return (
     <div>
       <Dialog
@@ -24,7 +33,7 @@ const MovieDetails = ({ open, details, handleClose }) => {
           <div className="movie-details-container">
             <div className="details-poster-container">
               <img
-                src={"https://image.tmdb.org/t/p/w500" + details.poster}
+                src={`https://image.tmdb.org/t/p/w500${details.poster}`}
                 className="details-poster"
                 alt={details.original_title}
               />
@@ -86,7 +95,9 @@ export default MovieDetails;
 // movie-details.style.css would also hit the title bar (v4 disableTypography did
 // not). The tripled "&" raises specificity so the v4 padding (16px) is kept
 // without editing the CSS file.
-const DialogTitle = (props) => {
+type CustomDialogTitleProps = DialogTitleProps & { onClose?: () => void };
+
+const DialogTitle = (props: CustomDialogTitleProps) => {
   const { children, onClose, ...other } = props;
   return (
     <MuiDialogTitle
@@ -113,4 +124,4 @@ const DialogTitle = (props) => {
   );
 };
 
-const DialogContent = (props) => <MuiDialogContent sx={{ p: 2 }} {...props} />;
+const DialogContent = (props: DialogContentProps) => <MuiDialogContent sx={{ p: 2 }} {...props} />;

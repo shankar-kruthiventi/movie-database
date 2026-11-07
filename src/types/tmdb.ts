@@ -16,11 +16,14 @@ export interface MovieListItem {
   release_date?: string;
 }
 
-/** Response of `/movie/{category}` and `/search/movie`. `results` is absent on API error bodies. */
+/**
+ * Response of `/movie/{category}` and `/search/movie` (success shape). TMDB error bodies have no
+ * `results`; the app does not model them and its runtime checks for a missing `results` are kept as is.
+ */
 export interface MovieListResponse {
   page?: number;
   total_pages?: number;
-  results?: MovieListItem[];
+  results: MovieListItem[];
 }
 
 /** Response of `/movie/{id}` (only the fields the details dialog uses). */
@@ -46,4 +49,9 @@ export interface MovieDetailsData {
   release_date: string;
   popularity: number;
   vote_average: number;
+  /**
+   * Never set by the app, but the dialog reads it for the poster `alt` (so the attribute is always
+   * missing). Kept as-is to preserve behavior; see FOLLOW-UPS.md.
+   */
+  original_title?: string;
 }
