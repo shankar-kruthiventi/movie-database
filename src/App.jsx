@@ -1,6 +1,7 @@
+import { TMDB_API_KEY } from './config';
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { HashRouter, Route, Routes, Navigate } from 'react-router-dom';
 import Header from './pages/header/header.component';
 import Home from './pages/home/home.component';
 import MovieList from './components/movie-list/movie-list.component';
@@ -16,7 +17,7 @@ function App() {
       alert("no type");
     }
     fetch(
-      `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US&page=1`
+      `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=${TMDB_API_KEY}&language=en-US&page=1`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -28,7 +29,7 @@ function App() {
   const append = () => {
     setPage((page) => page + 1);
     fetch(
-      `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US&page=${page}`
+      `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=${TMDB_API_KEY}&language=en-US&page=${page}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -47,15 +48,13 @@ function App() {
   <HashRouter basename='/'>
     <div className="app-container">
       <Header fetchData={fetchData}></Header>
-      <Switch>
-        <Route exact path="/">
-          <Redirect to="/home" />
-        </Route>
-        <Route path="/home" component={Home} extact/>
-        <Route path="/popular" render={()=><MovieList append={append} key={'popular'} movieList={movieList} movieType={'popular'}/>} />
-        <Route path="/top_rated" render={()=><MovieList append={append} key={'top_rated'} movieList={movieList} movieType={'top_rated'}/>} />
-        <Route path="/now_playing" render={()=><MovieList append={append} key={'now_playing'} movieList={movieList} movieType={'now_playing'}/>}/>
-      </Switch>
+      <Routes>
+        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/popular" element={<MovieList append={append} key={'popular'} movieList={movieList} movieType={'popular'}/>} />
+        <Route path="/top_rated" element={<MovieList append={append} key={'top_rated'} movieList={movieList} movieType={'top_rated'}/>} />
+        <Route path="/now_playing" element={<MovieList append={append} key={'now_playing'} movieList={movieList} movieType={'now_playing'}/>}/>
+      </Routes>
     </div>
   </HashRouter>
   );

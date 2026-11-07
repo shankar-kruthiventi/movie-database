@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm test:*)", "Bash(npm ls:*)", "Bash(npm outdated:*)", "Bash(npm audit:*)",
+      "Bash(npm view:*)", "Bash(npm ci:*)", "Bash(npm install:*)", "Bash(npm run build:*)", "Bash(npm run e2e:*)",
+      "Bash(npx vitest:*)", "Bash(npx playwright:*)", "Bash(npx npm-check-updates:*)",
+      "Bash(node scripts/migration/gate.mjs:*)",
+      "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git branch:*)", "Bash(git show:*)",
+      "Bash(git add:*)", "Bash(git commit:*)", "Bash(git tag:*)", "Bash(git mv:*)", "Bash(git revert:*)",
+      "Bash(git checkout -b:*)", "Bash(git switch -c:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)", "Bash(git reset --hard:*)", "Bash(npm run deploy:*)", "Bash(npx gh-pages:*)", "Bash(npm publish:*)",
+      "Read(./.env)", "Read(./.env.*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      { "matcher": "startup|resume|clear|compact", "hooks": [ { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.mjs\"" } ] }
+    ],
+    "PreToolUse": [
+      { "matcher": "Bash", "hooks": [ { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-bash.mjs\"" } ] },
+      { "matcher": "Edit|Write|MultiEdit", "hooks": [ { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-edit.mjs\"" } ] }
+    ],
+    "PostToolUse": [
+      { "matcher": "Edit|Write|MultiEdit", "hooks": [ { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-edit.mjs\"" } ] }
+    ],
+    "Stop": [
+      { "hooks": [ { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-gate.mjs\"" } ] }
+    ]
+  }
+}

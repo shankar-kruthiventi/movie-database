@@ -1,13 +1,14 @@
+import { TMDB_API_KEY } from '../../config';
 import React, { useState, useEffect } from "react";
 import "./movie-list.style.css";
 
 import MovieDetails from "../../components/movie-details/movie-details.component";
 
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
-import Button from "@material-ui/core/Button";
+import Button from "@mui/material/Button";
 
-import Scrollbar from "react-smooth-scrollbar";
+import Scrollbar from "../smooth-scrollbar/smooth-scrollbar.component";
 
 const MovieList = ({ movieList, append }) => {
   const [open, setOpen] = useState(false);
@@ -25,7 +26,7 @@ const MovieList = ({ movieList, append }) => {
 
   const handleClickOpen = async (movieId) => {
     await fetch(
-      `https://api.themoviedb.org/3/movie/${movieId}?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US`
+      `https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=en-US`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -92,11 +93,7 @@ const MovieList = ({ movieList, append }) => {
       <div className="movies-container">
         <div className="movieList-container">
           {movieList && !movieList.length && (
-            <Redirect
-              to={{
-                pathname: "/home",
-              }}
-            />
+            <Navigate to="/home" replace />
           )}
           {movieList &&
             movieList.length >= 1 &&

@@ -1,78 +1,55 @@
-# Project Title
+# Movie City (movie-database)
 
-Movie-Database
+A movie browser built with React and the TMDB API. Live on GitHub Pages: https://shankar-kruthiventi.github.io/movie-database/#/home
 
-## Description
+Author: shankar-kruthiventi
 
-A Movie-Database App developed using react. This project is hosted on Github Pages [link](https://shankar-kruthiventi.github.io/movie-database/#/home)
+## Stack
 
-## Author
+React 19, react-router-dom 6 (HashRouter, so URLs look like `#/home`), MUI 9 (`@mui/material`, Emotion), smooth-scrollbar, Vite 7, Vitest 4 with Testing Library, Playwright for end-to-end tests.
 
-shankar-kruthiventi
+Requires Node >= 22.13.
 
-## Available Scripts
+## Setup
 
-In the project directory, you can run:
+```
+npm install
+```
 
-### `npm start`
+Create a `.env` file (it is gitignored; never commit it):
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```
+VITE_TMDB_API_KEY=<your TMDB API key>
+# optional: base path of the built site, defaults to /movie-database/
+VITE_BASE=/movie-database/
+```
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Note: Vite inlines the key into the client bundle at build time, so it is visible in the deployed site.
 
-### `npm test`
+## Scripts
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- `npm run dev` (or `npm start`): dev server at http://localhost:3000.
+- `npm run build`: production build into `build/`.
+- `npm run preview`: serve the production build locally.
+- `npm test`: unit tests (Vitest, watch mode; `npx vitest run` for a single run).
+- `npm run e2e`: Playwright behavior-contract tests against the production build with a mocked TMDB API.
 
-### `npm run build`
+## Deploying
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### GitHub Pages (owner only)
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+`npm run deploy` builds (`predeploy`) and publishes `build/` to the `gh-pages` branch, which updates the live site. The default base path is `/movie-database/`.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Cloudflare Pages (movieatlas.sankarbuilds.io)
 
-### `npm run eject`
+Connect the repository in the Cloudflare dashboard and set:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- Build command: `npm run build`
+- Build output directory: `build`
+- Environment variables: `VITE_TMDB_API_KEY`, `VITE_BASE=/`, `NODE_VERSION=22`
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+No redirect rules are needed because routing uses the URL hash.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Migration notes
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+The dependency modernization (CRA to Vite, React 16 to 19, Router 5 to 6, Material-UI 4 to MUI 9) was done under a behavior contract. See `docs/migration/` (`BEHAVIOR-CONTRACT.md`, `DECISIONS.md`, `FOLLOW-UPS.md`).

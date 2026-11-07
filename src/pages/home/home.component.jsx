@@ -1,8 +1,9 @@
+import { TMDB_API_KEY } from '../../config';
 import React, { useEffect, useState, useRef } from "react";
 import "./home.style.css";
 
 import MovieDetails from "../../components/movie-details/movie-details.component";
-import Scrollbar from "react-smooth-scrollbar";
+import Scrollbar from "../../components/smooth-scrollbar/smooth-scrollbar.component";
 
 const Home = () => {
   const [display, setDisplay] = useState(false);
@@ -30,7 +31,7 @@ const Home = () => {
     setPokemon([]);
 
     fetch(
-      `https://api.themoviedb.org/3/search/movie?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US&query=${event.target.value}&page=1`
+      `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=en-US&query=${event.target.value}&page=1`
     )
       .then((value) => value.json())
       .then((value) => {
@@ -57,7 +58,7 @@ const Home = () => {
 
   const handleClickOpen = async (movieId) => {
     await fetch(
-      `https://api.themoviedb.org/3/movie/${movieId}?api_key=fceee37c892707ca488b3969171ef2b9&language=en-US`
+      `https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=en-US`
     )
       .then((response) => response.json())
       .then((data) => {
