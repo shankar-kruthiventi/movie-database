@@ -1,19 +1,18 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
 
-ReactDOM.render(
+createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
         <App />
       </ThemeProvider>
     </StyledEngineProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 );
 
 // Remove any stale service worker registered by older (CRA) deployments.
