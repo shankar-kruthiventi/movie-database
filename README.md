@@ -32,6 +32,7 @@ Note: Vite inlines the key into the client bundle at build time, so it is visibl
 - `npm run build`: production build into `build/`.
 - `npm run preview`: serve the production build locally.
 - `npm test`: unit tests (Vitest, watch mode; `npx vitest run` for a single run).
+- `npm run typecheck`: strict TypeScript check (`tsc --noEmit` for `src/`, then for `vite.config.ts` via `tsconfig.node.json`). `npm run build` is plain `vite build` and does not type-check; run `typecheck` before committing.
 - `npm run e2e`: Playwright behavior-contract tests against the production build with a mocked TMDB API.
 
 ## Deploying

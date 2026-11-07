@@ -17,3 +17,7 @@ Quirks below are preserved on purpose (behavior parity). Fix them after the migr
 - Phase 6 audit close-out: 2 moderate remain, `react-router` and `react-router-dom` 6.x (open redirect via backslash; SSR `deserializeErrors`, not applicable to this SPA). Fixed only in v7.18.5+; Router 7 deferred by the owner. Critical/high items (deploy tool, lodash, lodash-es, minimatch, brace-expansion) are resolved.
 - Phase 6: the `lodash-es` override (`^4.18.1`) can be dropped once `smooth-scrollbar` depends on a patched lodash-es.
 - Phase 5 (user-event removed and `test.server.deps.inline` dropped in Phase 6): many files still `import React` (not needed with the automatic runtime). `src/components/smooth-scrollbar` still forwards the unused `plugins` option; the `Home`/`MovieList` `timer` debounce variable is re-created on every render (quirk kept, BC-09).
+
+- TypeScript step (Movie Atlas step 2): `MovieDetails` reads `details.original_title` for the poster `alt`, but the details state never sets it (`title` holds `original_title`), so the `alt` attribute is always missing. Preserved as is (`original_title?: string` is declared on `MovieDetailsData` with a comment). Fix: use `details.title` (a11y improvement; changes DOM).
+- TypeScript step: `poster_path` can be `null` in TMDB data and is concatenated into the URL (`.../w500null`), as before; the types say `string | null` and the template literal keeps the same output. Fix: render a placeholder.
+- TypeScript step: `npm run typecheck` is not part of `scripts/migration/gate.mjs` (protected gate); run it by hand.
