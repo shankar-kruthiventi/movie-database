@@ -22,7 +22,7 @@ test('BC-01 #/home loads Home; list URLs are reached through header links and us
 test('BC-02 unknown hash path renders header only', async ({ page }) => {
   await open(page, '/does-not-exist');
   await expect(page.locator('.header-view')).toBeVisible();
-  await expect(page.locator('h1')).toHaveText('MOVIE CITY');
+  await expect(page.locator('h1')).toHaveText('MOVIE ATLAS');
   await expect(page.locator('.home-contianer')).toHaveCount(0);
   await expect(page.locator('.movies-container')).toHaveCount(0);
   await expect(page.locator('.poster')).toHaveCount(0);

@@ -22,7 +22,7 @@ test('BC-17 every asset URL resolves under /movie-database/ (production build)',
 
 test('BC-18 index.html head: title, favicon, apple-touch-icon, manifest, font-awesome 4.7, inline styles/script', async ({ page }) => {
   await open(page, '/home');
-  await expect(page).toHaveTitle('React App');
+  await expect(page).toHaveTitle('Movie Atlas');
   const href = (sel) => page.locator(sel).getAttribute('href');
   expect(await href('link[rel="icon"]')).toBe('/movie-database/favicon.ico');
   expect(await href('link[rel="apple-touch-icon"]')).toBe('/movie-database/logo192.png');

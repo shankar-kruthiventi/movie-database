@@ -1,4 +1,4 @@
-# Movie City (movie-database)
+# Movie Atlas (movie-database)
 
 A movie browser built with React and the TMDB API. Live on GitHub Pages: https://shankar-kruthiventi.github.io/movie-database/#/home
 

@@ -1,8 +1,8 @@
 const { test, expect, open, apiCalls, pageParams } = require('./helpers');
 
-test('BC-15 desktop header: MOVIE CITY + 4 links; Popular/Top Rated/Now Playing also fetch page 1', async ({ page, app }) => {
+test('BC-15 desktop header: MOVIE ATLAS + 4 links; Popular/Top Rated/Now Playing also fetch page 1', async ({ page, app }) => {
   await open(page, '/home');
-  await expect(page.locator('.header-container h1')).toHaveText('MOVIE CITY');
+  await expect(page.locator('.header-container h1')).toHaveText('MOVIE ATLAS');
   await expect(page.locator('.header-container a h3')).toHaveText(['Home', 'Popular Movies', 'Top Rated Movies', 'Now Playing']);
   await expect(page.locator('.header-mobile-container')).toBeHidden();
   const link = (t) => page.locator('.header-container a', { hasText: t });

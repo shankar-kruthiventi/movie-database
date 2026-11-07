@@ -25,7 +25,7 @@ const Header = ({ fetchData }) => {
   return (
     <div className="header-view">
       <div className="header-container">
-        <h1>MOVIE CITY</h1>
+        <h1>MOVIE ATLAS</h1>
         <NavLink to="/home">
           <h3>Home</h3>
         </NavLink>

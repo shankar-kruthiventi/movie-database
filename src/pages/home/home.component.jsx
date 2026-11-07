@@ -88,7 +88,7 @@ const Home = () => {
             <div className="about-container">
               <div className="about">About this app</div>
               <div>
-                Movie City is made using React. This app helps the user to:{" "}
+                Movie Atlas is made using React. This app helps the user to:{" "}
               </div>
               <ol>
                 <li>Search for his/her favourite movies.</li>
@@ -103,7 +103,7 @@ const Home = () => {
             <div className="about-container">
               <div className="about">About me</div>
               <div>
-                This app is developed by <b>ShankarKruthiventi</b>. You can
+                This app is developed by <b>Sankar Kruthiventi</b>. You can
                 reach out to me at
               </div>
               <ul>

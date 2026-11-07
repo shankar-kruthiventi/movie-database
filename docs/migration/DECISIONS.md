@@ -97,3 +97,9 @@ Answers given by the owner:
 - Order: 1) rename + title + About name fix, 2) TypeScript, 3) light/dark + accessible colors + header keyboard nav, 4) autocomplete accessibility + click-outside, 5) windowing + IntersectionObserver + tile cursor, 6) favicon, 7) URL rename, 8) responsiveness pass, 9) Cloudflare config/README.
 - The animated wallpaper pan lives on its own branch `migration/home-bg-pan` (unreviewed, e2e not run) and is NOT part of this branch.
 - Open question to ask the owner at step 3: how the wallpaper (collection.jpg) should look in light mode.
+
+## 2026-11-07 - Movie Atlas step 1 - rename, title, About name fix
+- "MOVIE CITY" -> "MOVIE ATLAS" in `header.component.jsx` (literal uppercase text in the source, mechanism unchanged); About card "Movie City is made using React" -> "Movie Atlas is made using React" and "ShankarKruthiventi" -> "Sankar Kruthiventi" (that sentence only; the LinkedIn URL is unchanged).
+- `index.html` title "React App" -> "Movie Atlas"; `public/manifest.json` short_name/name -> "Movie Atlas" (icons untouched); `package.json` and lockfile root `name` "movies-db" -> "movie-atlas" (lockfile synced with `npx npm@11 install --package-lock-only`, only the two name lines changed); README title -> "Movie Atlas (movie-database)".
+- BEHAVIOR-CONTRACT.md: BC-13, BC-15, BC-18 updated with a dated note. Earlier history entries, CLAUDE.md and `.claude/` files left as they are (they describe the old name historically).
+- e2e: header, routing, home and build (BC-18 title) assertions updated. Screenshots regenerated with `--update-snapshots=all` (the 1% tolerance had let the old name pass): home x3, popular desktop/tablet, dialog desktop/tablet. popular-mobile and dialog-mobile show no app name and were left untouched.

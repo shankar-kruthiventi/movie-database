@@ -6,8 +6,8 @@ test('BC-13 About sections and four external links open in a new tab with rel no
   await open(page, '/home');
   await expect(page.locator('.about').nth(0)).toHaveText('About this app');
   await expect(page.locator('.about').nth(1)).toHaveText('About me');
-  await expect(page.locator('.about-container').first()).toContainText('Movie City is made using React.');
-  await expect(page.locator('.about-container').nth(1)).toContainText('ShankarKruthiventi');
+  await expect(page.locator('.about-container').first()).toContainText('Movie Atlas is made using React.');
+  await expect(page.locator('.about-container').nth(1)).toContainText('Sankar Kruthiventi');
   const expected = {
     LinkedIn: 'https://www.linkedin.com/in/shankarkruthiventi/',
     Github: 'https://github.com/shankar-kruthiventi',

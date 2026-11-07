@@ -21,16 +21,16 @@ Derived from reading the code on the pre-migration commit. Every ID needs a pass
 - BC-12 Closes via close icon, Escape and backdrop click.
 
 ## Home (home.component.jsx)
-- BC-13 "About this app" and "About me" sections; four external links (LinkedIn, Github, Facebook, Instagram) open in a new tab with `rel="noopener noreferrer"`.
+- BC-13 "About this app" ("Movie Atlas is made using React", changed in migration/movie-atlas step 1, 2026-11-07; was "Movie City") and "About me" ("Sankar Kruthiventi", was "ShankarKruthiventi") sections; four external links (LinkedIn, Github, Facebook, Instagram) open in a new tab with `rel="noopener noreferrer"`.
 - BC-14 Search input (`#auto`): on every `keyup` calls `GET /3/search/movie?query=<raw value>&page=1`; the suggestion list shows at most the first 3 results (title + poster); input click toggles the list; clicking outside hides it; click or Enter on a suggestion loads details, opens the dialog and hides the list; typing scrolls `#test` into view. Quirk: results are accumulated by mutating the `movies` state array and the query is not URL-encoded.
 
 ## Header (header.component.jsx)
-- BC-15 Desktop: "MOVIE CITY" + 4 links; clicking Popular/Top Rated/Now Playing also calls `fetchData(type)`. Mobile (CSS breakpoint): label (`#home`) shows the current section, hamburger toggles `#myLinks`, choosing an item updates the label, fetches (except Home) and hides the menu.
+- BC-15 Desktop: "MOVIE ATLAS" (changed in migration/movie-atlas step 1, 2026-11-07; was "MOVIE CITY") + 4 links; clicking Popular/Top Rated/Now Playing also calls `fetchData(type)`. Mobile (CSS breakpoint): label (`#home`) shows the current section, hamburger toggles `#myLinks`, choosing an item updates the label, fetches (except Home) and hides the menu.
 - BC-16 Responsive layout comes from the `*.style.css` files; CSS must not change during the migration.
 
 ## Build & deploy
 - BC-17 Built output goes to `build/` and is published with `gh-pages -d build` to the Pages path `/movie-database/`; every asset URL must resolve under that base.
-- BC-18 `index.html` keeps: title "React App", favicon, apple-touch-icon, manifest, font-awesome 4.7 CDN link, inline styles/script. Every page load unregisters stale service workers (`serviceWorker.unregister()`), keep an equivalent.
+- BC-18 `index.html` keeps: title "Movie Atlas" (changed in migration/movie-atlas step 1, 2026-11-07; was "React App"), favicon, apple-touch-icon, manifest, font-awesome 4.7 CDN link, inline styles/script. Every page load unregisters stale service workers (`serviceWorker.unregister()`), keep an equivalent.
 
 ## Known pre-existing problems (not part of the migration)
 - `src/App.test.js` is the CRA template test ("learn react") and fails today.
