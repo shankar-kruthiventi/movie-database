@@ -1,0 +1,76 @@
+{
+  "version": "0.1.0",
+  "name": "movies-db",
+  "dependencies": {
+    "@material-ui/core": {
+      "version": "4.11.0",
+      "resolved": "https://registry.npmjs.org/@material-ui/core/-/core-4.11.0.tgz",
+      "overridden": false
+    },
+    "@material-ui/icons": {
+      "version": "4.9.1",
+      "resolved": "https://registry.npmjs.org/@material-ui/icons/-/icons-4.9.1.tgz",
+      "overridden": false
+    },
+    "@material-ui/lab": {
+      "version": "4.0.0-alpha.56",
+      "resolved": "https://registry.npmjs.org/@material-ui/lab/-/lab-4.0.0-alpha.56.tgz",
+      "overridden": false
+    },
+    "@playwright/test": {
+      "version": "1.65.0",
+      "resolved": "https://registry.npmjs.org/@playwright/test/-/test-1.65.0.tgz",
+      "overridden": false
+    },
+    "@testing-library/jest-dom": {
+      "version": "4.2.4",
+      "resolved": "https://registry.npmjs.org/@testing-library/jest-dom/-/jest-dom-4.2.4.tgz",
+      "overridden": false
+    },
+    "@testing-library/react": {
+      "version": "9.5.0",
+      "resolved": "https://registry.npmjs.org/@testing-library/react/-/react-9.5.0.tgz",
+      "overridden": false
+    },
+    "@testing-library/user-event": {
+      "version": "7.2.1",
+      "resolved": "https://registry.npmjs.org/@testing-library/user-event/-/user-event-7.2.1.tgz",
+      "overridden": false
+    },
+    "gh-pages": {
+      "version": "3.1.0",
+      "resolved": "https://registry.npmjs.org/gh-pages/-/gh-pages-3.1.0.tgz",
+      "overridden": false
+    },
+    "react-dom": {
+      "version": "16.13.1",
+      "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-16.13.1.tgz",
+      "overridden": false
+    },
+    "react-router-dom": {
+      "version": "5.2.0",
+      "resolved": "https://registry.npmjs.org/react-router-dom/-/react-router-dom-5.2.0.tgz",
+      "overridden": false
+    },
+    "react-scripts": {
+      "version": "3.4.1",
+      "resolved": "https://registry.npmjs.org/react-scripts/-/react-scripts-3.4.1.tgz",
+      "overridden": false
+    },
+    "react-smooth-scrollbar": {
+      "version": "8.0.6",
+      "resolved": "https://registry.npmjs.org/react-smooth-scrollbar/-/react-smooth-scrollbar-8.0.6.tgz",
+      "overridden": false
+    },
+    "react": {
+      "version": "16.13.1",
+      "resolved": "https://registry.npmjs.org/react/-/react-16.13.1.tgz",
+      "overridden": false
+    },
+    "smooth-scrollbar": {
+      "version": "8.5.2",
+      "resolved": "https://registry.npmjs.org/smooth-scrollbar/-/smooth-scrollbar-8.5.2.tgz",
+      "overridden": false
+    }
+  }
+}

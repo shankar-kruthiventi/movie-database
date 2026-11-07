@@ -1,0 +1,20 @@
+{
+  "id": 0,
+  "original_title": "Fixture Movie Title",
+  "poster_path": "/detail.jpg",
+  "overview": "A deterministic fixture overview.",
+  "homepage": "https://example.com/fixture-movie",
+  "release_date": "2021-02-03",
+  "genres": [
+    {
+      "id": 1,
+      "name": "Action"
+    },
+    {
+      "id": 2,
+      "name": "Drama"
+    }
+  ],
+  "popularity": 123.456,
+  "vote_average": 8.1
+}

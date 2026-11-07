@@ -1,0 +1,31 @@
+{
+  "page": 1,
+  "total_pages": 1,
+  "results": [
+    {
+      "id": 500,
+      "original_title": "Search Result 0",
+      "poster_path": "/s0.jpg"
+    },
+    {
+      "id": 501,
+      "original_title": "Search Result 1",
+      "poster_path": "/s1.jpg"
+    },
+    {
+      "id": 502,
+      "original_title": "Search Result 2",
+      "poster_path": "/s2.jpg"
+    },
+    {
+      "id": 503,
+      "original_title": "Search Result 3",
+      "poster_path": "/s3.jpg"
+    },
+    {
+      "id": 504,
+      "original_title": "Search Result 4",
+      "poster_path": "/s4.jpg"
+    }
+  ]
+}
