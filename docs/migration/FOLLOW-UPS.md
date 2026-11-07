@@ -3,7 +3,7 @@
 Quirks below are preserved on purpose (behavior parity). Fix them after the migration, as separate commits.
 
 - Search query is not URL-encoded (`x&y` is sent raw). `src/pages/home/home.component.jsx` (~line 34). Fix: `encodeURIComponent`. Pinned by BC-14.
-- `href="javascript:void(0)"` in `src/pages/header/header.component.jsx` (~line 86). Fix: a button, or `href="#"` with preventDefault. Also the cause of the CRA ESLint warnings.
+- Hamburger anchor in `src/pages/header/header.component.jsx`: was `href="javascript:void(0)"`, changed in Phase 5 to `href="#"` + preventDefault because React 19 blocks `javascript:` URLs. Still an anchor used as a button; a real `<button>` needs a CSS change (owner decision).
 - Direct loads of list URLs (`#/popular` etc.) bounce to `#/home` (BC-01, BC-07).
 - "Show More" is `visibility: hidden` at every width (BC-08).
 - Tablet auto-click sends five identical `page=2` requests because of a stale closure (BC-10).
@@ -14,3 +14,4 @@ Quirks below are preserved on purpose (behavior parity). Fix them after the migr
 - Phase 3 dropped the stray `extact="true"` DOM attribute (typo for `exact`, never effective) and the redundant `activeClassName="active"` (v6 `NavLink` adds `active` itself). No visible effect.
 - Remaining prod audit after Phase 3: the deploy tool in `dependencies` (critical + lodash/minimatch/brace-expansion) and two moderate `react-router` advisories (fixed only in v7.18.5+; the SSR one does not apply to this SPA).
 - Phase 6: move the deploy tool and `@testing-library/*` to devDependencies; bump the deploy tool by hand (critical advisory; the blanket audit auto-fix is banned).
+- Phase 5: `@testing-library/user-event@7.2.1` is unused (remove or upgrade to 14.x). Many files still `import React` (not needed with the automatic runtime). The `test.server.deps.inline: [/@mui/]` setting in `vite.config.js` may be removable now. `src/components/smooth-scrollbar` still forwards the unused `plugins` option; the `Home`/`MovieList` `timer` debounce variable is re-created on every render (quirk kept, BC-09).
