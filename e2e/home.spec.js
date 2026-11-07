@@ -63,10 +63,11 @@ test('BC-14 suggestion list shows at most 3 results (title + poster); input clic
   await expect(page.locator('.autoContainer')).toHaveCount(0);
 });
 
-test('BC-14 quirk: open list with no options renders a literal 0', async ({ page }) => {
+test('BC-14 (step 4, 2026-11-07) open list with no options renders nothing (the literal 0 quirk was removed)', async ({ page }) => {
   await open(page, '/home');
   await page.locator('#auto').click();
-  await expect(page.locator('#auto').locator('xpath=..')).toHaveText('0');
+  await expect(page.locator('#auto').locator('xpath=..')).toHaveText('');
+  await expect(page.locator('.autoContainer')).toHaveCount(0);
 });
 
 test('BC-14 click on a suggestion loads details, opens the dialog and hides the list', async ({ page, app }) => {
