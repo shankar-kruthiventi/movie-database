@@ -29,7 +29,7 @@ Quirks below are preserved on purpose (behavior parity). Fix them after the migr
 - Step 3: poster tiles are still not keyboard focusable; dialog focus work and the autocomplete combobox semantics are later steps (the `.autoContainer` colours and focus ring are already tokenised for them).
 - Step 3: in light mode the header edge is a 1px box-shadow (#5f6b76); desktop header spacing shifted slightly because the toggle is a 5th space-around item.
 - Step 3: light-mode contrast margins on the wallpaper are the thinnest (card border 3.40:1, input focus ring 3.31:1 against the worst pixel); re-run `e2e/a11y-contrast.spec.js` if the wash opacity (0.8) changes.
-- Step 4 (autocomplete): when a search returns zero results the old `options` stay in state (the code only updates `options` when there are results), so the popup can show stale suggestions for a query that now has none, and the live region then announces their count. Owner call: clear the options on an empty result.
+- Step 4 stale suggestions on a zero-result search: resolved in Step 4b (2026-11-07, owner decision: clear the options; see DECISIONS.md).
 - Step 4: the search still fires on every keyup including arrow, Esc, Tab and Enter keys (BC-14), so navigating the list triggers extra API calls; a debounce plus "only when the value changed" would fix it together with the encoding bug.
 - Step 4: only the first 3 results are offered (BC-14); screen reader users hear "3 results available" even when TMDB returned 20.
 - Step 4: Home/End inside the list are not wired (APG optional).

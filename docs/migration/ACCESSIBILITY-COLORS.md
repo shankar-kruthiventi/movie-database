@@ -103,6 +103,8 @@ The wallpaper is the same photo in both modes; light mode adds `rgba(255,255,255
 | Search input focus ring vs wallpaper just outside the input | 4.26 | 3.31 | 3 |
 | Placeholder `#757575` / `#5c6670` on the input fill | 4.61 | 5.85 | 4.5 |
 
+Step 4b: the wallpaper now pans (BC-23), so the spec measures the static photo and the four extreme poses (zoom 1.3, shift +-10%) and asserts >= 3:1 for each. Worst case over the five poses: dark heading 3.95 (static 4.08; was 4.04 before the pan), dark card border 6.82, dark input ring 4.10 (static 4.33); light values did not change (heading 4.99, card border 3.40, input ring 3.31) because the 0.8 wash flattens the photo. The wash is unchanged, so no token changed. `--page-bg` (#121212 / #ffffff) is the solid colour behind the layer (axe reads it; the pixel test covers the photo).
+
 Light mode has the thinnest margins here (card border 3.40, input ring 3.31). If the wash is ever made more transparent, re-run the spec; raising `--card-border` / `--focus-ring` darkness is the lever.
 
 ## Pairs that needed adjusting
