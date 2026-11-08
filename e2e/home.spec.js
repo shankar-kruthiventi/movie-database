@@ -70,6 +70,24 @@ test('BC-14 (step 4, 2026-11-07) open list with no options renders nothing (the 
   await expect(page.locator('.autoContainer')).toHaveCount(0);
 });
 
+const emptySearch = (page) => page.route('https://api.themoviedb.org/3/search/movie**', (route) =>
+  route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify({ page: 1, results: [], total_results: 0 }) }));
+
+test('BC-14 (step 4b, 2026-11-07) a search with zero results clears the suggestions (no stale list); a later search with results brings them back', async ({ page }) => {
+  await open(page, '/home');
+  await page.locator('#auto').click();
+  await page.locator('#auto').pressSequentially('bat');
+  await expect(page.locator('.autoContainer .option')).toHaveCount(3);
+  await emptySearch(page);
+  await page.locator('#auto').pressSequentially('zzz');
+  await expect(page.locator('.autoContainer')).toHaveCount(0);
+  await expect(page.locator('#auto')).toHaveAttribute('aria-expanded', 'false');
+  // still at most 3 shown once results return
+  await page.unroute('https://api.themoviedb.org/3/search/movie**');
+  await page.locator('#auto').press('Backspace');
+  await expect(page.locator('.autoContainer .option')).toHaveCount(3);
+});
+
 test('BC-14 click on a suggestion loads details, opens the dialog and hides the list', async ({ page, app }) => {
   await open(page, '/home');
   await page.locator('#auto').click();

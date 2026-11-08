@@ -90,6 +90,9 @@ const Home = () => {
         if (value.results && value.results.length !== 0) {
           movies.push(...value.results);
           setOptions(movies);
+        } else {
+          // zero results (or an error body without `results`): clear the suggestions, no stale list
+          setOptions([]);
         }
       });
   };

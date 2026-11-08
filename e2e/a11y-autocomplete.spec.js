@@ -243,6 +243,31 @@ for (const mode of MODES) {
       await expect(input(page)).toHaveAttribute('aria-expanded', 'false');
     });
 
+    test(`BC-22 zero results clear stale suggestions: popup closed, no active descendant, live region says No results (${mode})`, async ({ page }) => {
+      await open(page, '/home');
+      const live = page.getByRole('status');
+      await typeQuery(page);
+      await page.keyboard.press('ArrowDown');
+      await expect(selected(page)).toHaveCount(1);
+      await expect(live).toHaveText('3 results available');
+      // next search returns nothing: the old three must not stay
+      await page.route('https://api.themoviedb.org/3/search/movie**', (route) => route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify({ page: 1, results: [], total_results: 0 }) }));
+      await input(page).pressSequentially('zzz');
+      await expect(live).toHaveText('No results');
+      await expect(page.getByRole('listbox')).toHaveCount(0);
+      await expect(options(page)).toHaveCount(0);
+      await expect(input(page)).toHaveAttribute('aria-expanded', 'false');
+      await expect(input(page)).not.toHaveAttribute('aria-activedescendant', /.+/);
+      // ArrowDown on the now option-less list does nothing
+      await page.keyboard.press('ArrowDown');
+      await expect(page.getByRole('listbox')).toHaveCount(0);
+      // results again (still capped at 3)
+      await page.unroute('https://api.themoviedb.org/3/search/movie**');
+      await input(page).press('Backspace');
+      await expect(options(page)).toHaveCount(3);
+      await expect(live).toHaveText('3 results available');
+    });
+
     test(`BC-22 axe (aria validity, names, contrast) on the open popup with an active option (${mode})`, async ({ page }) => {
       await open(page, '/home');
       await typeQuery(page);
