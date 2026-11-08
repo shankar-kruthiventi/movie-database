@@ -1,5 +1,8 @@
 const { test, expect, open, openListViaNav, apiCalls, pageParams } = require('./helpers');
 
+// Step 5b: this spec is not about the next-page prefetch; it pins a single-page list (total_pages 1) so the prefetch requests nothing and every assertion below is the original one.
+test.use({ apiTotalPages: 1 });
+
 test('BC-01 bare URL and #/ redirect to #/home; hash URLs are used', async ({ page }) => {
   await open(page);
   await expect(page).toHaveURL(/\/movie-database\/#\/home$/);

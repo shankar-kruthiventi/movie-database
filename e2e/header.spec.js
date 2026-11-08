@@ -1,5 +1,8 @@
 const { test, expect, open, apiCalls, pageParams } = require('./helpers');
 
+// Step 5b: this spec is not about the next-page prefetch; it pins a single-page list (total_pages 1) so the prefetch requests nothing and every assertion below is the original one.
+test.use({ apiTotalPages: 1 });
+
 test('BC-15 desktop header: MOVIE ATLAS + 4 links; Popular/Top Rated/Now Playing also fetch page 1', async ({ page, app }) => {
   await open(page, '/home');
   await expect(page.locator('.header-container h1')).toHaveText('MOVIE ATLAS');

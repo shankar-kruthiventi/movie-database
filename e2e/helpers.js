@@ -43,6 +43,8 @@ async function mockAll(page, opts = {}) {
     let m;
     if ((m = p.match(/^\/movie\/(popular|top_rated|now_playing)$/))) {
       body = fixture(`list-${m[1]}-${Math.min(Number(params.page || 1), 8)}.json`);
+      // Step 5b: tests that are not about the next-page prefetch pin a single-page list (total_pages 1) so no page 2 is requested on its own.
+      if (opts.totalPages !== undefined) body = { ...body, total_pages: opts.totalPages };
     } else if (p === '/search/movie') {
       body = fixture('search-results.json');
     } else if ((m = p.match(/^\/movie\/(\d+)$/))) {
@@ -84,8 +86,10 @@ const CONSOLE_ALLOW = [];
 
 /** Test with auto mocking + console.error guard. Use: test('BC-xx ...', async ({ page, app }) => {...}) */
 const test = base.test.extend({
-  app: [async ({ page }, use) => {
-    const log = await mockAll(page);
+  // Option (test.use({ apiTotalPages: 1 })): `total_pages` of every mocked list response; undefined keeps the fixtures' own value (8).
+  apiTotalPages: [undefined, { option: true }],
+  app: [async ({ page, apiTotalPages }, use) => {
+    const log = await mockAll(page, { totalPages: apiTotalPages });
     await use(log);
     const bad = log.consoleErrors.filter((e) => !CONSOLE_ALLOW.some((a) => e.includes(a)));
     expect(bad, 'unexpected console errors').toEqual([]);

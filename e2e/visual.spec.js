@@ -1,5 +1,8 @@
 const { test, expect, open, openListViaNav } = require('./helpers');
 
+// Step 5b: this spec is not about the next-page prefetch; it pins a single-page list (total_pages 1) so the prefetch requests nothing and every assertion below is the original one.
+test.use({ apiTotalPages: 1 });
+
 const VIEWPORTS = { desktop: { width: 1280, height: 800 }, tablet: { width: 900, height: 1000 }, mobile: { width: 390, height: 844 } };
 
 async function settle(page) {

@@ -2,6 +2,9 @@
 // #/now_playing redirect (replace). TMDB API paths keep top_rated / now_playing.
 const { test, expect, open, apiCalls, pageParams } = require('./helpers');
 
+// Step 5b: this spec is not about the next-page prefetch; it pins a single-page list (total_pages 1) so the prefetch requests nothing and every assertion below is the original one.
+test.use({ apiTotalPages: 1 });
+
 const KEY = 'movie-atlas-theme';
 const ROUTES = [
   { label: 'Top Rated Movies', path: 'top-rated', old: 'top_rated', api: '/movie/top_rated' },

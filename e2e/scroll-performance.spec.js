@@ -160,7 +160,8 @@ test.describe('BC-24..28 windowed list', () => {
 
   test('BC-24 mounted tiles, DOM nodes and images stay bounded across 25 pages while the scroll height keeps growing', async ({ page, app }, testInfo) => {
     await openListViaNav(page, 'Popular Movies');
-    await expect(page.locator('.poster')).toHaveCount(PAGE_SIZE);
+    // step 5b: the prefetch has usually added pages already, so the mounted window is the first screen's tiles or more
+    await expect.poll(() => page.locator('.poster').count()).toBeGreaterThanOrEqual(PAGE_SIZE);
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Performance.enable');
     const heap = async () => {
@@ -200,11 +201,15 @@ test.describe('BC-24..28 windowed list', () => {
     expect(app.consoleErrors).toEqual([]);
   });
 
-  test('BC-25 the next page is requested once per page, only after a scroll (600 ms debounce) with the sentinel near the viewport', async ({ page, app }) => {
+  test('BC-25 (step 5b) the next page is requested once per page, in order, as soon as the sentinel is within the prefetch distance (no scroll or debounce needed)', async ({ page, app }) => {
     await openListViaNav(page, 'Popular Movies');
     await page.waitForTimeout(1500);
-    // no scroll, no request: the sentinel being near the viewport alone does not load a page (BC-09)
-    expect(pageParams(app, '/movie/popular')).toEqual(['1', '1']);
+    // step 5b (replaces "no scroll, no request"): the sentinel is near the viewport on load, so pages follow on their own,
+    // once each and in order, until the sentinel is more than the prefetch distance (3 viewports) away
+    const idle = pageParams(app, '/movie/popular');
+    expect(idle.slice(0, 2)).toEqual(['1', '1']);
+    expect(idle.slice(2).map(Number)).toEqual(idle.slice(2).map((_, k) => k + 2));
+    expect(idle.length, 'prefetched without a scroll').toBeGreaterThanOrEqual(3);
     await scrollThrough(page, 25);
     await settle(page);
     await page.waitForTimeout(1500);
@@ -213,7 +218,7 @@ test.describe('BC-24..28 windowed list', () => {
     const expected = ['1', '1', ...Array.from({ length: loaded - 1 }, (_, k) => String(k + 2))];
     expect(pageParams(app, '/movie/popular'), 'one request per page, in order, no duplicates').toEqual(expected);
 
-    // Back at the top the sentinel is far away: scrolling there must not request anything.
+    // Back at the top the sentinel is far away (more than the prefetch distance): scrolling there must not request anything.
     await page.mouse.wheel(0, -1000000);
     await settle(page);
     await page.mouse.wheel(0, 300);
@@ -224,12 +229,12 @@ test.describe('BC-24..28 windowed list', () => {
 
   test('BC-26 scrolling to the bottom and back shows exactly the first-load tiles (same movies, order, images, no re-fetch)', async ({ page, app }) => {
     await openListViaNav(page, 'Popular Movies');
-    await expect(page.locator('.poster')).toHaveCount(PAGE_SIZE);
+    await expect.poll(() => page.locator('.poster').count()).toBeGreaterThanOrEqual(PAGE_SIZE);
     await page.waitForFunction(() => Array.from(document.images).every((i) => i.complete && i.naturalWidth > 0));
     const first = await snapshot(page);
     const ref = reference(first);
     expectGeometry(first, ref);
-    const initial = first.tiles.map(({ id, alt, src }) => ({ id, alt, src }));
+    const initial = first.tiles.slice(0, PAGE_SIZE).map(({ id, alt, src }) => ({ id, alt, src })); // step 5b: more than 20 may be mounted at first
 
     await scrollThrough(page, 25);
     await settle(page);
@@ -376,7 +381,11 @@ for (const mode of ['dark', 'light']) {
         await page.mouse.wheel(0, -1000000);
         await settle(page);
         const top = await snapshot(page);
-        expect(top.tiles.slice(0, PAGE_SIZE).map((t) => [t.id, t.alt, t.src])).toEqual(first.tiles.slice(0, PAGE_SIZE).map((t) => [t.id, t.alt, t.src]));
+        // step 5b: after scrolling up the window below the viewport is 0.5 viewport (1.75 after the first load), so on tall tiles (320 px)
+        // fewer tiles may be mounted at the top: compare every tile mounted in both (the same movies, order and images)
+        const common = Math.min(top.tiles.length, first.tiles.length, PAGE_SIZE);
+        expect(common).toBeGreaterThan(0);
+        expect(top.tiles.slice(0, common).map((t) => [t.id, t.alt, t.src])).toEqual(first.tiles.slice(0, common).map((t) => [t.id, t.alt, t.src]));
       });
     });
   }

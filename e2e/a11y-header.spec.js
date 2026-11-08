@@ -1,5 +1,8 @@
 // BC-20 header keyboard navigation (Movie Atlas step 3): Tab order, visible focus, skip link, mobile menu semantics.
 const { test, expect, open } = require('./helpers');
+
+// Step 5b: this spec is not about the next-page prefetch; it pins a single-page list (total_pages 1) so the prefetch requests nothing and every assertion below is the original one.
+test.use({ apiTotalPages: 1 });
 const { ratio, parseColor, effectiveBackground } = require('./contrast-helpers');
 
 const KEY = 'movie-atlas-theme';
