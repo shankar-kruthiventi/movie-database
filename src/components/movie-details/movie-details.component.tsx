@@ -102,10 +102,10 @@ const DialogTitle = (props: CustomDialogTitleProps) => {
   return (
     <MuiDialogTitle
       component="div"
-      sx={{ m: 0, "&&&": { p: 2 } }}
+      sx={{ m: 0, "&&&": { p: 2, pr: 7 } }}
       {...other}
     >
-      <Typography variant="h6">{children}</Typography>
+      <Typography variant="h6" sx={{ overflowWrap: "anywhere" }}>{children}</Typography>
       {onClose ? (
         <IconButton
           aria-label="close"

@@ -112,7 +112,9 @@ h3:hover {
     position: absolute;
     right: 0;
     top: 0;
-    bottom: 0;
+    /* Step 8 (responsiveness): the bar is 50px; with the menu open the old top:0 + bottom:0 stretched the
+       button over the whole open menu and its icon jumped to the middle of the list. */
+    height: 50px;
     padding: 0 16px;
     border-radius: 0;
   }
@@ -138,5 +140,23 @@ h3:hover {
     font-size: 17px;
     display: block;
     margin-left: 12vw;
+  }
+}
+
+/* Step 8 (responsiveness): short, wide windows (phone/tablet landscape, 601-900 px wide, up to 500 px tall).
+   The bar is 12.4vh (46 px at 375) and fixed, so the 2em logo and the nav labels wrapped to two lines and were
+   clipped. A smaller type size keeps one line. Margins removed so the single line sits centred in the bar. */
+@media only screen and (min-width: 601px) and (max-height: 500px) {
+  .header-container h1 {
+    font-size: 1.25rem;
+    margin: 0;
+  }
+  .header-container h3 {
+    font-size: 1rem;
+    margin: 0;
+    padding: 4px 0; /* link height 29px (WCAG 2.5.8 needs 24) */
+  }
+  .header-container h3:hover {
+    font-size: 1.1rem;
   }
 }
