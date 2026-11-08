@@ -1,5 +1,5 @@
 import { TMDB_API_KEY } from '../../config';
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import "./movie-list.style.css";
 
 import MovieDetails from "../../components/movie-details/movie-details.component";
@@ -10,16 +10,26 @@ import Button from "@mui/material/Button";
 
 import Scrollbar from "../smooth-scrollbar/smooth-scrollbar.component";
 import { useWindowing } from "./use-windowing";
-import type { MovieDetailsData, MovieDetailsResponse, MovieListItem } from "../../types/tmdb";
+import type { WarmRanges } from "./use-windowing";
+import { usePrefetch } from "./use-prefetch";
+import { createPosterPreloader } from "./poster-preloader";
+import type { AppendResult, MovieDetailsData, MovieDetailsResponse, MovieListItem } from "../../types/tmdb";
+
+const posterUrl = (movie: MovieListItem) => `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
 
 interface MovieListProps {
   movieList: MovieListItem[];
   append: () => void;
-  // Passed by App's routes but never read (kept to leave the route elements untouched).
+  // Ordered next-page loader for the prefetch (App pipeline); `append` stays the Show More handler.
+  loadMore: () => Promise<AppendResult>;
+  // The category this route shows, the category App has loaded, and whether a page-1 load is in
+  // flight: the next-page prefetch waits until the list on screen is the one for this route.
   movieType?: string;
+  loadedType?: string;
+  loading?: boolean;
 }
 
-const MovieList = ({ movieList, append }: MovieListProps) => {
+const MovieList = ({ movieList, append, loadMore, movieType, loadedType, loading }: MovieListProps) => {
   const [open, setOpen] = useState(false);
 
   const [details, setDetails] = useState<MovieDetailsData>({
@@ -56,56 +66,17 @@ const MovieList = ({ movieList, append }: MovieListProps) => {
     setOpen(false);
   };
 
-  // Next page (BC-09): a scroll still starts a 600 ms debounce, as before. When it fires, the
-  // sentinel below the grid decides: an IntersectionObserver rooted on the scrollbar viewport (no
-  // margin: "sentinel visible" equals the old "last poster visible") keeps `visible` current. A page is requested once, the gate re-opens
-  // when the list grows (or on a later scroll after 3 s, e.g. a failed or empty response).
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const appendRef = useRef(append);
-  appendRef.current = append;
-  const gate = useRef({
-    visible: false,
-    armed: true,
-    firedAt: 0,
-    timer: undefined as ReturnType<typeof setTimeout> | undefined,
-  });
-
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    const state = gate.current;
-    if (!sentinel) return;
-    const root = sentinel.closest<HTMLElement>("[data-scrollbar]");
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const last = entries[entries.length - 1];
-        if (last) state.visible = last.isIntersecting;
-      },
-      { root, rootMargin: "0px" }
-    );
-    observer.observe(sentinel);
-    return () => {
-      observer.disconnect();
-      clearTimeout(state.timer);
-    };
-  }, []);
-
-  useEffect(() => {
-    gate.current.armed = true;
-  }, [movieList.length]);
-
-  const scrollDown = () => {
-    const state = gate.current;
-    if (!state.armed && Date.now() - state.firedAt > 3000) state.armed = true;
-    if (state.visible && state.armed) {
-      state.armed = false;
-      state.firedAt = Date.now();
-      appendRef.current();
-    }
-  };
-  const betterScroll = () => {
-    clearTimeout(gate.current.timer);
-    gate.current.timer = setTimeout(scrollDown, 600);
-  };
+  // Next page (BC-09, changed in step 5b): the list prefetches the next page when the sentinel below
+  // the grid comes within three viewport heights of the viewport, no scroll or debounce needed (see use-prefetch.ts).
+  const ready = !loading && (loadedType === undefined || movieType === undefined || loadedType === movieType);
+  const prefetch = usePrefetch({ length: movieList.length, loadMore, ready });
+  // BC-10: at 768-1024 px the five stale-closure appends below are the page requests for this list; the
+  // prefetch stays quiet until they have changed the list length, then continues the numbering. Runs
+  // before any effect, so the prefetch's first check (a mount effect) cannot request a page first.
+  const { hold } = prefetch;
+  useLayoutEffect(() => {
+    if (window.innerWidth >= 768 && window.innerWidth <= 1024) hold();
+  }, [hold]);
   useEffect(() => {
     const nextButton = document.querySelector<HTMLElement>('.next-button');
     if(window.innerWidth >= 768 && window.innerWidth <= 1024 && nextButton) {
@@ -116,10 +87,25 @@ const MovieList = ({ movieList, append }: MovieListProps) => {
     }
   }, []);
 
-  const windowing = useWindowing(movieList.length);
+  // Posters just beyond the mounted window (and the landing zone of a fling) are fetched and decoded ahead of time.
+  const movieListRef = useRef(movieList);
+  movieListRef.current = movieList;
+  const [preloader] = useState(() => createPosterPreloader());
+  useEffect(() => () => preloader.clear(), [preloader]);
+  const warm = (ranges: WarmRanges) => {
+    const urls: string[] = [];
+    for (const [from, to] of ranges) {
+      for (const movie of movieListRef.current.slice(from, to)) {
+        if (movie.poster_path) urls.push(posterUrl(movie));
+      }
+    }
+    preloader.warm(urls);
+  };
+
+  const windowing = useWindowing(movieList.length, warm);
 
   return (
-    <Scrollbar onScroll={betterScroll}>
+    <Scrollbar onScroll={prefetch.onScroll}>
       <div className="movies-container" ref={windowing.rootRef}>
         <div className="movieList-container" data-total={movieList.length}>
           {movieList && !movieList.length && (
@@ -138,7 +124,7 @@ const MovieList = ({ movieList, append }: MovieListProps) => {
               return (
               <div id={String(index)} key={index} className="poster-container">
                 <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  src={posterUrl(movie)}
                   onClick={() => handleClickOpen(movie.id)}
                   onKeyPress={(event) => {
                     if (event.key === "Enter") handleClickOpen(movie.id);
@@ -156,7 +142,7 @@ const MovieList = ({ movieList, append }: MovieListProps) => {
             aria-hidden="true"
           />
         </div>
-        <div ref={sentinelRef} className="list-sentinel" aria-hidden="true" />
+        <div ref={prefetch.sentinelRef} className="list-sentinel" aria-hidden="true" />
         <div className="next-button-container">
           {movieList && movieList.length && (
             <Button

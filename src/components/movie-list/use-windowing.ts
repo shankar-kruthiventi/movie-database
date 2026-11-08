@@ -13,8 +13,21 @@ import SmoothScrollbar from "smooth-scrollbar";
 
 /** Mounted tiles before the first measurement (the first layout effect corrects it before paint). */
 const INITIAL_TILES = 40;
-/** Extra px mounted above and below the viewport, as a fraction of the viewport height. */
-const OVERSCAN_VIEWPORTS = 0.75;
+/**
+ * Extra px mounted beyond the viewport, as a fraction of the viewport height. Asymmetric (step 5b):
+ * more on the side the user is scrolling towards, so tiles are mounted (and their posters requested)
+ * well before they enter the viewport; a little on the other side for a change of direction.
+ */
+const OVERSCAN_AHEAD = 1.75;
+const OVERSCAN_BEHIND = 0.5;
+/** Hard cap on mounted tiles (BC-24 bound is 120); the visible rows are always mounted, the overscan gives way. */
+const MAX_MOUNTED = 108;
+/** Posters pre-warmed beyond the mounted window, as a fraction of the viewport height. */
+const WARM_VIEWPORTS = 1.5;
+/** A fling is assumed to travel at most this many viewports further (predicted from the velocity). */
+const MAX_PREDICT_VIEWPORTS = 6;
+/** The scroll counts as moving for this long after the last offset change. */
+const MOVING_MS = 150;
 
 interface WindowState {
   start: number; // first mounted tile index (always the first tile of a row)
@@ -22,6 +35,9 @@ interface WindowState {
   cols: number; // tiles per row (>= 1)
   pitch: number; // row height in px, 0 until measured
 }
+
+/** Half-open tile index ranges whose posters should be fetched and decoded ahead of mounting. */
+export type WarmRanges = ReadonlyArray<readonly [number, number]>;
 
 export interface Windowing {
   /** Attach to the element that wraps the grid (inside the scrollbar). */
@@ -46,12 +62,15 @@ const px = (value: string) => {
   return Number.isFinite(n) ? n : 0;
 };
 
-export function useWindowing(itemCount: number): Windowing {
+export function useWindowing(itemCount: number, onWarm?: (ranges: WarmRanges) => void): Windowing {
   const rootRef = useRef<HTMLDivElement>(null);
   const topSpacerRef = useRef<HTMLDivElement>(null);
   const scrollbarRef = useRef<ReturnType<typeof SmoothScrollbar.get>>(undefined);
   const itemCountRef = useRef(itemCount);
   itemCountRef.current = itemCount;
+  const onWarmRef = useRef(onWarm);
+  onWarmRef.current = onWarm;
+  const motionRef = useRef({ lastY: 0, delta: 0, movedAt: -Infinity, dir: 1, warmKey: "" });
 
   const [win, setWin] = useState<WindowState>({ start: 0, end: INITIAL_TILES, cols: 1, pitch: 0 });
   const metricsRef = useRef({ cols: 1, pitch: 0, originY: 0 });
@@ -78,19 +97,71 @@ export function useWindowing(itemCount: number): Windowing {
     return true;
   }, []);
 
-  // Chooses the mounted range from the scroll offset and the viewport size.
+  // Chooses the mounted range from the scroll offset, the viewport size and the scroll direction.
   const update = useCallback(() => {
     const scrollbar = scrollbarRef.current;
     const { cols, pitch, originY } = metricsRef.current;
     if (!scrollbar || pitch <= 0) return;
     const count = itemCountRef.current;
     const viewport = scrollbar.size.container.height;
-    const overscan = viewport * OVERSCAN_VIEWPORTS;
+    const y = scrollbar.offset.y;
     const rows = Math.ceil(count / cols);
-    const firstRow = Math.min(rows, Math.max(0, Math.floor((scrollbar.offset.y - overscan - originY) / pitch)));
-    const lastRow = Math.min(rows, Math.max(firstRow, Math.ceil((scrollbar.offset.y + viewport + overscan - originY) / pitch)));
-    const next = { start: firstRow * cols, end: Math.min(count, lastRow * cols), cols, pitch };
+    const clampRow = (row: number) => Math.min(rows, Math.max(0, row));
+    const rowAt = (offset: number) => Math.floor((offset - originY) / pitch);
+
+    // Direction and a prediction of where a fling lands. smooth-scrollbar moves `momentum * damping`
+    // per frame, so the distance still to travel is about (px moved in the last frame) / damping.
+    const motion = motionRef.current;
+    const now = performance.now();
+    const delta = y - motion.lastY;
+    motion.lastY = y;
+    if (Math.abs(delta) > 0.01) {
+      motion.delta = delta;
+      motion.movedAt = now;
+      if (Math.abs(delta) > 0.5) motion.dir = delta > 0 ? 1 : -1;
+    }
+    const damping = scrollbar.options.damping > 0 ? scrollbar.options.damping : 0.1;
+    const reach = MAX_PREDICT_VIEWPORTS * viewport;
+    const remaining =
+      now - motion.movedAt < MOVING_MS ? Math.min(reach, Math.max(-reach, motion.delta / damping)) : 0;
+    const dir = motion.dir;
+
+    // The rows that overlap the viewport are mandatory; the overscan shares the rest of the cap.
+    const visibleFirst = clampRow(rowAt(y));
+    const visibleEnd = Math.max(visibleFirst, clampRow(Math.ceil((y + viewport - originY) / pitch)));
+    const maxRows = Math.max(visibleEnd - visibleFirst, Math.floor(MAX_MOUNTED / cols));
+    const budget = maxRows - (visibleEnd - visibleFirst);
+    const wantAhead = Math.ceil((OVERSCAN_AHEAD * viewport) / pitch);
+    const wantBehind = Math.ceil((OVERSCAN_BEHIND * viewport) / pitch);
+    const roomAhead = dir > 0 ? rows - visibleEnd : visibleFirst;
+    const roomBehind = dir > 0 ? visibleFirst : rows - visibleEnd;
+    let behind = Math.min(wantBehind, roomBehind, Math.floor(budget * 0.3));
+    const ahead = Math.min(wantAhead, roomAhead, budget - behind);
+    behind = Math.min(wantBehind, roomBehind, budget - ahead);
+    const firstRow = dir > 0 ? visibleFirst - behind : visibleFirst - ahead;
+    const endRow = dir > 0 ? visibleEnd + ahead : visibleEnd + behind;
+    const next = { start: firstRow * cols, end: Math.min(count, endRow * cols), cols, pitch };
     setWin((prev) => (sameWindow(prev, next) ? prev : next));
+
+    // Posters to warm (priority order): the rows just beyond the mounted window in the scroll
+    // direction, then, for a fling, the zone it is predicted to land in.
+    const warmRows = Math.ceil((WARM_VIEWPORTS * viewport) / pitch);
+    const ranges: Array<readonly [number, number]> = [];
+    const addRows = (fromRow: number, toRow: number) => {
+      const from = clampRow(fromRow) * cols;
+      const to = Math.min(count, clampRow(toRow) * cols);
+      if (to > from) ranges.push([from, to]);
+    };
+    if (dir > 0) addRows(endRow, endRow + warmRows);
+    else addRows(firstRow - warmRows, firstRow);
+    if (Math.abs(remaining) > 0.75 * viewport) {
+      addRows(rowAt(y + remaining - 0.25 * viewport), Math.ceil((y + remaining + 1.25 * viewport - originY) / pitch));
+    }
+    const key = `${count}|${ranges.map((r) => r.join("-")).join(",")}`;
+    if (key !== motion.warmKey) {
+      motion.warmKey = key;
+      onWarmRef.current?.(ranges);
+    }
   }, []);
 
   // Binds to the scrollbar (created by the Scrollbar wrapper, an ancestor of the grid).

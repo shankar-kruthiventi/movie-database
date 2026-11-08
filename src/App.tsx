@@ -6,6 +6,7 @@ import Header from './pages/header/header.component';
 import Home from './pages/home/home.component';
 import MovieList from './components/movie-list/movie-list.component';
 import { LIST_ROUTES } from './routes';
+import { usePagePipeline } from './use-page-pipeline';
 import type { MovieListItem, MovieListResponse } from './types/tmdb';
 
 function App() {
@@ -13,11 +14,16 @@ function App() {
   let [movieCategory, setMovieCategory] = useState<string>("");
   let [page, setPage] = useState(2);
   const [movieList, setMoviesList] = useState<MovieListItem[]>([]);
+  // Page-1 loads in flight: the list prefetch (step 5b) waits for them so it never appends to a list that is about to be replaced.
+  const [loading, setLoading] = useState(0);
+  // Ordered, pipelined next-page loader used by the list prefetch (the legacy `append` below stays for Show More / BC-10).
+  const pipeline = usePagePipeline({ category: movieCategory, page, setPage, setList: setMoviesList });
 
   function fetchData(movieCategory: string) {
     if (!movieCategory) {
       alert("no type");
     }
+    setLoading((count) => count + 1);
     fetch(
       `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=${TMDB_API_KEY}&language=en-US&page=1`
     )
@@ -25,7 +31,9 @@ function App() {
       .then((data) => {
         setMovieCategory(movieCategory);
         setMoviesList(data.results);
-      });
+        pipeline.reset(data.total_pages);
+      })
+      .finally(() => setLoading((count) => count - 1));
   }
 
   const append = () => {
@@ -69,7 +77,7 @@ function App() {
           <Route
             key={route.path}
             path={`/${route.path}`}
-            element={<MovieList append={append} key={route.category} movieList={movieList} movieType={route.category}/>}
+            element={<MovieList append={append} loadMore={pipeline.loadMore} key={route.category} movieList={movieList} movieType={route.category} loadedType={movieCategory} loading={loading > 0}/>}
           />
         ))}
         {LIST_ROUTES.map((route) =>

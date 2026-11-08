@@ -26,6 +26,9 @@ export interface MovieListResponse {
   results: MovieListItem[];
 }
 
+/** How a request for the next page went (see use-page-pipeline and the list prefetch). */
+export type AppendResult = "ok" | "wait" | "end" | "error";
+
 /** Response of `/movie/{id}` (only the fields the details dialog uses). */
 export interface MovieDetailsResponse {
   id?: number;
