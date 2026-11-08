@@ -6,8 +6,44 @@ test('BC-13 About sections and four external links open in a new tab with rel no
   await open(page, '/home');
   await expect(page.locator('.about').nth(0)).toHaveText('About this app');
   await expect(page.locator('.about').nth(1)).toHaveText('About me');
-  await expect(page.locator('.about-container').first()).toContainText('Movie Atlas is made using React.');
-  await expect(page.locator('.about-container').nth(1)).toContainText('Sankar Kruthiventi');
+  // 2026-11-08 owner copy change: exact text and list structure
+  const norm = (t) => (t || '').replace(/\s+/g, ' ').trim();
+  const cards = page.locator('.about-container');
+  await expect(cards).toHaveCount(2);
+  await expect(cards.first()).toContainText('Movie Atlas is a sleek React web application designed to elevate your cinematic exploration. The platform empowers users to');
+  await expect(cards.first()).toContainText('Powered by the robust themoviedb.org REST API, Movie Atlas delivers a fast, data-rich experience for film enthusiasts.');
+  await expect(cards.nth(1)).toContainText('Movie Atlas was engineered by Sankar Kruthiventi. Feel free to explore my work or get in touch through my professional and social channels:');
+  await expect(cards.nth(1).locator('b').first()).toHaveText('Sankar Kruthiventi');
+  await expect(cards.locator('ol')).toHaveCount(0);
+  const appList = cards.first().locator('ul');
+  await expect(appList).toHaveCount(1);
+  await expect(appList.locator('li')).toHaveCount(3);
+  const appItems = [
+    ['Discover Favorites:', 'Discover Favorites: Search seamlessly for any movie in cinematic history.'],
+    ['Unlock Deep Insights:', 'Unlock Deep Insights: Access comprehensive, real-time details for any selected title.'],
+    ['Track Trends:', 'Track Trends: Instantly stream curated feeds of popular, top-rated, and now-playing releases.'],
+  ];
+  for (const [i, [lead, full]] of appItems.entries()) {
+    await expect(appList.locator('li').nth(i).locator('b')).toHaveText(lead);
+    expect(norm(await appList.locator('li').nth(i).textContent())).toBe(full);
+  }
+  const meList = cards.nth(1).locator('ul.about-me-list');
+  await expect(cards.nth(1).locator('ul')).toHaveCount(1);
+  await expect(meList.locator('li')).toHaveCount(3);
+  const meItems = [
+    ['Professional Networking:', 'Professional Networking: LinkedIn'],
+    ['Code & Repositories:', 'Code & Repositories: Github'],
+    ['Social & Community:', 'Social & Community: Facebook | Instagram'],
+  ];
+  for (const [i, [lead, full]] of meItems.entries()) {
+    await expect(meList.locator('li').nth(i).locator('b')).toHaveText(lead);
+    expect(norm(await meList.locator('li').nth(i).textContent())).toBe(full);
+  }
+  // Facebook and Instagram share the third li; the visible "|" separator is hidden from assistive tech
+  await expect(meList.locator('li').nth(2).locator('a')).toHaveText(['Facebook', 'Instagram']);
+  await expect(meList.locator('li').nth(2).locator('span[aria-hidden="true"]')).toHaveText('|');
+  await expect(meList.locator('li').nth(0).locator('a')).toHaveText('LinkedIn');
+  await expect(meList.locator('li').nth(1).locator('a')).toHaveText('Github');
   const expected = {
     LinkedIn: 'https://www.linkedin.com/in/shankarkruthiventi/',
     Github: 'https://github.com/shankar-kruthiventi',

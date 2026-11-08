@@ -108,6 +108,9 @@ body::before {
   padding: 1vw;
   font-size: 1.4vw;
 }
+ul.about-me-list li {
+  line-height: 40px;
+}
 .about {
   padding: 10px;
   margin-bottom: 1vw;

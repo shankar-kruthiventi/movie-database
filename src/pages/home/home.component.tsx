@@ -143,27 +143,25 @@ const Home = () => {
             <div className="about-container">
               <div className="about">About this app</div>
               <div>
-                Movie Atlas is made using React. This app helps the user to:{" "}
+                Movie Atlas is a sleek React web application designed to elevate your cinematic exploration. The platform empowers users to{" "}
               </div>
-              <ol>
-                <li>Search for his/her favourite movies.</li>
-                <li>Allows the user to get respective movie details.</li>
+              <ul>
+                <li><b>Discover Favorites:</b> Search seamlessly for any movie in cinematic history.</li>
+                <li><b>Unlock Deep Insights:</b> Access comprehensive, real-time details for any selected title.</li>
                 <li>
-                  Gives the user info about popular, top rated and now playing
-                  movies.
+                  <b>Track Trends:</b> Instantly stream curated feeds of popular, top-rated, and now-playing releases.
                 </li>
-              </ol>
-              This app uses themoviedb.org REST API to fetch the movie details.
+              </ul>
+              Powered by the robust themoviedb.org REST API, Movie Atlas delivers a fast, data-rich experience for film enthusiasts.
             </div>
             <div className="about-container">
               <div className="about">About me</div>
               <div>
-                This app is developed by <b>Sankar Kruthiventi</b>. You can
-                reach out to me at
+                Movie Atlas was engineered by <b>Sankar Kruthiventi</b>. Feel free to explore my work or get in touch through my professional and social channels:
               </div>
-              <ul>
+              <ul className="about-me-list">
                 <li>
-                  <a
+                  <b>Professional Networking:</b> <a
                     href={"https://www.linkedin.com/in/shankarkruthiventi/"}
                     rel="noopener noreferrer"
                     target="_blank"
@@ -172,7 +170,7 @@ const Home = () => {
                   </a>
                 </li>
                 <li>
-                  <a
+                  <b>Code & Repositories:</b> <a
                     href={"https://github.com/shankar-kruthiventi"}
                     rel="noopener noreferrer"
                     target="_blank"
@@ -182,16 +180,13 @@ const Home = () => {
                 </li>
 
                 <li>
-                  <a
+                  <b>Social & Community:</b> <a
                     href={"https://www.facebook.com/shankar.kruthiventi/"}
                     rel="noopener noreferrer"
                     target="_blank"
                   >
                     Facebook
-                  </a>
-                </li>
-                <li>
-                  <a
+                  </a>{" "}<span aria-hidden="true">|</span>{" "}<a
                     href={"https://www.instagram.com/madhav_kruthiventi/"}
                     rel="noopener noreferrer"
                     target="_blank"

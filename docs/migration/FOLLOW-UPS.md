@@ -48,3 +48,8 @@ Quirks below are preserved on purpose (behavior parity). Fix them after the migr
 - Step 7: bookmarked `#/top_rated` / `#/now_playing` still end on `#/home` when opened fresh (BC-07 quirk, empty list at mount), not on the list; fixing BC-07 would make the redirect land on the list. Owner call.
 - Step 7: in-app hash edit to a list URL shows whatever list is loaded (no fetch), pre-existing quirk.
 - Step 7: the legacy redirects can be removed once old bookmarks are no longer a concern (delete `legacyPath` in `src/routes.ts`).
+
+- Step 8 (owner copy edit, 2026-11-08): the first About sentence ends "...empowers users to" and then a list follows, so it reads oddly on its own (the lead-ins are not verbs in the infinitive: "Discover Favorites:" etc.). Copy is the owner's, left as written.
+- Step 8: "Facebook | Instagram" share one list item (owner choice); each link is still its own tab stop, the "|" is aria-hidden. A list item per link would be cleaner semantics.
+- Step 8: `ul.about-me-list li { line-height: 40px; }` makes the About me rows airy and, at mobile widths where the card font is 2.5vw (about 8-10px), the gaps look large relative to the small text. Pre-existing: the card font size is vw-based and tiny at 320-390 px.
+- Step 8: `ul.about-me-list` has no theme-token colours of its own (inherits card text), so nothing to track for dark/light.
