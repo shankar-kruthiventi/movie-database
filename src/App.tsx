@@ -1,5 +1,5 @@
 import { TMDB_API_KEY } from './config';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import { HashRouter, Route, Routes, Navigate } from 'react-router-dom';
 import Header from './pages/header/header.component';
@@ -17,33 +17,42 @@ function App() {
   // Page-1 loads in flight: the list prefetch (step 5b) waits for them so it never appends to a list that is about to be replaced.
   const [loading, setLoading] = useState(0);
   // Ordered, pipelined next-page loader used by the list prefetch (the legacy `append` below stays for Show More / BC-10).
-  const pipeline = usePagePipeline({ category: movieCategory, page, setPage, setList: setMoviesList });
+  const pipeline = usePagePipeline({ page, setPage, setList: setMoviesList });
+
+  // Latest page-1 request: an older response that arrives later (category clicked twice quickly) is dropped.
+  const latestFetch = useRef(0);
 
   function fetchData(movieCategory: string) {
     if (!movieCategory) {
       alert("no type");
     }
     setLoading((count) => count + 1);
+    latestFetch.current += 1;
+    const requestId = latestFetch.current;
     fetch(
       `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=${TMDB_API_KEY}&language=en-US&page=1`
     )
       .then((response): Promise<MovieListResponse> => response.json())
       .then((data) => {
+        if (requestId !== latestFetch.current) return;
         setMovieCategory(movieCategory);
         setMoviesList(data.results);
-        pipeline.reset(data.total_pages);
+        // Resets the shared page counter too when the category changed (BC-32).
+        pipeline.reset(movieCategory, data.total_pages);
       })
       .finally(() => setLoading((count) => count - 1));
   }
 
   const append = () => {
+    // A response for a category that has been replaced since (BC-32) must not touch the new list.
+    const generation = pipeline.generation();
     setPage((page) => page + 1);
     fetch(
       `https://api.themoviedb.org/3/movie/${movieCategory}?api_key=${TMDB_API_KEY}&language=en-US&page=${page}`
     )
       .then((response): Promise<MovieListResponse> => response.json())
       .then((data) => {
-        if(data && data.results && data.results.length) {
+        if(generation === pipeline.generation() && data && data.results && data.results.length) {
           let newMovieList = [...movieList, ...data.results];
           setMoviesList(newMovieList);
         }
