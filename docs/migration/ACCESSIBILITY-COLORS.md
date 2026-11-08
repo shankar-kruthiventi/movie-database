@@ -131,3 +131,6 @@ Unchanged in dark mode (already passing): header, nav (normal/hover/active), Abo
 
 
 Step 4 (2026-11-07): the open autocomplete marks the active option (aria-activedescendant) with the new token `--option-active-bg` (`#dcefe7` in both modes) and a 2px inset `--option-focus` ring; rows added to the tables above.
+
+## Step 5 (2026-11-08): poster placeholder
+`--poster-placeholder` (dark #1c2128, light #e1e5ea) is the background of `.poster` behind the opaque poster image; it is visible only while an image has not loaded (or is missing). It carries no text and is not a UI boundary, so no contrast requirement applies; the list background pairs (BC-21) are unchanged.

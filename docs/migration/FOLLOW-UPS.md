@@ -33,3 +33,8 @@ Quirks below are preserved on purpose (behavior parity). Fix them after the migr
 - Step 4: the search still fires on every keyup including arrow, Esc, Tab and Enter keys (BC-14), so navigating the list triggers extra API calls; a debounce plus "only when the value changed" would fix it together with the encoding bug.
 - Step 4: only the first 3 results are offered (BC-14); screen reader users hear "3 results available" even when TMDB returned 20.
 - Step 4: Home/End inside the list are not wired (APG optional).
+- Step 5: the next page still needs a scroll event (600 ms debounce, BC-09): on a very tall viewport where one page does not fill the screen the user has to scroll or press nothing (Show More is hidden); a sentinel-only trigger would fix that but changes the request sequence on load (owner decision).
+- Step 5: `.poster` count in the DOM is the mounted window; use `.movieList-container[data-total]` for the list length in tests.
+- Step 5: when a resize changes the tiles per row, the scroll position is not re-anchored to the first visible tile.
+- Step 5: heap numbers from CDP only cover the JS heap; decoded-image memory is not measured by the e2e suite (real-device check recommended after deploy: scroll 25 pages on a phone).
+- Step 5: `poster_path: null` still renders `.../w500null` (broken image on the placeholder colour); a dedicated empty-poster tile is a design call.
