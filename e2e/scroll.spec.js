@@ -10,7 +10,7 @@ test('BC-09 infinite scroll: scroll -> 600ms debounce -> IntersectionObserver ->
   await page.waitForTimeout(250);
   expect(pageParams(app, '/movie/popular')).toEqual(['1', '1']);
   await expect.poll(() => pageParams(app, '/movie/popular'), { timeout: 5000 }).toEqual(['1', '1', '2']);
-  await expect(page.locator('.poster')).toHaveCount(40);
+  await expect(page.locator('.movieList-container')).toHaveAttribute('data-total', '40'); // list length (step 5: .poster is only the mounted window)
   await page.waitForTimeout(1500);
   expect(pageParams(app, '/movie/popular')).toEqual(['1', '1', '2']);
 });

@@ -2,11 +2,20 @@
   height: 87.6vh;
 }
 .movieList-container {
+  overflow-anchor: none;
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
   padding: 1vw 2vw;
   background: var(--list-bg);
+}
+/* Step 5 windowing: spacers stand in for the rows that are not mounted (height set inline). */
+.list-spacer {
+  flex: 0 0 100%;
+  overflow-anchor: none;
+}
+.list-sentinel {
+  height: 0;
 }
 .poster-container {
   width: 10vw;
@@ -18,6 +27,9 @@
 .poster {
   width: 100%;
   height: 95%;
+  /* Step 5: tile affordance and a same-size placeholder shown until the poster has loaded. */
+  cursor: pointer;
+  background-color: var(--poster-placeholder);
 }
 .poster:hover {
   transform: scale(1.25);

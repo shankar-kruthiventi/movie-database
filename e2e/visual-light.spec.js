@@ -35,7 +35,7 @@ for (const [name, viewport] of Object.entries(VIEWPORTS)) {
 
     test(`screenshot light Popular list ${name}`, async ({ page }) => {
       await goList(page, name);
-      await expect(page.locator('.poster')).toHaveCount(20);
+      await expect(page.locator('.movieList-container')).toHaveAttribute('data-total', '20');
       await settle(page);
       await expect(page).toHaveScreenshot(`popular-light-${name}.png`);
     });

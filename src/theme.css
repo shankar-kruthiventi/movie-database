@@ -16,6 +16,7 @@
   --accent-bg: #64dcb0;
   --on-accent: #21252d;
   --list-bg: #000000;
+  --poster-placeholder: #1c2128;
   --card-bg: #000000;
   --card-text: #ffffff;
   --card-border: #ffffff;
@@ -54,6 +55,7 @@
   --accent-bg: #0b7a5a;
   --on-accent: #ffffff;
   --list-bg: #f3f5f7;
+  --poster-placeholder: #e1e5ea;
   --card-bg: #ffffff;
   --card-text: #1a1f26;
   --card-border: #5f6b76;

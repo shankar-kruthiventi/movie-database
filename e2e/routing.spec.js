@@ -70,9 +70,9 @@ test('BC-05 category switch replaces the list with page 1; page counter starts a
   await openListViaNav(page, 'Popular Movies');
   await expect(page.locator('.poster')).toHaveCount(20);
   await page.locator('.next-button').dispatchEvent('click');
-  await expect(page.locator('.poster')).toHaveCount(40);
+  await expect(page.locator('.movieList-container')).toHaveAttribute('data-total', '40'); // list length (step 5: .poster is only the mounted window)
   await page.locator('.next-button').dispatchEvent('click');
-  await expect(page.locator('.poster')).toHaveCount(60);
+  await expect(page.locator('.movieList-container')).toHaveAttribute('data-total', '60'); // list length (step 5: .poster is only the mounted window)
   expect(pageParams(app, '/movie/popular')).toEqual(['1', '1', '2', '3']);
   // switch category: replaced by page 1 of top_rated
   await page.locator('.header-container a', { hasText: 'Top Rated Movies' }).click();
@@ -81,7 +81,7 @@ test('BC-05 category switch replaces the list with page 1; page counter starts a
   expect(pageParams(app, '/movie/top_rated')).toEqual(['1']);
   // counter not reset: next Show More asks for page 4 of the new category
   await page.locator('.next-button').dispatchEvent('click');
-  await expect(page.locator('.poster')).toHaveCount(40);
+  await expect(page.locator('.movieList-container')).toHaveAttribute('data-total', '40'); // list length (step 5: .poster is only the mounted window)
   expect(pageParams(app, '/movie/top_rated')).toEqual(['1', '4']);
   await expect(page.locator('.poster').nth(20)).toHaveAttribute('alt', 'top_rated p4 movie 0');
 });
@@ -94,7 +94,7 @@ test('BC-08 Show More exists for a non-empty list (hidden by CSS today) and appe
   // Quirk: .next-button { visibility: hidden } in movie-list.style.css; infinite scroll is the user path.
   await expect(btn).toHaveCSS('visibility', 'hidden');
   await btn.dispatchEvent('click');
-  await expect(page.locator('.poster')).toHaveCount(40);
+  await expect(page.locator('.movieList-container')).toHaveAttribute('data-total', '40'); // list length (step 5: .poster is only the mounted window)
   expect(pageParams(app, '/movie/now_playing')).toEqual(['1', '2']);
   await expect(page.locator('.poster').nth(20)).toHaveAttribute('alt', 'now_playing p2 movie 0');
   await expect(page.locator('.poster').nth(0)).toHaveAttribute('alt', 'now_playing p1 movie 0');
