@@ -318,4 +318,29 @@ input::placeholder {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+/* Slow "camera" pan over the existing wallpaper: the image is zoomed in and the visible
+   window travels around a square (top-left -> top-right -> bottom-right -> bottom-left).
+   Uses a transform on a fixed layer behind the page, so it is GPU-friendly. The static
+   body background above stays as the fallback and the reduced-motion version. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url("./collection.jpg") center / cover no-repeat;
+  transform-origin: center;
+  animation: wallpaper-pan 48s linear infinite;
+  will-change: transform;
+}
+@keyframes wallpaper-pan {
+  0%, 100% { transform: scale(1.3) translate(-10%, -10%); }
+  25%      { transform: scale(1.3) translate(10%, -10%); }
+  50%      { transform: scale(1.3) translate(10%, 10%); }
+  75%      { transform: scale(1.3) translate(-10%, 10%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    display: none;
+  }
 }
