@@ -53,3 +53,5 @@ Derived from reading the code on the pre-migration commit. Every ID needs a pass
 ## Known pre-existing problems (not part of the migration)
 - `src/App.test.js` is the CRA template test ("learn react") and fails today.
 - TMDB API key is hardcoded in 4 files (App.js, home, movie-list, git history). Handled in Phase 6 with owner action (rotate key).
+
+- Note 2026-11-08 (Movie Atlas step 6): BC-18 unchanged in its facts (same favicon / apple-touch-icon / manifest link names and hrefs). The three files `public/favicon.ico`, `logo192.png`, `logo512.png` now hold the new clapperboard-and-globe icon (owner-approved); manifest content unchanged.
