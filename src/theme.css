@@ -58,7 +58,7 @@
   --poster-placeholder: #e1e5ea;
   --card-bg: #ffffff;
   --card-text: #1a1f26;
-  --card-border: #5f6b76;
+  --card-border: #1a1f26;
   --link: #0b7a5a;
   --heading: #075c43;
   --input-bg: #ffffff;
@@ -71,7 +71,7 @@
   --option-focus: #0b7a5a;
   --option-active-bg: #dcefe7;
   --page-bg: #ffffff;
-  --wash: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8));
+  --wash: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.8) 35%); /* lighter at the top; full 0.8 from 35% down (text and borders on the photo need it, BC-21) */
   --dialog-body-bg: #f6f8fa;
   --dialog-body-text: #1a1f26;
   --dialog-link: #0b7a5a;

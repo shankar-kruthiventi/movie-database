@@ -63,7 +63,7 @@ Tool choice: `@axe-core/playwright@4.14.0` (devDependency; live `npm view` 4.14.
 | About card text | `#1a1f26` | `#ffffff` | 16.56 | 4.5 | pass |
 | About card links | `#0b7a5a` | `#ffffff` | 5.32 | 4.5 | pass |
 | About card focus ring | `#0b7a5a` | `#ffffff` | 5.32 | 3 | pass |
-| About card border vs card fill | `#5f6b76` | `#ffffff` | 5.45 | 3 | pass |
+| About card border vs card fill | `#1a1f26` | `#ffffff` | 16.56 | 3 | pass |
 | Search input text | `#1a1f26` | `#ffffff` | 16.56 | 4.5 | pass |
 | Search input placeholder | `#5c6670` | `#ffffff` | 5.85 | 4.5 | pass |
 | Search input border vs input fill | `#5f6b76` | `#ffffff` | 5.45 | 3 | pass |
@@ -93,19 +93,19 @@ Tool choice: `@axe-core/playwright@4.14.0` (devDependency; live `npm view` 4.14.
 
 ## Pairs on the wallpaper (measured, worst pixel of the element's surroundings)
 
-The wallpaper is the same photo in both modes; light mode adds `rgba(255,255,255,0.8)` over it. Values come from `e2e/a11y-contrast.spec.js` (it fails below 3:1).
+The wallpaper is the same photo in both modes; light mode adds a white wash over it: since 2026-11-08 a gradient `linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.8) 35%)` (lighter at the top, flat 0.8 from 35% of the layer down). Values come from `e2e/a11y-contrast.spec.js` (it fails below 3:1).
 
 | Pair | Dark | Light | Min |
 |---|---|---|---|
 | "Search for movies here" heading vs wallpaper behind the glyph box (large text) | 4.04 | 4.99 (heading token `#075c43`) | 3 |
-| About card border vs wallpaper just outside the card | 6.78 | 3.40 | 3 |
+| About card border vs wallpaper just outside the card | 6.78 | 3.20 (worst of five poses; static 3.65; border `#1a1f26`) | 3 |
 | Search input boundary: border vs outside wallpaper / fill vs outside wallpaper (best of the two counts) | 1.00 / 6.91 | 3.40 / 1.35 | 3 |
 | Search input focus ring vs wallpaper just outside the input | 4.26 | 3.31 | 3 |
 | Placeholder `#757575` / `#5c6670` on the input fill | 4.61 | 5.85 | 4.5 |
 
 Step 4b: the wallpaper now pans (BC-23), so the spec measures the static photo and the four extreme poses (zoom 1.3, shift +-10%) and asserts >= 3:1 for each. Worst case over the five poses: dark heading 3.95 (static 4.08; was 4.04 before the pan), dark card border 6.82, dark input ring 4.10 (static 4.33); light values did not change (heading 4.99, card border 3.40, input ring 3.31) because the 0.8 wash flattens the photo. The wash is unchanged, so no token changed. `--page-bg` (#121212 / #ffffff) is the solid colour behind the layer (axe reads it; the pixel test covers the photo).
 
-Light mode has the thinnest margins here (card border 3.40, input ring 3.31). If the wash is ever made more transparent, re-run the spec; raising `--card-border` / `--focus-ring` darkness is the lever.
+Light mode has the thinnest margins here (card border 3.20, input ring 3.31). If the wash is ever made more transparent, re-run the spec; raising `--card-border` / `--focus-ring` darkness is the lever.
 
 ## Pairs that needed adjusting
 
@@ -134,3 +134,9 @@ Step 4 (2026-11-07): the open autocomplete marks the active option (aria-actived
 
 ## Step 5 (2026-11-08): poster placeholder
 `--poster-placeholder` (dark #1c2128, light #e1e5ea) is the background of `.poster` behind the opaque poster image; it is visible only while an image has not loaded (or is missing). It carries no text and is not a UI boundary, so no contrast requirement applies; the list background pairs (BC-21) are unchanged.
+
+## 2026-11-08: lighter light-mode wash (owner design change)
+
+The owner changed the light wash from a flat 0.8 white to `linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.8))`. Measured with the unchanged spec thresholds, that failed in all five wallpaper poses: heading 1.35-2.26 (>= 3 needed), card border 1.00 (the border `#5f6b76` matches mid-grey photo pixels), input boundary 1.09-2.01, input ring 1.06-1.73. Before (flat 0.8, worst of 5 poses): heading 4.99, card border 3.40, input border 3.40, input ring 3.31.
+
+Minimum change that keeps a lighter top: the wash is now `linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.8) 35%)` (top stop 0.1 -> 0.2, 0.8 reached at 35% instead of 100%) and light `--card-border` `#5f6b76` -> `#1a1f26`. Sweep results: with the owner's 0.1 top and a 35-40% stop the card border still failed (2.59 static at 40%) because the cards sit at 15-49% of the viewport; 0.2 / 35% is the lowest top stop that passes. Result, worst of five poses: heading 4.99, card border 3.20 (static 3.65), input border 3.40, input ring 3.31, placeholder 5.85. Heading, input border and ring are unchanged from the flat wash because they sit in the flat 0.8 zone. Thresholds untouched.

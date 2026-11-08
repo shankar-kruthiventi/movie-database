@@ -98,7 +98,8 @@ test('BC-19 light mode: wallpaper is the same image with a white wash, cards sta
   await page.addInitScript((k) => { try { localStorage.setItem(k, 'light'); } catch (e) { /* about:blank */ } }, KEY);
   await open(page, '/home');
   const bg = await page.evaluate(() => getComputedStyle(document.body, '::before').backgroundImage);
-  expect(bg).toMatch(/^linear-gradient\(rgba\(255, 255, 255, 0\.8\), rgba\(255, 255, 255, 0\.8\)\), url\(.*collection\.[\w-]+\.jpg.*\)$/);
+  // gradient white wash (lighter at the top, 0.8 from 35% down) over the same photo
+  expect(bg).toMatch(/^linear-gradient\(rgba\(255, 255, 255, 0\.2\), rgba\(255, 255, 255, 0\.8\) 35%\), url\(.*collection\.[\w-]+\.jpg.*\)$/);
   const card = page.locator('.about-container').first();
   await expect(card).toHaveCSS('background-color', 'rgb(255, 255, 255)');
   await expect(card).toHaveCSS('color', 'rgb(26, 31, 38)');
