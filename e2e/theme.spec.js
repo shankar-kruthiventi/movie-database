@@ -97,7 +97,7 @@ test('BC-19 desktop toggle is the last header item, after Now Playing; mobile to
 test('BC-19 light mode: wallpaper is the same image with a white wash, cards stay opaque white with dark text', async ({ page }) => {
   await page.addInitScript((k) => { try { localStorage.setItem(k, 'light'); } catch (e) { /* about:blank */ } }, KEY);
   await open(page, '/home');
-  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundImage);
+  const bg = await page.evaluate(() => getComputedStyle(document.body, '::before').backgroundImage);
   expect(bg).toMatch(/^linear-gradient\(rgba\(255, 255, 255, 0\.8\), rgba\(255, 255, 255, 0\.8\)\), url\(.*collection\.[\w-]+\.jpg.*\)$/);
   const card = page.locator('.about-container').first();
   await expect(card).toHaveCSS('background-color', 'rgb(255, 255, 255)');
@@ -106,7 +106,7 @@ test('BC-19 light mode: wallpaper is the same image with a white wash, cards sta
 
 test('BC-19 dark mode wallpaper has no wash (same image)', async ({ page }) => {
   await open(page, '/home');
-  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundImage);
+  const bg = await page.evaluate(() => getComputedStyle(document.body, '::before').backgroundImage);
   expect(bg).toMatch(/^none, url\(.*collection\.[\w-]+\.jpg.*\)$/); // first layer is the wash: none in dark
 });
 

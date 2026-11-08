@@ -15,11 +15,50 @@
   background-size: cover; */
   position:relative;
 }
+/* Wallpaper: a fixed pseudo-element layer behind the page instead of a body background
+   (background-attachment: fixed is broken on iOS Safari). --wash is none in dark mode and a
+   semi-transparent white layer over the same image in light mode; it travels with the photo.
+   The slow "camera" pan is CSS only: the image is zoomed in and the visible window moves around
+   a square (top-left -> top-right -> bottom-right -> bottom-left). Only transform animates, on its own
+   GPU layer, and the layer is out of flow, so there is no layout work and the smooth scrollbar is unaffected.
+   Without the animation (reduced motion, or tests that cancel it) the layer is the plain unzoomed photo. */
 body {
-  /* --wash: none in dark mode; a semi-transparent white layer over the same image in light mode */
-  background: var(--wash), url("./collection.jpg");
-  background-size: cover;
-  background-repeat: no-repeat;
+  background-color: var(--page-bg);
+}
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* 100vh first (old browsers); 100lvh is the stable "large viewport" height, so the layer does not
+     resize while the iOS Safari toolbar shows and hides (100dvh would resize it and jank). */
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--wash), url("./collection.jpg") center / cover no-repeat;
+  transform-origin: center;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+  animation: wallpaper-pan 48s linear infinite;
+}
+@supports (height: 100lvh) {
+  body::before {
+    height: 100lvh;
+  }
+}
+@keyframes wallpaper-pan {
+  0%, 100% { transform: scale3d(1.3, 1.3, 1) translate3d(-10%, -10%, 0); }
+  25%      { transform: scale3d(1.3, 1.3, 1) translate3d(10%, -10%, 0); }
+  50%      { transform: scale3d(1.3, 1.3, 1) translate3d(10%, 10%, 0); }
+  75%      { transform: scale3d(1.3, 1.3, 1) translate3d(-10%, 10%, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+    will-change: auto;
+  }
 }
 .finder-container {
   /* padding: 2vw 5vw; */

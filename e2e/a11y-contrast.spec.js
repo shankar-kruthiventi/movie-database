@@ -6,6 +6,14 @@ const { ratio, parseColor, worstAgainstRegions } = require('./contrast-helpers')
 
 const KEY = 'movie-atlas-theme';
 const MODES = ['dark', 'light'];
+const S = 'scale3d(1.3, 1.3, 1) ';
+const POSES = [
+  { name: 'static', transform: null },
+  { name: 'top-left', transform: S + 'translate3d(-10%, -10%, 0)' },
+  { name: 'top-right', transform: S + 'translate3d(10%, -10%, 0)' },
+  { name: 'bottom-right', transform: S + 'translate3d(10%, 10%, 0)' },
+  { name: 'bottom-left', transform: S + 'translate3d(-10%, 10%, 0)' },
+];
 
 async function contrastViolations(page, include) {
   let b = new AxeBuilder({ page }).withRules(['color-contrast']);
@@ -49,8 +57,10 @@ for (const mode of MODES) {
       expect(await contrastViolations(page, '.header-view')).toEqual([]);
     });
 
-    test(`BC-21 wallpaper pairs measured from pixels: heading >= 3:1, card border, search input border and focus ring (${mode})`, async ({ page }) => {
+    // The wallpaper pans (BC-23): measure the static photo and the four extreme keyframe poses (worst case).
+    for (const pose of POSES) test(`BC-21 wallpaper pairs measured from pixels: heading >= 3:1, card border, search input border and focus ring (${mode}, wallpaper ${pose.name})`, async ({ page }) => {
       await open(page, '/home');
+      if (pose.transform) await page.addStyleTag({ content: `body::before { animation: none !important; transform: ${pose.transform} !important; }` });
       await expect(page.locator('.home-contianer')).toBeVisible();
       await page.mouse.move(0, 0);
       const results = {};
@@ -106,7 +116,7 @@ for (const mode of MODES) {
       results.placeholder = ratio(ph, fill);
       expect(results.placeholder).toBeGreaterThanOrEqual(4.5);
 
-      console.log(`[contrast ${mode}] ` + Object.entries(results).map(([k, v]) => `${k}=${v.toFixed(2)}`).join(' '));
+      console.log(`[contrast ${mode} ${pose.name}] ` + Object.entries(results).map(([k, v]) => `${k}=${v.toFixed(2)}`).join(' '));
     });
   });
 }
