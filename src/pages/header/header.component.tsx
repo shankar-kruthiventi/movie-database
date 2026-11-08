@@ -4,6 +4,7 @@ import { NavLink, Link } from "react-router-dom";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 
+import { POPULAR, TOP_RATED, NOW_PLAYING } from "../../routes";
 import { useThemeMode } from "../../theme-mode";
 import "./header.style.css";
 
@@ -53,13 +54,13 @@ const Header = ({ fetchData }: HeaderProps) => {
         <NavLink to="/home">
           <h3>Home</h3>
         </NavLink>
-        <NavLink onClick={() => fetchData("popular")} to="/popular">
+        <NavLink onClick={() => fetchData(POPULAR.category)} to={`/${POPULAR.path}`}>
           <h3>Popular Movies</h3>
         </NavLink>
-        <NavLink onClick={() => fetchData("top_rated")} to="/top_rated">
+        <NavLink onClick={() => fetchData(TOP_RATED.category)} to={`/${TOP_RATED.path}`}>
           <h3>Top Rated Movies</h3>
         </NavLink>
-        <NavLink onClick={() => fetchData("now_playing")} to="/now_playing">
+        <NavLink onClick={() => fetchData(NOW_PLAYING.category)} to={`/${NOW_PLAYING.path}`}>
           <h3>Now Playing</h3>
         </NavLink>
         <ThemeToggle className="theme-toggle-desktop" />
@@ -93,27 +94,27 @@ const Header = ({ fetchData }: HeaderProps) => {
             Home
           </Link>
           <Link
-            to="/popular"
+            to={`/${POPULAR.path}`}
             onClick={() => {
-              fetchData("popular");
+              fetchData(POPULAR.category);
               chooseItem("Popular Movies");
             }}
           >
             Popular Movies
           </Link>
           <Link
-            to="/top_rated"
+            to={`/${TOP_RATED.path}`}
             onClick={() => {
-              fetchData("top_rated");
+              fetchData(TOP_RATED.category);
               chooseItem("Top Rated Movies");
             }}
           >
             Top Rated Movies
           </Link>
           <Link
-            to="/now_playing"
+            to={`/${NOW_PLAYING.path}`}
             onClick={() => {
-              fetchData("now_playing");
+              fetchData(NOW_PLAYING.category);
               chooseItem("Now Playing");
             }}
           >

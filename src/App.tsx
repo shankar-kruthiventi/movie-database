@@ -5,6 +5,7 @@ import { HashRouter, Route, Routes, Navigate } from 'react-router-dom';
 import Header from './pages/header/header.component';
 import Home from './pages/home/home.component';
 import MovieList from './components/movie-list/movie-list.component';
+import { LIST_ROUTES } from './routes';
 import type { MovieListItem, MovieListResponse } from './types/tmdb';
 
 function App() {
@@ -64,9 +65,18 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/popular" element={<MovieList append={append} key={'popular'} movieList={movieList} movieType={'popular'}/>} />
-        <Route path="/top_rated" element={<MovieList append={append} key={'top_rated'} movieList={movieList} movieType={'top_rated'}/>} />
-        <Route path="/now_playing" element={<MovieList append={append} key={'now_playing'} movieList={movieList} movieType={'now_playing'}/>}/>
+        {LIST_ROUTES.map((route) => (
+          <Route
+            key={route.path}
+            path={`/${route.path}`}
+            element={<MovieList append={append} key={route.category} movieList={movieList} movieType={route.category}/>}
+          />
+        ))}
+        {LIST_ROUTES.map((route) =>
+          route.legacyPath ? (
+            <Route key={route.legacyPath} path={`/${route.legacyPath}`} element={<Navigate to={`/${route.path}`} replace />} />
+          ) : null
+        )}
       </Routes>
       </main>
     </div>

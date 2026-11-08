@@ -38,7 +38,7 @@ test.describe('mobile 390x844', () => {
     await expect(page.locator('#home span')).toHaveText('Top Rated Movies');
     await expect(page.locator('#myLinks')).toBeHidden();
     await expect.poll(() => apiCalls(app, '/movie/top_rated').length).toBe(1);
-    await expect(page).toHaveURL(/#\/top_rated$/);
+    await expect(page).toHaveURL(/#\/top-rated$/);
     await burger.click();
     await page.locator('#myLinks a', { hasText: 'Now Playing' }).click();
     await expect(page.locator('#home span')).toHaveText('Now Playing');

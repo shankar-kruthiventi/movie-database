@@ -11,7 +11,7 @@ test('BC-01 bare URL and #/ redirect to #/home; hash URLs are used', async ({ pa
 test('BC-01 #/home loads Home; list URLs are reached through header links and use hash URLs', async ({ page }) => {
   await open(page, '/home');
   await expect(page.locator('.home-contianer')).toBeVisible();
-  for (const [label, route] of [['Popular Movies', 'popular'], ['Top Rated Movies', 'top_rated'], ['Now Playing', 'now_playing']]) {
+  for (const [label, route] of [['Popular Movies', 'popular'], ['Top Rated Movies', 'top-rated'], ['Now Playing', 'now-playing']]) {
     await page.locator('.header-container a', { hasText: label }).click();
     await expect(page).toHaveURL(new RegExp(`/movie-database/#/${route}$`));
     await expect(page.locator('.poster').first()).toBeVisible();
@@ -45,7 +45,7 @@ test('BC-03 active nav link gets class "active"', async ({ page }) => {
 
 test('BC-07 list route with an empty list redirects to /home (direct load of a list URL ends on home)', async ({ page }) => {
   // Quirk: MovieList mounts before the first fetch resolves, so direct/bookmarked list URLs bounce to home.
-  for (const route of ['popular', 'top_rated', 'now_playing']) {
+  for (const route of ['popular', 'top-rated', 'now-playing']) {
     await page.goto('about:blank'); // force a fresh app load (a hash-only change would not reload the app)
     await open(page, '/' + route);
     await expect(page).toHaveURL(/#\/home$/);

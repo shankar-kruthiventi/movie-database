@@ -44,3 +44,7 @@ Quirks below are preserved on purpose (behavior parity). Fix them after the migr
 - Step 6: browser tabs cache favicons hard; check the real tab, the iOS home-screen icon and a PWA install on devices after deploy (hard reload / clear site data if the old icon shows).
 
 - Step 6b (2026-11-08): resolved from the Step 6 items: SVG favicon added (`public/favicon.svg`), `theme_color` set to `#21252d`, dedicated opaque 180x180 apple-touch-icon added. Still open: `<meta name="theme-color" content="#000000">` in index.html differs from the manifest (`#21252d`); the manifest ico entry still says `64x64 32x32 24x24 16x16` (ico has 16/32/48); the manifest has no maskable icon; real-browser check of favicon choice (Chrome/Firefox svg, Safari ico), iOS home-screen icon and PWA install after deploy.
+
+- Step 7: bookmarked `#/top_rated` / `#/now_playing` still end on `#/home` when opened fresh (BC-07 quirk, empty list at mount), not on the list; fixing BC-07 would make the redirect land on the list. Owner call.
+- Step 7: in-app hash edit to a list URL shows whatever list is loaded (no fetch), pre-existing quirk.
+- Step 7: the legacy redirects can be removed once old bookmarks are no longer a concern (delete `legacyPath` in `src/routes.ts`).
