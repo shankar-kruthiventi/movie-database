@@ -69,7 +69,7 @@ test('BC-04 first load requests GET /3/movie/popular?language=en-US&page=1 once'
   await expect(page.locator('.poster').first()).toHaveAttribute('alt', 'popular p1 movie 0');
 });
 
-test('BC-05 category switch replaces the list with page 1; page counter starts at 2 and is not reset', async ({ page, app }) => {
+test('BC-05 category switch replaces the list with page 1; page counter starts at 2 and is reset on a category change (BC-32)', async ({ page, app }) => {
   await openListViaNav(page, 'Popular Movies');
   await expect(page.locator('.poster')).toHaveCount(20);
   await page.locator('.next-button').dispatchEvent('click');
@@ -82,11 +82,11 @@ test('BC-05 category switch replaces the list with page 1; page counter starts a
   await expect(page.locator('.poster')).toHaveCount(20);
   await expect(page.locator('.poster').first()).toHaveAttribute('alt', 'top_rated p1 movie 0');
   expect(pageParams(app, '/movie/top_rated')).toEqual(['1']);
-  // counter not reset: next Show More asks for page 4 of the new category
+  // counter reset (BC-32; was: not reset, asked for page 4): next Show More asks for page 2 of the new category
   await page.locator('.next-button').dispatchEvent('click');
   await expect(page.locator('.movieList-container')).toHaveAttribute('data-total', '40'); // list length (step 5: .poster is only the mounted window)
-  expect(pageParams(app, '/movie/top_rated')).toEqual(['1', '4']);
-  await expect(page.locator('.poster').nth(20)).toHaveAttribute('alt', 'top_rated p4 movie 0');
+  expect(pageParams(app, '/movie/top_rated')).toEqual(['1', '2']);
+  await expect(page.locator('.poster').nth(20)).toHaveAttribute('alt', 'top_rated p2 movie 0');
 });
 
 test('BC-08 Show More exists for a non-empty list (hidden by CSS today) and appends the next page', async ({ page, app }) => {
