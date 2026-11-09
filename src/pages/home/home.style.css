@@ -131,12 +131,13 @@ ul.about-me-list li {
     font-size: 8vw;
   } */
   .about-container {
-    margin-bottom: 5vw;
+    /* Step 8 follow-up: 5vw -> 2vw so the search box stays inside short phone viewports (375x667). */
+    margin-bottom: 2vw;
     flex-basis: 100%;
     font-size: 2.5vw; /* 8px at 320: unreadable, floor below */
-    font-size: max(2.5vw, 14px);
+    font-size: max(2.5vw, 12px);
   }
-  /* Step 8 (responsiveness): 40px rows were airy next to 14px text. */
+  /* Step 8 (responsiveness): 40px rows were airy next to the small text. */
   ul.about-me-list li {
     line-height: 28px;
   }

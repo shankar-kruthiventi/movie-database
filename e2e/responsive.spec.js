@@ -86,9 +86,9 @@ for (const size of SIZES) {
         await expect(page.locator('.about-container').first()).toBeVisible();
         await expectNoOverflow(page, 'home');
 
-        // Body copy floor: 12px everywhere (the vw-based About card font was 8-10px); phones 14px in the About cards.
+        // Body copy floor: 12px everywhere (the vw-based About card font was 8-10px); phones also 12px in the About cards (Step 8 follow-up: the 14px phone floor pushed the search box below the fold).
         expect((await minFont(page, '.home-contianer')).min, 'home min font px').toBeGreaterThanOrEqual(12);
-        if (phone) expect((await minFont(page, '.home-view-container')).min, 'About card font px on phones').toBeGreaterThanOrEqual(14);
+        if (phone) expect((await minFont(page, '.home-view-container')).min, 'About card font px on phones').toBeGreaterThanOrEqual(12);
 
         // Header: nothing wraps out of the bar (short landscape windows), toggle and nav are inside the viewport.
         if (!phone) {
@@ -233,6 +233,30 @@ for (const size of SIZES) {
           await close.click();
           await expect(dialog).toBeHidden();
         }
+      });
+    });
+  }
+}
+
+// Step 8 follow-up regression: the search box (#auto) must be fully inside common phone viewports on Home
+// (the 14px About floor put it at y=747 in 390x664 and BC-23's click failed 'outside of the viewport').
+// 360x640 and 320x568 do not fit (documented in DECISIONS); 12px text is the floor, so they are not asserted.
+for (const [width, height] of [[390, 664], [375, 667]]) {
+  for (const mode of ['dark', 'light']) {
+    test.describe(`BC-33 search box in view ${width}x${height} ${mode}`, () => {
+      test.use({ viewport: { width, height }, apiTotalPages: 1 });
+      test(`BC-33 #auto is inside the ${width}x${height} viewport and clickable (${mode})`, async ({ page }) => {
+        await page.addInitScript(([k, m]) => { try { localStorage.setItem(k, m); } catch (e) { /* storage blocked */ } }, [KEY, mode]);
+        await open(page, '/home');
+        await expect(page.locator('#auto')).toBeVisible();
+        const b = await box(page.locator('#auto'));
+        expect(b.top, 'search input top').toBeGreaterThanOrEqual(0);
+        expect(b.bottom, 'search input bottom edge must be <= viewport height').toBeLessThanOrEqual(height);
+        // Playwright's ratio-1 check is not used: the scroll area (section, overflow hidden) clips the last few px by design (DECISIONS Step 8 follow-up).
+        await expect(page.locator('#auto')).toBeInViewport({ ratio: 0.5 });
+        await page.locator('#auto').click();
+        await expect(page.locator('#auto')).toBeFocused();
+        expect((await minFont(page, '.home-view-container')).min, 'About card font px').toBeGreaterThanOrEqual(12);
       });
     });
   }
