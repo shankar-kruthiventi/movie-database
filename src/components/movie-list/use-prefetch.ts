@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 import type { AppendResult } from "../../types/tmdb";
+import { backoffDelay, canRearm, isStalled, MAX_CONSECUTIVE_FAILURES } from "./prefetch-policy";
+
+const MAX_FAILURES_AFTER_REARM = MAX_CONSECUTIVE_FAILURES - 1;
 
 // Next-page prefetch for the poster list (Movie Atlas step 5b, owner decision 2026-11-08: the user
 // must never see empty or loading tiles at the bottom). Supersedes the BC-09 trigger (scroll, 600 ms
@@ -15,7 +18,9 @@ import type { AppendResult } from "../../types/tmdb";
 //   - when a page arrives and the sentinel is still inside the margin (tall screens, zoomed out) the
 //     next one is requested, at most MAX_BURST pages in a row without a scroll in between;
 //   - an error (network, HTTP error body) pauses all requests for an exponential backoff (1 s, 2 s,
-//     ... 15 s), then the failed page is requested again;
+//     ... 15 s), then the failed page is requested again; after MAX_CONSECUTIVE_FAILURES failures in a row the
+//     automatic retries stop and `stalled` is true (see prefetch-policy.ts: a scroll after the cool-down, a new
+//     list, or a success re-arms it);
 //   - "end" (no pages left) stops requests for this list; a shorter list (reloaded) re-arms it.
 
 /** The sentinel counts as near when it is within this many viewport heights below the viewport. */
@@ -24,8 +29,6 @@ export const PREFETCH_VIEWPORTS = 3;
 export const MAX_IN_FLIGHT = 2;
 /** Pages requested in a row without any scroll between them. */
 export const MAX_BURST = 8;
-const BACKOFF_START_MS = 1000;
-const BACKOFF_MAX_MS = 15000;
 
 interface PrefetchOptions {
   /** Current list length. */
@@ -34,10 +37,14 @@ interface PrefetchOptions {
   loadMore: () => Promise<AppendResult>;
   /** False while the list is not the one the route shows or is being (re)loaded: nothing is requested. */
   ready: boolean;
+  /** Pages that failed and are not loaded yet; a success only counts as recovery when 0 (default: always 0). */
+  failedPages?: () => number;
 }
 
 export interface Prefetch {
   sentinelRef: RefObject<HTMLDivElement | null>;
+  /** True while the automatic retries are exhausted (persistent errors); the list shows what it has. */
+  stalled: boolean;
   /** Call on every scroll update of the scrollbar. */
   onScroll: () => void;
   /** Suppresses requests until the list length changes (used around the BC-10 tablet auto-clicks). */
@@ -47,21 +54,24 @@ export interface Prefetch {
 /** Safety net for `hold`: if the list length never changes the loader wakes up again after this long. */
 const HOLD_MAX_MS = 3000;
 
-export function usePrefetch({ length, loadMore, ready }: PrefetchOptions): Prefetch {
+export function usePrefetch({ length, loadMore, ready, failedPages }: PrefetchOptions): Prefetch {
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const live = useRef({ length, loadMore, ready });
-  live.current = { length, loadMore, ready };
+  const live = useRef({ length, loadMore, ready, failedPages });
+  live.current = { length, loadMore, ready, failedPages };
   const state = useRef({
     alive: false,
     inFlight: 0,
     burst: 0,
     failures: 0,
     ended: false,
+    stalledAt: 0,
     heldLength: -1,
     retryAt: 0,
     lastLength: length,
     timer: undefined as ReturnType<typeof setTimeout> | undefined,
   });
+
+  const [stalled, setStalled] = useState(false);
 
   const nearEnd = useCallback(() => {
     const sentinel = sentinelRef.current;
@@ -78,6 +88,7 @@ export function usePrefetch({ length, loadMore, ready }: PrefetchOptions): Prefe
     if (!s.alive || !isReady || s.ended || count === 0) return;
     if (s.inFlight >= MAX_IN_FLIGHT || s.burst >= MAX_BURST || s.heldLength === count) return;
     if (Date.now() < s.retryAt) return;
+    if (isStalled(s.failures)) return; // retries exhausted: only a re-arm (scroll after the cool-down, new list) continues
     if (!nearEnd()) return;
     s.inFlight += 1;
     s.burst += 1;
@@ -86,17 +97,27 @@ export function usePrefetch({ length, loadMore, ready }: PrefetchOptions): Prefe
       if (!s.alive) return;
       if (result === "error") {
         s.failures += 1;
-        const delay = Math.min(BACKOFF_MAX_MS, BACKOFF_START_MS * 2 ** (s.failures - 1));
-        s.retryAt = Date.now() + delay;
         clearTimeout(s.timer);
+        if (isStalled(s.failures)) {
+          s.stalledAt = Date.now();
+          s.timer = undefined;
+          setStalled(true);
+          return;
+        }
+        const delay = backoffDelay(s.failures);
+        s.retryAt = Date.now() + delay;
         s.timer = setTimeout(tryLoad, delay);
         return;
       }
       if (result === "end") s.ended = true;
       else if (result === "wait") s.burst -= 1;
-      // A success inside the backoff window (a page requested together with the failed one) does not end the backoff.
-      else if (Date.now() >= s.retryAt) s.failures = 0;
-      // On "ok" the list grows, which wakes the loader again (effect below).
+      // A success inside the backoff window (a page requested together with the failed one) does not end the backoff,
+      // and neither does a page that arrived while an earlier page is still failing (it is stashed, not progress).
+      else if (Date.now() >= s.retryAt && !isStalled(s.failures) && (live.current.failedPages?.() ?? 0) === 0) {
+        s.failures = 0;
+        setStalled(false);
+      }
+      // On "ok" the list may grow, which wakes the loader again (effect below).
     };
     let outcome: Promise<AppendResult>;
     try {
@@ -148,6 +169,10 @@ export function usePrefetch({ length, loadMore, ready }: PrefetchOptions): Prefe
       // The list was replaced by a shorter one (page 1 reloaded): start over.
       s.ended = false;
       s.burst = 0;
+      // A reloaded page 1 answered: the service works again.
+      s.failures = 0;
+      s.retryAt = 0;
+      setStalled(false);
     }
     s.lastLength = length;
     if (s.heldLength !== length) s.heldLength = -1;
@@ -155,7 +180,15 @@ export function usePrefetch({ length, loadMore, ready }: PrefetchOptions): Prefe
   }, [length, ready, tryLoad]);
 
   const onScroll = useCallback(() => {
-    state.current.burst = 0;
+    const s = state.current;
+    s.burst = 0;
+    if (isStalled(s.failures) && canRearm(s.stalledAt, Date.now())) {
+      // Re-arm after the cool-down: the failure count stays one below the cap, so this attempt is a single try
+      // (a failure stalls again at once, a success resets the count).
+      s.failures = MAX_FAILURES_AFTER_REARM;
+      s.retryAt = 0;
+      setStalled(false);
+    }
     tryLoad();
   }, [tryLoad]);
 
@@ -169,5 +202,5 @@ export function usePrefetch({ length, loadMore, ready }: PrefetchOptions): Prefe
     }, HOLD_MAX_MS);
   }, [tryLoad]);
 
-  return { sentinelRef, onScroll, hold };
+  return { sentinelRef, stalled, onScroll, hold };
 }

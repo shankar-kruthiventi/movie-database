@@ -47,13 +47,14 @@ const movieFor = (i) => {
  * Latency + scripted failures on top of mockAll (routes registered later win). Options:
  *   totalPages   pages in the mocked list (default 40); `emptyBeyond` answers pages past it with `results: []`
  *                (and no total_pages) instead of reporting total_pages on every page.
- *   failures     { [page]: n } the first n requests of that page answer 500
- * Returns { times: [{page, at}], imgRequests: Map<url, n> }.
+ *   failures     { [page]: n } the first n requests of that page answer `failStatus` (default 500)
+ *   failStatus   HTTP status of the scripted failures (Follow-up B: 401 for a revoked key)
+ * Returns { times: [{page, at}], imgRequests: Map<url, n>, failLeft } (`failLeft` may be edited live to heal or break a page).
  */
-async function slowNetwork(page, app, { totalPages = 40, emptyBeyond = false, failures = {}, api = API_MS, img = IMG_MS } = {}) {
+async function slowNetwork(page, app, { totalPages = 40, emptyBeyond = false, failures = {}, failStatus = 500, api = API_MS, img = IMG_MS } = {}) {
   const t0 = Date.now();
-  const info = { times: [], imgRequests: new Map() };
   const failLeft = { ...failures };
+  const info = { times: [], imgRequests: new Map(), failLeft };
   await page.route(/https:\/\/api\.themoviedb\.org\/3\/movie\/popular\?/, async (route) => {
     const url = new URL(route.request().url());
     const pg = Number(url.searchParams.get('page') || 1);
@@ -64,7 +65,7 @@ async function slowNetwork(page, app, { totalPages = 40, emptyBeyond = false, fa
     const headers = { 'access-control-allow-origin': '*' };
     if (failLeft[pg] > 0) {
       failLeft[pg] -= 1;
-      return route.fulfill({ status: 500, contentType: 'application/json', headers, body: JSON.stringify({ status_code: 11, status_message: 'Internal error' }) });
+      return route.fulfill({ status: failStatus, contentType: 'application/json', headers, body: JSON.stringify({ status_code: 11, status_message: 'Internal error' }) });
     }
     const beyond = pg > totalPages;
     const results = beyond ? [] : Array.from({ length: PAGE_SIZE }, (_, j) => {
@@ -459,4 +460,88 @@ for (const mode of ['dark', 'light']) {
       });
     });
   }
+}
+
+// ---- Follow-up B (2026-11-09): the prefetch stops retrying after MAX_CONSECUTIVE_FAILURES (6) failures in a row ----
+// Policy (src/components/movie-list/prefetch-policy.ts, pure logic unit tested in prefetch-policy.test.ts): backoff
+// 1, 2, 4, 8, 15 s, then stalled (`data-prefetch="stalled"` on the grid). A scroll >= 60 s after the stall, a new
+// list or a success re-arms. Time is driven with Playwright's page clock (fastForward) instead of real waits.
+const POPULAR = '/movie/popular';
+const attemptsOf = (net, pg) => { const n = net.times.filter((t) => t.page === pg).length; return n; };
+// Up then down: at the end of the list a wheel down alone moves nothing and so sends no scroll event.
+const wheel = async (page, n = 3) => { await page.mouse.move(640, 400); for (let i = 0; i < n; i++) { await page.mouse.wheel(0, -300); await page.waitForTimeout(150); await page.mouse.wheel(0, 300); await page.waitForTimeout(150); } };
+/** Skips the backoff waits until `done()` or the attempts cap. */
+async function skipBackoff(page, done, rounds = 9) {
+  for (let i = 0; i < rounds && !(await done()); i++) {
+    await page.clock.fastForward(16000);
+    await wheel(page, 1); // a scroll resets the burst counter (MAX_BURST) so a retry is not held back for lack of one
+    await page.waitForTimeout(1300); // the scripted answer takes 300-800 ms of real time
+  }
+}
+
+for (const failStatus of [500, 401]) {
+  test.describe(`BC-31 Follow-up B persistent HTTP ${failStatus}`, () => {
+    test.setTimeout(120000);
+    test.use({ viewport: { width: 1280, height: 800 } });
+
+    test(`stops after 6 failures, nothing while idle, re-arms by a scroll after the cool-down, success resets the count (${failStatus})`, async ({ page, app }) => {
+      await page.clock.install();
+      const net = await slowNetwork(page, app, { failures: { 3: 999 }, failStatus });
+      await openPopular(page, 'dark');
+      const grid = page.locator('.movieList-container');
+      // 1. the cap: page 3 fails 6 times, then no more requests
+      await skipBackoff(page, async () => (await grid.getAttribute('data-prefetch')) === 'stalled');
+      await expect(grid).toHaveAttribute('data-prefetch', 'stalled');
+      expect(attemptsOf(net, 3), 'page 3 attempts when the cap is reached').toBe(6);
+      const all = () => net.times.length;
+      const frozen = all();
+      // 2. idle: time passes (45 s of page clock jumped, 2 s of real time), the user does not scroll: no request
+      await page.clock.fastForward(45000); // the page clock also runs in real time: stay well inside the 60 s cool-down
+      await page.waitForTimeout(2000);
+      expect(all(), 'no request while idle').toBe(frozen);
+      // 3. a scroll BEFORE the cool-down has elapsed (stalled for < 60 s of page time) does not re-arm
+      await wheel(page);
+      await page.waitForTimeout(1000);
+      expect(all(), 'a scroll inside the cool-down is ignored').toBe(frozen);
+      await expect(grid).toHaveAttribute('data-prefetch', 'stalled');
+      // 4. after the cool-down a scroll makes exactly one more attempt (it fails, the loader stalls again)
+      await page.clock.fastForward(61000);
+      await wheel(page);
+      await expect.poll(() => attemptsOf(net, 3), { timeout: 10000 }).toBe(7);
+      await page.waitForTimeout(1500);
+      expect(attemptsOf(net, 3), 'one single try after the re-arm').toBe(7);
+      await expect(grid).toHaveAttribute('data-prefetch', 'stalled');
+      // the retry of page 3 plus the fresh pages the free in-flight slot (max 2) allowed while it was out: a handful, not a loop
+      expect(all() - frozen, 'requests of the single re-armed round').toBeLessThanOrEqual(4);
+      const settled = all();
+      await wheel(page);
+      await page.waitForTimeout(800);
+      expect(all(), 'stalled again: scrolling right after it requests nothing').toBe(settled);
+      // 5. the service recovers: the next scroll after the cool-down loads page 3 and onwards, the stalled mark goes away
+      net.failLeft[3] = 0;
+      await page.clock.fastForward(61000);
+      await wheel(page);
+      await expect(grid).not.toHaveAttribute('data-prefetch', 'stalled', { timeout: 10000 });
+      await expect.poll(async () => Number(await grid.getAttribute('data-total')), { timeout: 15000 }).toBeGreaterThanOrEqual(5 * PAGE_SIZE);
+      // 6. a success reset the count: a new persistent failure needs the full 6 attempts again (not fewer)
+      await expect.poll(async () => Number(await grid.getAttribute('data-total')), { timeout: 10000 }).toBeGreaterThanOrEqual(8 * PAGE_SIZE);
+      await page.waitForTimeout(1500);
+      const next = Math.max(...net.times.map((t) => t.page)) + 1;
+      net.failLeft[next] = 999;
+      await wheelUntil(page, () => attemptsOf(net, next) >= 1);
+      await skipBackoff(page, async () => (await grid.getAttribute('data-prefetch')) === 'stalled');
+      await expect(grid).toHaveAttribute('data-prefetch', 'stalled');
+      expect(attemptsOf(net, next), `page ${next} attempts after a success in between`).toBe(6);
+      // the scripted failures log one console error each (HTTP 4xx/5xx)
+      app.consoleErrors.length = 0;
+      expect(pageParams(app, POPULAR).filter((p) => p === '3').length).toBeGreaterThanOrEqual(7);
+    });
+  });
+}
+
+/** Wheels (with real 40 ms pauses) until `done()` or 20 s. */
+async function wheelUntil(page, done) {
+  const end = Date.now() + 20000;
+  await page.mouse.move(640, 400);
+  while (!done() && Date.now() < end) { await page.mouse.wheel(0, 700); await page.waitForTimeout(80); }
 }

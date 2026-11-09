@@ -44,6 +44,8 @@ export interface PagePipeline {
    *  A different `category` than the previous reset also restarts the page counter at 2 (BC-32); so does the same
    *  category when `replacedGrownList` is true (Follow-up A: page 1 replaces a list that had grown). */
   reset: (category: string, totalPages: number | undefined, replacedGrownList?: boolean) => void;
+  /** Pages that failed and have not been loaded since (queued, or being retried). The prefetch only counts a success as recovery when this is 0. */
+  failedPages: () => number;
   /** True once pages beyond page 1 were committed to the current list (by this loader or the legacy append). Sample it when a page-1 load STARTS and pass it to `reset`. */
   hasGrown: () => boolean;
   /** The legacy `append` committed a page beyond page 1 to the list. */
@@ -66,6 +68,7 @@ export function usePagePipeline(inputs: Inputs): PagePipeline {
     totalPages: TMDB_MAX_PAGE,
     stash: new Map<number, MovieListItem[]>(),
     retry: [] as number[],
+    failed: new Set<number>(),
   });
 
   const reset = useCallback((category: string, totalPages: number | undefined, replacedGrownList = false) => {
@@ -97,6 +100,7 @@ export function usePagePipeline(inputs: Inputs): PagePipeline {
     s.totalPages = Math.min(TMDB_MAX_PAGE, totalPages ?? TMDB_MAX_PAGE);
     s.stash.clear();
     s.retry.length = 0;
+    s.failed.clear();
   }, []);
 
   const flush = useCallback(() => {
@@ -127,10 +131,12 @@ export function usePagePipeline(inputs: Inputs): PagePipeline {
       if (epoch !== s.epoch) return "wait";
       s.inFlight -= 1;
       if (!data || !Array.isArray(data.results)) {
+        s.failed.add(n);
         s.retry.push(n);
         s.retry.sort((a, b) => a - b);
         return "error";
       }
+      s.failed.delete(n);
       if (typeof data.total_pages === "number") s.totalPages = Math.min(TMDB_MAX_PAGE, data.total_pages);
       if (data.results.length === 0) s.totalPages = Math.min(s.totalPages, n - 1);
       s.stash.set(n, data.results);
@@ -160,10 +166,11 @@ export function usePagePipeline(inputs: Inputs): PagePipeline {
   }, [load]);
 
   const generation = useCallback(() => state.current.generation, []);
+  const failedPages = useCallback(() => state.current.failed.size, []);
   const hasGrown = useCallback(() => state.current.grown, []);
   const noteGrown = useCallback(() => {
     state.current.grown = true;
   }, []);
 
-  return { loadMore, reset, generation, hasGrown, noteGrown };
+  return { loadMore, reset, generation, failedPages, hasGrown, noteGrown };
 }

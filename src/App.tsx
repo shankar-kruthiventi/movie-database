@@ -89,7 +89,7 @@ function App() {
           <Route
             key={route.path}
             path={`/${route.path}`}
-            element={<MovieList append={append} loadMore={pipeline.loadMore} key={route.category} movieList={movieList} movieType={route.category} loadedType={movieCategory} loading={loading > 0}/>}
+            element={<MovieList append={append} loadMore={pipeline.loadMore} failedPages={pipeline.failedPages} key={route.category} movieList={movieList} movieType={route.category} loadedType={movieCategory} loading={loading > 0}/>}
           />
         ))}
         {LIST_ROUTES.map((route) =>

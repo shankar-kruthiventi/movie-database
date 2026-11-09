@@ -22,6 +22,8 @@ interface MovieListProps {
   append: () => void;
   // Ordered next-page loader for the prefetch (App pipeline); `append` stays the Show More handler.
   loadMore: () => Promise<AppendResult>;
+  // Pages that failed and are not loaded yet (retry cap, Follow-up B).
+  failedPages?: () => number;
   // The category this route shows, the category App has loaded, and whether a page-1 load is in
   // flight: the next-page prefetch waits until the list on screen is the one for this route.
   movieType?: string;
@@ -29,7 +31,7 @@ interface MovieListProps {
   loading?: boolean;
 }
 
-const MovieList = ({ movieList, append, loadMore, movieType, loadedType, loading }: MovieListProps) => {
+const MovieList = ({ movieList, append, loadMore, failedPages, movieType, loadedType, loading }: MovieListProps) => {
   const [open, setOpen] = useState(false);
 
   const [details, setDetails] = useState<MovieDetailsData>({
@@ -69,7 +71,7 @@ const MovieList = ({ movieList, append, loadMore, movieType, loadedType, loading
   // Next page (BC-09, changed in step 5b): the list prefetches the next page when the sentinel below
   // the grid comes within three viewport heights of the viewport, no scroll or debounce needed (see use-prefetch.ts).
   const ready = !loading && (loadedType === undefined || movieType === undefined || loadedType === movieType);
-  const prefetch = usePrefetch({ length: movieList.length, loadMore, ready });
+  const prefetch = usePrefetch({ length: movieList.length, loadMore, ready, failedPages });
   // BC-10: at 768-1024 px the five stale-closure appends below are the page requests for this list; the
   // prefetch stays quiet until they have changed the list length, then continues the numbering. Runs
   // before any effect, so the prefetch's first check (a mount effect) cannot request a page first.
@@ -107,7 +109,7 @@ const MovieList = ({ movieList, append, loadMore, movieType, loadedType, loading
   return (
     <Scrollbar onScroll={prefetch.onScroll}>
       <div className="movies-container" ref={windowing.rootRef}>
-        <div className="movieList-container" data-total={movieList.length}>
+        <div className="movieList-container" data-total={movieList.length} data-prefetch={prefetch.stalled ? "stalled" : undefined}>
           {movieList && !movieList.length && (
             <Navigate to="/home" replace />
           )}
