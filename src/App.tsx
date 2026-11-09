@@ -27,6 +27,8 @@ function App() {
       alert("no type");
     }
     setLoading((count) => count + 1);
+    // Sampled now, not when the answer arrives: pages that grow the list after this click do not count (BC-10 first load).
+    const replacesGrownList = pipeline.hasGrown();
     latestFetch.current += 1;
     const requestId = latestFetch.current;
     fetch(
@@ -38,7 +40,7 @@ function App() {
         setMovieCategory(movieCategory);
         setMoviesList(data.results);
         // Resets the shared page counter too when the category changed (BC-32).
-        pipeline.reset(movieCategory, data.total_pages);
+        pipeline.reset(movieCategory, data.total_pages, replacesGrownList);
       })
       .finally(() => setLoading((count) => count - 1));
   }
@@ -55,6 +57,7 @@ function App() {
         if(generation === pipeline.generation() && data && data.results && data.results.length) {
           let newMovieList = [...movieList, ...data.results];
           setMoviesList(newMovieList);
+          pipeline.noteGrown();
         }
       });
   };

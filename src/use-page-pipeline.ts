@@ -15,7 +15,11 @@ import type { AppendResult, MovieListItem, MovieListResponse } from "./types/tmd
 //   - a page that arrives early waits in a stash until the pages before it have been committed;
 //   - a failed page is queued for retry (the caller backs off); later pages stay stashed, so nothing is
 //     requested twice and nothing is skipped;
-//   - the list is replaced by `reset` when a category's page 1 loads: in-flight results are dropped;
+//   - the list is replaced by `reset` when a category's page 1 loads: in-flight results are dropped. Reloading the
+//     SAME category after its list has grown (Follow-up A, 2026-11-09: Popular scrolled to page 6, Home, Popular
+//     again) also restarts the counter at 2, otherwise pages 2-5 would be skipped; "has grown" is sampled when the
+//     page-1 request is made (`hasGrown`), so the BC-10 first-load pattern (the stale auto-clicks that run after the
+//     nav click) is untouched;
 //   - the category a page belongs to is fixed at `reset` (not read at request time), and `generation`
 //     changes only when the category changes, so the legacy `append` can drop a response that was
 //     requested for the previous category.
@@ -37,8 +41,13 @@ export interface PagePipeline {
    *  right now; "end": no more pages; "error": the request failed (it is retried by the next call). */
   loadMore: () => Promise<AppendResult>;
   /** Call when a list is (re)loaded from page 1: drops everything in flight and learns the page count.
-   *  A different `category` than the previous reset also restarts the page counter at 2 (BC-32). */
-  reset: (category: string, totalPages: number | undefined) => void;
+   *  A different `category` than the previous reset also restarts the page counter at 2 (BC-32); so does the same
+   *  category when `replacedGrownList` is true (Follow-up A: page 1 replaces a list that had grown). */
+  reset: (category: string, totalPages: number | undefined, replacedGrownList?: boolean) => void;
+  /** True once pages beyond page 1 were committed to the current list (by this loader or the legacy append). Sample it when a page-1 load STARTS and pass it to `reset`. */
+  hasGrown: () => boolean;
+  /** The legacy `append` committed a page beyond page 1 to the list. */
+  noteGrown: () => void;
   /** Changes whenever the category changes; a response requested under an older value is stale. */
   generation: () => number;
 }
@@ -50,6 +59,7 @@ export function usePagePipeline(inputs: Inputs): PagePipeline {
     epoch: 0,
     generation: 0,
     category: "",
+    grown: false,
     next: 0,
     expected: 0,
     inFlight: 0,
@@ -58,7 +68,7 @@ export function usePagePipeline(inputs: Inputs): PagePipeline {
     retry: [] as number[],
   });
 
-  const reset = useCallback((category: string, totalPages: number | undefined) => {
+  const reset = useCallback((category: string, totalPages: number | undefined, replacedGrownList = false) => {
     const s = state.current;
     s.epoch += 1;
     if (category !== s.category) {
@@ -67,12 +77,22 @@ export function usePagePipeline(inputs: Inputs): PagePipeline {
       s.generation += 1;
       s.next = FIRST_NEXT_PAGE;
       s.expected = FIRST_NEXT_PAGE;
+      live.current.page = FIRST_NEXT_PAGE;
+      live.current.setPage(FIRST_NEXT_PAGE);
+    } else if (replacedGrownList) {
+      // Follow-up A: the same category restarts from page 1 over a list that had grown: counter back to 2, and
+      // responses requested for the dropped list (legacy append) are stale too (new generation).
+      s.generation += 1;
+      s.next = FIRST_NEXT_PAGE;
+      s.expected = FIRST_NEXT_PAGE;
+      live.current.page = FIRST_NEXT_PAGE;
       live.current.setPage(FIRST_NEXT_PAGE);
     } else {
-      // Same category reloaded (initial load then the nav click, BC-10): the counter is left alone.
+      // Same category reloaded before the list grew (initial load then the nav click, BC-10): the counter is left alone.
       s.next = 0;
       s.expected = 0;
     }
+    s.grown = false;
     s.inFlight = 0;
     s.totalPages = Math.min(TMDB_MAX_PAGE, totalPages ?? TMDB_MAX_PAGE);
     s.stash.clear();
@@ -85,6 +105,7 @@ export function usePagePipeline(inputs: Inputs): PagePipeline {
       s.stash.delete(s.expected);
       s.expected += 1;
       if (results.length > 0) {
+        s.grown = true;
         const added = results;
         live.current.setList((prev) => [...prev, ...added]);
       }
@@ -139,6 +160,10 @@ export function usePagePipeline(inputs: Inputs): PagePipeline {
   }, [load]);
 
   const generation = useCallback(() => state.current.generation, []);
+  const hasGrown = useCallback(() => state.current.grown, []);
+  const noteGrown = useCallback(() => {
+    state.current.grown = true;
+  }, []);
 
-  return { loadMore, reset, generation };
+  return { loadMore, reset, generation, hasGrown, noteGrown };
 }
