@@ -81,3 +81,52 @@ test('BC-12 dialog closes via backdrop click', async ({ page }) => {
   await page.mouse.click(4, 4);
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });
+
+// Follow-up C (2026-11-09): the TMDB `homepage` becomes a link only when it is an absolute http(s) URL. Anything else
+// renders exactly like the existing no-homepage case (no link element, same layout).
+const detailWith = (homepage) => (route) =>
+  route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify({ ...fixture('movie-detail.json'), id: 100, homepage }) });
+
+async function openWithHomepage(page, homepage) {
+  await openListViaNav(page, 'Popular Movies');
+  await page.route('https://api.themoviedb.org/3/movie/100?*', detailWith(homepage));
+  await page.locator('.poster').first().click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.locator('.overview')).toBeVisible();
+  return dialog;
+}
+
+const paperBox = (dialog) => dialog.evaluate((el) => { const r = el.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; });
+
+for (const bad of ['javascript:alert(1)', 'JAVASCRIPT:alert(1)', 'data:text/html,<b>x</b>', '//evil.example/x', 'vbscript:x', 'not a url', 'example.com', 'ftp://example.com']) {
+  test(`BC-11 Follow-up C: homepage ${JSON.stringify(bad)} is not rendered as a link and the layout equals the no-homepage case`, async ({ page }) => {
+    const dialog = await openWithHomepage(page, bad);
+    await expect(dialog.locator('a.movie-home-page')).toHaveCount(0);
+    await expect(dialog.locator('a[href]')).toHaveCount(0);
+    await expect(dialog.locator('.details-other-container')).not.toContainText(bad.slice(0, 8));
+    const same = await paperBox(dialog);
+    await page.locator('button[aria-label="close"]').click();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await page.route('https://api.themoviedb.org/3/movie/100?*', detailWith(''));
+    await page.locator('.poster').first().click();
+    await expect(page.getByRole('dialog').locator('.overview')).toBeVisible();
+    expect(await paperBox(page.getByRole('dialog')), 'dialog size equals the empty-homepage dialog').toEqual(same);
+  });
+}
+
+test('BC-11 Follow-up C: an empty homepage renders no link (unchanged)', async ({ page }) => {
+  const dialog = await openWithHomepage(page, '');
+  await expect(dialog.locator('a.movie-home-page')).toHaveCount(0);
+});
+
+for (const good of ['https://example.com/fixture-movie', 'http://example.org/a?b=c#d']) {
+  test(`BC-11 Follow-up C: ${good} is a link with target=_blank and rel=noopener noreferrer`, async ({ page }) => {
+    const dialog = await openWithHomepage(page, good);
+    const link = dialog.locator('a.movie-home-page');
+    await expect(link).toHaveCount(1);
+    await expect(link).toHaveAttribute('href', good);
+    await expect(link).toHaveText(good);
+    await expect(link).toHaveAttribute('target', '_blank');
+    await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+}

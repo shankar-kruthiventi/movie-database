@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 import type { DialogContentProps } from "@mui/material/DialogContent";
 import type { DialogTitleProps } from "@mui/material/DialogTitle";
 import type { MovieDetailsData } from "../../types/tmdb";
+import { safeHttpUrl } from "./safe-url";
 
 interface MovieDetailsProps {
   open: boolean;
@@ -18,6 +19,8 @@ interface MovieDetailsProps {
 }
 
 const MovieDetails = ({ open, details, handleClose }: MovieDetailsProps) => {
+  // Follow-up C: only an absolute http(s) URL becomes a link (TMDB data is not trusted).
+  const homepage = safeHttpUrl(details.homepage);
   return (
     <div>
       <Dialog
@@ -42,15 +45,15 @@ const MovieDetails = ({ open, details, handleClose }: MovieDetailsProps) => {
               {details.overview && (
                 <div className="overview">{details.overview}</div>
               )}
-              {details.homepage && (
+              {homepage && (
                 <div>
                   <a
                     target="_blank"
                     className="movie-home-page"
                     rel="noopener noreferrer"
-                    href={details.homepage}
+                    href={homepage}
                   >
-                    {details.homepage}
+                    {homepage}
                   </a>
                 </div>
               )}
