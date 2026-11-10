@@ -182,7 +182,12 @@ for (const mode of ['dark', 'light']) {
           await expect.poll(async () => (await page.locator('.poster').first().getAttribute('alt')) ?? '').toMatch(/^popular p1 movie 0/);
           // tablet: the mount-time stale auto-clicks (BC-10) request the render closure's page; they are the only extras
           // and never reach the list. Everything else must be: 1 (x clicks), then 2..8 in order.
-          await scrollToFill(page, viewport);
+          try {
+            await scrollToFill(page, viewport);
+          } catch (e) {
+            // Old behaviour (counter not restarted): pages 2..5 are never requested, so the list cannot fill. Say so.
+            throw new Error(`pages requested after the click: [${pageParams(app, PATH.popular).slice(mark).join(',')}], expected 1 then 2..${PAGES} in order (${e.message})`);
+          }
           await page.waitForTimeout(600);
           const mine = pageParams(app, PATH.popular).slice(mark);
           const clicks = quick ? 2 : 1;
