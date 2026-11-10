@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#21252d"/>
+  <rect x="100" y="222" width="312" height="196" rx="22" fill="none" stroke="#64dcb0" stroke-width="30"/>
+  <g fill="none" stroke="#64dcb0" stroke-width="20" stroke-linecap="round">
+    <circle cx="256" cy="322" r="64"/>
+    <ellipse cx="256" cy="322" rx="26" ry="64" />
+    <line x1="192" y1="322" x2="320" y2="322" />
+    
+  </g>
+  <g transform="rotate(-13 100 196)">
+    <clipPath id="a"><rect x="100" y="140" width="312" height="70" rx="14"/></clipPath>
+    <rect x="100" y="140" width="312" height="70" rx="14" fill="#64dcb0"/>
+    <g clip-path="url(#a)"><polygon points="160,130 196,130 166,220 130,220" fill="#21252d"/><polygon points="260,130 296,130 266,220 230,220" fill="#21252d"/><polygon points="360,130 396,130 366,220 330,220" fill="#21252d"/></g>
+  </g>
+</svg>

@@ -7,8 +7,20 @@ import MuiDialogContent from "@mui/material/DialogContent";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Typography from "@mui/material/Typography";
+import type { DialogContentProps } from "@mui/material/DialogContent";
+import type { DialogTitleProps } from "@mui/material/DialogTitle";
+import type { MovieDetailsData } from "../../types/tmdb";
+import { safeHttpUrl } from "./safe-url";
 
-const MovieDetails = ({ open, details, handleClose }) => {
+interface MovieDetailsProps {
+  open: boolean;
+  details: MovieDetailsData;
+  handleClose: () => void;
+}
+
+const MovieDetails = ({ open, details, handleClose }: MovieDetailsProps) => {
+  // Follow-up C: only an absolute http(s) URL becomes a link (TMDB data is not trusted).
+  const homepage = safeHttpUrl(details.homepage);
   return (
     <div>
       <Dialog
@@ -24,7 +36,7 @@ const MovieDetails = ({ open, details, handleClose }) => {
           <div className="movie-details-container">
             <div className="details-poster-container">
               <img
-                src={"https://image.tmdb.org/t/p/w500" + details.poster}
+                src={`https://image.tmdb.org/t/p/w500${details.poster}`}
                 className="details-poster"
                 alt={details.original_title}
               />
@@ -33,15 +45,15 @@ const MovieDetails = ({ open, details, handleClose }) => {
               {details.overview && (
                 <div className="overview">{details.overview}</div>
               )}
-              {details.homepage && (
+              {homepage && (
                 <div>
                   <a
                     target="_blank"
                     className="movie-home-page"
                     rel="noopener noreferrer"
-                    href={details.homepage}
+                    href={homepage}
                   >
-                    {details.homepage}
+                    {homepage}
                   </a>
                 </div>
               )}
@@ -86,15 +98,17 @@ export default MovieDetails;
 // movie-details.style.css would also hit the title bar (v4 disableTypography did
 // not). The tripled "&" raises specificity so the v4 padding (16px) is kept
 // without editing the CSS file.
-const DialogTitle = (props) => {
+type CustomDialogTitleProps = DialogTitleProps & { onClose?: () => void };
+
+const DialogTitle = (props: CustomDialogTitleProps) => {
   const { children, onClose, ...other } = props;
   return (
     <MuiDialogTitle
       component="div"
-      sx={{ m: 0, "&&&": { p: 2 } }}
+      sx={{ m: 0, "&&&": { p: 2, pr: 7 } }}
       {...other}
     >
-      <Typography variant="h6">{children}</Typography>
+      <Typography variant="h6" sx={{ overflowWrap: "anywhere" }}>{children}</Typography>
       {onClose ? (
         <IconButton
           aria-label="close"
@@ -102,7 +116,12 @@ const DialogTitle = (props) => {
             position: "absolute",
             right: (theme) => theme.spacing(1),
             top: (theme) => theme.spacing(1),
-            color: (theme) => theme.palette.grey[500],
+            // grey[500] was 2.7:1 on the white title bar (needs 3:1); the token is 6:1 / 7:1.
+            color: "var(--dialog-close)",
+            "&.Mui-focusVisible": {
+              outline: "2px solid var(--dialog-title-focus)",
+              outlineOffset: "2px",
+            },
           }}
           onClick={onClose}
         >
@@ -113,4 +132,4 @@ const DialogTitle = (props) => {
   );
 };
 
-const DialogContent = (props) => <MuiDialogContent sx={{ p: 2 }} {...props} />;
+const DialogContent = (props: DialogContentProps) => <MuiDialogContent sx={{ p: 2 }} {...props} />;

@@ -1,12 +1,13 @@
 .header-view {
-  background: #21252d;
+  background: var(--header-bg);
+  box-shadow: 0 1px 0 var(--header-edge);
 }
 .header-container {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  background: #21252d;
-  color: #ffffff;
+  background: var(--header-bg);
+  color: var(--header-text);
   font-weight: bold;
   height: 12.4vh;
 }
@@ -15,7 +16,7 @@
 }
 .header-container a {
   text-decoration: none;
-  color: #ffffff;
+  color: var(--header-text);
 }
 h1,
 h3 {
@@ -23,17 +24,57 @@ h3 {
 }
 h1 {
   /* color: #cc0016; */
-  color: #64dcb0;
+  color: var(--title);
 }
 h3:hover {
   /* color: #cc0016; */
-  color: #64dcb0;
+  color: var(--nav-hover);
   font-size: 1.2em;
   cursor: pointer;
 }
 .active{
-  color: #99e4c8 !important;
+  color: var(--nav-active) !important;
 }
+
+/* Theme toggle (icon button). Desktop: last item of the header bar. Mobile: right end of the bar. */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  margin: 0;
+  padding: 10px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--header-text);
+  font: inherit;
+  line-height: 0;
+  cursor: pointer;
+}
+
+/* Skip link: off-screen until it gets keyboard focus. */
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 8px;
+  z-index: 30000;
+  padding: 10px 16px;
+  background: var(--accent-bg);
+  color: var(--on-accent);
+  font-weight: bold;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 8px;
+  outline: 3px solid var(--header-text);
+  outline-offset: 2px;
+}
+/* The main region is only a programmatic focus target (skip link), not an interactive control. */
+#main-content:focus {
+  outline: none;
+}
+
 @media only screen and (max-width: 600px) {
   .header-container {
     display: none;
@@ -45,31 +86,77 @@ h3:hover {
     /* font-family: monospace; */
   }
   .header-mobile-container a {
-    color: white;
+    color: var(--header-text);
     padding: 14px 16px;
     text-decoration: none;
     /* font-size: 26px; */
     display: block;
   }
-  .header-mobile-container a.icon {
-    background: #64dcb0;
+  .header-mobile-container .icon {
+    background: var(--accent-bg);
+    color: var(--on-accent);
     display: block;
     position: absolute;
     left: 0;
     top: 0;
+    margin: 0;
+    padding: 14px 16px;
+    border: 0;
+    border-radius: 0;
+    font: inherit;
+    line-height: normal;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .header-mobile-container .theme-toggle-mobile {
+    position: absolute;
+    right: 0;
+    top: 0;
+    /* Step 8 (responsiveness): the bar is 50px; with the menu open the old top:0 + bottom:0 stretched the
+       button over the whole open menu and its icon jumped to the middle of the list. */
+    height: 50px;
+    padding: 0 16px;
+    border-radius: 0;
+  }
+  /* Inset rings: the bar clips (overflow hidden) anything drawn outside the buttons and links. */
+  .header-mobile-container .icon:focus-visible {
+    outline-color: var(--on-accent);
+    outline-offset: -4px;
+  }
+  .header-mobile-container .theme-toggle-mobile:focus-visible,
+  #myLinks a:focus-visible {
+    outline-offset: -4px;
   }
   #myLinks {
     display: none;
   }
   #myLinks a:active {
-    color: #cc0016;
+    color: var(--nav-pressed);
   }
   #home {
-    color: white;
+    color: var(--header-text);
     padding: 14px 16px;
     text-decoration: none;
     font-size: 17px;
     display: block;
     margin-left: 12vw;
+  }
+}
+
+/* Step 8 (responsiveness): short, wide windows (phone/tablet landscape, 601-900 px wide, up to 500 px tall).
+   The bar is 12.4vh (46 px at 375) and fixed, so the 2em logo and the nav labels wrapped to two lines and were
+   clipped. A smaller type size keeps one line. Margins removed so the single line sits centred in the bar. */
+@media only screen and (min-width: 601px) and (max-height: 500px) {
+  .header-container h1 {
+    font-size: 1.25rem;
+    margin: 0;
+  }
+  .header-container h3 {
+    font-size: 1rem;
+    margin: 0;
+    padding: 4px 0; /* link height 29px (WCAG 2.5.8 needs 24) */
+  }
+  .header-container h3:hover {
+    font-size: 1.1rem;
   }
 }

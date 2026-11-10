@@ -2,15 +2,19 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
-import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
-import theme from './theme';
+import { StyledEngineProvider } from '@mui/material/styles';
+import './theme.css';
+import { ThemeModeProvider } from './theme-mode';
 
-createRoot(document.getElementById('root')).render(
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Root element #root not found');
+
+createRoot(rootElement).render(
   <React.StrictMode>
     <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
+      <ThemeModeProvider>
         <App />
-      </ThemeProvider>
+      </ThemeModeProvider>
     </StyledEngineProvider>
   </React.StrictMode>
 );

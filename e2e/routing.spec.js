@@ -1,5 +1,8 @@
 const { test, expect, open, openListViaNav, apiCalls, pageParams } = require('./helpers');
 
+// Step 5b: this spec is not about the next-page prefetch; it pins a single-page list (total_pages 1) so the prefetch requests nothing and every assertion below is the original one.
+test.use({ apiTotalPages: 1 });
+
 test('BC-01 bare URL and #/ redirect to #/home; hash URLs are used', async ({ page }) => {
   await open(page);
   await expect(page).toHaveURL(/\/movie-database\/#\/home$/);
@@ -11,7 +14,7 @@ test('BC-01 bare URL and #/ redirect to #/home; hash URLs are used', async ({ pa
 test('BC-01 #/home loads Home; list URLs are reached through header links and use hash URLs', async ({ page }) => {
   await open(page, '/home');
   await expect(page.locator('.home-contianer')).toBeVisible();
-  for (const [label, route] of [['Popular Movies', 'popular'], ['Top Rated Movies', 'top_rated'], ['Now Playing', 'now_playing']]) {
+  for (const [label, route] of [['Popular Movies', 'popular'], ['Top Rated Movies', 'top-rated'], ['Now Playing', 'now-playing']]) {
     await page.locator('.header-container a', { hasText: label }).click();
     await expect(page).toHaveURL(new RegExp(`/movie-database/#/${route}$`));
     await expect(page.locator('.poster').first()).toBeVisible();
@@ -22,7 +25,7 @@ test('BC-01 #/home loads Home; list URLs are reached through header links and us
 test('BC-02 unknown hash path renders header only', async ({ page }) => {
   await open(page, '/does-not-exist');
   await expect(page.locator('.header-view')).toBeVisible();
-  await expect(page.locator('h1')).toHaveText('MOVIE CITY');
+  await expect(page.locator('h1')).toHaveText('MOVIE ATLAS');
   await expect(page.locator('.home-contianer')).toHaveCount(0);
   await expect(page.locator('.movies-container')).toHaveCount(0);
   await expect(page.locator('.poster')).toHaveCount(0);
@@ -45,7 +48,7 @@ test('BC-03 active nav link gets class "active"', async ({ page }) => {
 
 test('BC-07 list route with an empty list redirects to /home (direct load of a list URL ends on home)', async ({ page }) => {
   // Quirk: MovieList mounts before the first fetch resolves, so direct/bookmarked list URLs bounce to home.
-  for (const route of ['popular', 'top_rated', 'now_playing']) {
+  for (const route of ['popular', 'top-rated', 'now-playing']) {
     await page.goto('about:blank'); // force a fresh app load (a hash-only change would not reload the app)
     await open(page, '/' + route);
     await expect(page).toHaveURL(/#\/home$/);
@@ -66,24 +69,24 @@ test('BC-04 first load requests GET /3/movie/popular?language=en-US&page=1 once'
   await expect(page.locator('.poster').first()).toHaveAttribute('alt', 'popular p1 movie 0');
 });
 
-test('BC-05 category switch replaces the list with page 1; page counter starts at 2 and is not reset', async ({ page, app }) => {
+test('BC-05 category switch replaces the list with page 1; page counter starts at 2 and is reset on a category change (BC-32)', async ({ page, app }) => {
   await openListViaNav(page, 'Popular Movies');
   await expect(page.locator('.poster')).toHaveCount(20);
   await page.locator('.next-button').dispatchEvent('click');
-  await expect(page.locator('.poster')).toHaveCount(40);
+  await expect(page.locator('.movieList-container')).toHaveAttribute('data-total', '40'); // list length (step 5: .poster is only the mounted window)
   await page.locator('.next-button').dispatchEvent('click');
-  await expect(page.locator('.poster')).toHaveCount(60);
+  await expect(page.locator('.movieList-container')).toHaveAttribute('data-total', '60'); // list length (step 5: .poster is only the mounted window)
   expect(pageParams(app, '/movie/popular')).toEqual(['1', '1', '2', '3']);
   // switch category: replaced by page 1 of top_rated
   await page.locator('.header-container a', { hasText: 'Top Rated Movies' }).click();
   await expect(page.locator('.poster')).toHaveCount(20);
   await expect(page.locator('.poster').first()).toHaveAttribute('alt', 'top_rated p1 movie 0');
   expect(pageParams(app, '/movie/top_rated')).toEqual(['1']);
-  // counter not reset: next Show More asks for page 4 of the new category
+  // counter reset (BC-32; was: not reset, asked for page 4): next Show More asks for page 2 of the new category
   await page.locator('.next-button').dispatchEvent('click');
-  await expect(page.locator('.poster')).toHaveCount(40);
-  expect(pageParams(app, '/movie/top_rated')).toEqual(['1', '4']);
-  await expect(page.locator('.poster').nth(20)).toHaveAttribute('alt', 'top_rated p4 movie 0');
+  await expect(page.locator('.movieList-container')).toHaveAttribute('data-total', '40'); // list length (step 5: .poster is only the mounted window)
+  expect(pageParams(app, '/movie/top_rated')).toEqual(['1', '2']);
+  await expect(page.locator('.poster').nth(20)).toHaveAttribute('alt', 'top_rated p2 movie 0');
 });
 
 test('BC-08 Show More exists for a non-empty list (hidden by CSS today) and appends the next page', async ({ page, app }) => {
@@ -94,7 +97,7 @@ test('BC-08 Show More exists for a non-empty list (hidden by CSS today) and appe
   // Quirk: .next-button { visibility: hidden } in movie-list.style.css; infinite scroll is the user path.
   await expect(btn).toHaveCSS('visibility', 'hidden');
   await btn.dispatchEvent('click');
-  await expect(page.locator('.poster')).toHaveCount(40);
+  await expect(page.locator('.movieList-container')).toHaveAttribute('data-total', '40'); // list length (step 5: .poster is only the mounted window)
   expect(pageParams(app, '/movie/now_playing')).toEqual(['1', '2']);
   await expect(page.locator('.poster').nth(20)).toHaveAttribute('alt', 'now_playing p2 movie 0');
   await expect(page.locator('.poster').nth(0)).toHaveAttribute('alt', 'now_playing p1 movie 0');

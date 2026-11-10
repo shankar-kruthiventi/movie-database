@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
 // Base path: GitHub Pages default; Cloudflare builds set VITE_BASE=/ (see docs/migration/DECISIONS.md).
@@ -22,7 +22,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    include: ['src/**/*.test.{js,jsx}'],
-    setupFiles: './src/setupTests.js',
+    include: ['src/**/*.test.{ts,tsx}'],
+    setupFiles: './src/setupTests.ts',
   },
 });

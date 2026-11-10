@@ -1,0 +1,88 @@
+/* Colour tokens for the two modes. Dark is the default and today's look; light is selected with
+   data-theme="light" on <html> (set before first paint by the inline script in index.html and kept
+   in sync by src/theme-mode.tsx). Contrast ratios for every pair: docs/migration/ACCESSIBILITY-COLORS.md
+   (regenerate with `node scripts/a11y/contrast-table.mjs`; that script parses this file). */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --header-bg: #21252d;
+  --header-text: #ffffff;
+  --header-edge: transparent;
+  --title: #64dcb0;
+  --nav-hover: #64dcb0;
+  --nav-active: #99e4c8;
+  --nav-pressed: #99e4c8;
+  --focus-ring: #64dcb0;
+  --accent-bg: #64dcb0;
+  --on-accent: #21252d;
+  --list-bg: #000000;
+  --poster-placeholder: #1c2128;
+  --card-bg: #000000;
+  --card-text: #ffffff;
+  --card-border: #ffffff;
+  --link: #ffffff;
+  --heading: #64dcb0;
+  --input-bg: #ffffff;
+  --input-text: #000000;
+  --input-placeholder: #757575;
+  --input-border: #800080;
+  --option-bg: #f5f5f5;
+  --option-text: #000000;
+  --option-border: #8a6a00;
+  --option-focus: #0b7a5a;
+  --option-active-bg: #dcefe7;
+  --page-bg: #121212; /* solid colour under the wallpaper layer (loading fallback; what axe sees behind the photo) */
+  --wash: none;
+  --dialog-body-bg: #2d2626;
+  --dialog-body-text: #ffffff;
+  --dialog-link: #ffffff;
+  --dialog-close: #616161;
+  --dialog-title-focus: #0b7a5a;
+  --dialog-body-focus: #64dcb0;
+  --show-more: #f50057;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --header-bg: #ffffff;
+  --header-text: #1a1f26;
+  --header-edge: #5f6b76;
+  --title: #0b7a5a;
+  --nav-hover: #0b7a5a;
+  --nav-active: #0b7a5a;
+  --nav-pressed: #0b7a5a;
+  --focus-ring: #0b7a5a;
+  --accent-bg: #0b7a5a;
+  --on-accent: #ffffff;
+  --list-bg: #f3f5f7;
+  --poster-placeholder: #e1e5ea;
+  --card-bg: #ffffff;
+  --card-text: #1a1f26;
+  --card-border: #1a1f26;
+  --link: #0b7a5a;
+  --heading: #075c43;
+  --input-bg: #ffffff;
+  --input-text: #1a1f26;
+  --input-placeholder: #5c6670;
+  --input-border: #5f6b76;
+  --option-bg: #ffffff;
+  --option-text: #1a1f26;
+  --option-border: #5f6b76;
+  --option-focus: #0b7a5a;
+  --option-active-bg: #dcefe7;
+  --page-bg: #ffffff;
+  --wash: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.8) 35%); /* lighter at the top; full 0.8 from 35% down (text and borders on the photo need it, BC-21) */
+  --dialog-body-bg: #f6f8fa;
+  --dialog-body-text: #1a1f26;
+  --dialog-link: #0b7a5a;
+  --dialog-close: #4a5560;
+  --dialog-title-focus: #0b7a5a;
+  --dialog-body-focus: #0b7a5a;
+  --show-more: #c51162;
+}
+
+/* Keyboard focus: 2px ring, >= 3:1 against the surrounding colour in both modes. */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}

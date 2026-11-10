@@ -22,10 +22,17 @@ test('BC-17 every asset URL resolves under /movie-database/ (production build)',
 
 test('BC-18 index.html head: title, favicon, apple-touch-icon, manifest, font-awesome 4.7, inline styles/script', async ({ page }) => {
   await open(page, '/home');
-  await expect(page).toHaveTitle('React App');
+  await expect(page).toHaveTitle('Movie Atlas');
   const href = (sel) => page.locator(sel).getAttribute('href');
-  expect(await href('link[rel="icon"]')).toBe('/movie-database/favicon.ico');
-  expect(await href('link[rel="apple-touch-icon"]')).toBe('/movie-database/logo192.png');
+  expect(await href('link[rel="icon"][href$=".ico"]')).toBe('/movie-database/favicon.ico');
+  // 2026-11-08 (step 6b): additive SVG favicon link and a dedicated opaque apple-touch-icon.
+  expect(await href('link[rel="icon"][type="image/svg+xml"]')).toBe('/movie-database/favicon.svg');
+  expect(await href('link[rel="apple-touch-icon"]')).toBe('/movie-database/apple-touch-icon.png');
+  for (const [url, type] of [['/movie-database/favicon.ico', 'image/x-icon'], ['/movie-database/favicon.svg', 'image/svg+xml'], ['/movie-database/apple-touch-icon.png', 'image/png']]) {
+    const res = await page.request.get(url);
+    expect(res.status(), url).toBe(200);
+    expect(res.headers()['content-type'], url).toContain(type);
+  }
   expect(await href('link[rel="manifest"]')).toBe('/movie-database/manifest.json');
   expect(await href('link[href*="font-awesome"]')).toBe('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
   expect(await page.locator('head style').count()).toBeGreaterThan(0);

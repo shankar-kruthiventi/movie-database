@@ -15,10 +15,50 @@
   background-size: cover; */
   position:relative;
 }
+/* Wallpaper: a fixed pseudo-element layer behind the page instead of a body background
+   (background-attachment: fixed is broken on iOS Safari). --wash is none in dark mode and a
+   semi-transparent white layer over the same image in light mode; it travels with the photo.
+   The slow "camera" pan is CSS only: the image is zoomed in and the visible window moves around
+   a square (top-left -> top-right -> bottom-right -> bottom-left). Only transform animates, on its own
+   GPU layer, and the layer is out of flow, so there is no layout work and the smooth scrollbar is unaffected.
+   Without the animation (reduced motion, or tests that cancel it) the layer is the plain unzoomed photo. */
 body {
-  background: url("./collection.jpg");
-  background-size: cover;
-  background-repeat: no-repeat;
+  background-color: var(--page-bg);
+}
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* 100vh first (old browsers); 100lvh is the stable "large viewport" height, so the layer does not
+     resize while the iOS Safari toolbar shows and hides (100dvh would resize it and jank). */
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--wash), url("./collection.jpg") center / cover no-repeat;
+  transform-origin: center;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+  animation: wallpaper-pan 48s linear infinite;
+}
+@supports (height: 100lvh) {
+  body::before {
+    height: 100lvh;
+  }
+}
+@keyframes wallpaper-pan {
+  0%, 100% { transform: scale3d(1.3, 1.3, 1) translate3d(-10%, -10%, 0); }
+  25%      { transform: scale3d(1.3, 1.3, 1) translate3d(10%, -10%, 0); }
+  50%      { transform: scale3d(1.3, 1.3, 1) translate3d(10%, 10%, 0); }
+  75%      { transform: scale3d(1.3, 1.3, 1) translate3d(-10%, 10%, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+    will-change: auto;
+  }
 }
 .finder-container {
   /* padding: 2vw 5vw; */
@@ -41,7 +81,7 @@ body {
   align-items: center; */
 }
 .find-text {
-  color: #64dcb0;
+  color: var(--heading);
   font-size: 4vw;
 }
 .autocomplete {
@@ -53,7 +93,7 @@ body {
   padding: 0 1vw !important;
 }
 .home-view-container {
-  color: #ffffff;
+  color: var(--card-text);
   /* font-family: monospace; */
   padding: 2vw 4vw;
   display: flex;
@@ -61,18 +101,23 @@ body {
   justify-content: space-between;
 }
 .about-container {
-  border: 1px solid #ffffff;
-  background: #000000;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
   border-radius: 8px;
   flex-basis: 45%;
   padding: 1vw;
+  /* Step 8 (responsiveness): 12px floor; 1.4vw alone was 8.4-10.7px below 770 px wide (>= 857 px unchanged). */
   font-size: 1.4vw;
+  font-size: max(1.4vw, 12px);
+}
+ul.about-me-list li {
+  line-height: 40px;
 }
 .about {
   padding: 10px;
   margin-bottom: 1vw;
   font-size: 24px;
-  border-bottom: 1px solid #ffffff;
+  border-bottom: 1px solid var(--card-border);
 }
 
 @media only screen and (max-width: 600px) {
@@ -86,9 +131,15 @@ body {
     font-size: 8vw;
   } */
   .about-container {
-    margin-bottom: 5vw;
+    /* Step 8 follow-up: 5vw -> 2vw so the search box stays inside short phone viewports (375x667). */
+    margin-bottom: 2vw;
     flex-basis: 100%;
-    font-size: 2.5vw;
+    font-size: 2.5vw; /* 8px at 320: unreadable, floor below */
+    font-size: max(2.5vw, 12px);
+  }
+  /* Step 8 (responsiveness): 40px rows were airy next to the small text. */
+  ul.about-me-list li {
+    line-height: 28px;
   }
 }
 
@@ -120,11 +171,18 @@ input {
   height: 20px;
   width: 50%;
   max-width: 50%;
-  border: 1px solid purple;
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
   border-radius: 8px;
   /* margin: 10px; */
   font-size: 18px;
   text-transform: capitalize;
+}
+
+input::placeholder {
+  color: var(--input-placeholder);
+  opacity: 1;
 }
 
 .pos-rel {
@@ -135,8 +193,9 @@ input {
   /* position: absolute; */
   border-width: 0px 1px 1px 1px;
   border-style: solid;
-  border-color: goldenrod;
-  background-color: whitesmoke;
+  border-color: var(--option-border);
+  background-color: var(--option-bg);
+  color: var(--option-text);
   width: 52%;
   max-width: 52%;
   margin: 0 auto;
@@ -151,6 +210,10 @@ input {
   /* height: 42vh; */
 }
 
+.autoContainer :focus-visible {
+  outline-color: var(--option-focus);
+}
+
 .option {
   display: flex;
   align-items: center;
@@ -163,6 +226,12 @@ input {
 .option span {
   font-size: 20px;
   text-transform: capitalize;
+  /* Step 8 (responsiveness): a long unbroken word no longer pushes the poster out of the list box. */
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.movie-search-poster-container {
+  flex: none;
 }
 
 .flex-container {
@@ -249,29 +318,21 @@ input {
   }
 }
 
-/* Slow "camera" pan over the existing wallpaper: the image is zoomed in and the visible
-   window travels around a square (top-left -> top-right -> bottom-right -> bottom-left).
-   Uses a transform on a fixed layer behind the page, so it is GPU-friendly. The static
-   body background above stays as the fallback and the reduced-motion version. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: url("./collection.jpg") center / cover no-repeat;
-  transform-origin: center;
-  animation: wallpaper-pan 48s linear infinite;
-  will-change: transform;
+/* Step 4: combobox. Active option = tinted fill plus an inset 2px ring (>= 3:1 on both fills, theme tokens). */
+.option-active {
+  background-color: var(--option-active-bg);
+  outline: 2px solid var(--option-focus);
+  outline-offset: -2px;
 }
-@keyframes wallpaper-pan {
-  0%, 100% { transform: scale(1.3) translate(-10%, -10%); }
-  25%      { transform: scale(1.3) translate(10%, -10%); }
-  50%      { transform: scale(1.3) translate(10%, 10%); }
-  75%      { transform: scale(1.3) translate(-10%, 10%); }
-}
-@media (prefers-reduced-motion: reduce) {
-  body::before {
-    display: none;
-  }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }

@@ -1,4 +1,4 @@
-# Movie City (movie-database)
+# Movie Atlas (movie-database)
 
 A movie browser built with React and the TMDB API. Live on GitHub Pages: https://shankar-kruthiventi.github.io/movie-database/#/home
 
@@ -32,7 +32,9 @@ Note: Vite inlines the key into the client bundle at build time, so it is visibl
 - `npm run build`: production build into `build/`.
 - `npm run preview`: serve the production build locally.
 - `npm test`: unit tests (Vitest, watch mode; `npx vitest run` for a single run).
+- `npm run typecheck`: strict TypeScript check (`tsc --noEmit` for `src/`, then for `vite.config.ts` via `tsconfig.node.json`). `npm run build` is plain `vite build` and does not type-check; run `typecheck` before committing.
 - `npm run e2e`: Playwright behavior-contract tests against the production build with a mocked TMDB API.
+- Theme and accessibility: dark (default) and light mode via the header toggle (`src/theme.css` tokens, `src/theme-mode.tsx`); contrast ratios for every pair are in `docs/migration/ACCESSIBILITY-COLORS.md` (`node scripts/a11y/contrast-table.mjs --check` recomputes them; e2e runs axe color-contrast in both modes).
 
 ## Deploying
 
@@ -40,15 +42,32 @@ Note: Vite inlines the key into the client bundle at build time, so it is visibl
 
 `npm run deploy` builds (`predeploy`) and publishes `build/` to the `gh-pages` branch, which updates the live site. The default base path is `/movie-database/`.
 
-### Cloudflare Pages (movieatlas.sankarbuilds.io)
+### Cloudflare (movie-atlas.sankarbuilds.io)
 
-Connect the repository in the Cloudflare dashboard and set:
+The site is served as static assets by a Cloudflare Worker, configured in `wrangler.jsonc` (`assets.directory` is `./build`, the Vite output folder). The build must use the root base path, because the site lives at `/` and not at `/movie-database/`.
 
-- Build command: `npm run build`
-- Build output directory: `build`
-- Environment variables: `VITE_TMDB_API_KEY`, `VITE_BASE=/`, `NODE_VERSION=22`
+Dashboard setup (Workers Builds, connected to this repository):
 
-No redirect rules are needed because routing uses the URL hash.
+- Build command: `npm ci && npm run build`
+- Deploy command: `npx wrangler deploy`
+- Build variables (Settings, Build, Build Variables and Secrets): `VITE_TMDB_API_KEY=<your TMDB API key>`, `VITE_BASE=/`, `NODE_VERSION=22`. The Cloudflare build image defaults to Node 24; the repository's `.nvmrc` (`22`) is also read, the variable just makes it explicit.
+- Custom domain: Workers & Pages, your Worker, Settings, Domains & Routes, Add, Custom Domain, `movie-atlas.sankarbuilds.io`. The `sankarbuilds.io` zone must be active in Cloudflare.
+- Wrangler is not a dependency of this project, so `npx wrangler deploy` fetches it on demand. Cloudflare's docs say Workers Builds uses the Wrangler version from `package.json` but do not say what happens when there is none; if a build complains, add `wrangler` as a devDependency (a decision for the owner, not done here).
+
+Manual deploy from a terminal (needs `wrangler login` once):
+
+```
+VITE_BASE=/ npm run build
+npx wrangler deploy
+```
+
+On Windows PowerShell set the variable first: `$env:VITE_BASE='/'; npm run build`.
+
+Checks:
+
+- `VITE_BASE=/` is the one thing that differs from GitHub Pages. Without it the built `index.html` points at `/movie-database/static/...` and the page is blank on the custom domain. A correct build has no `/movie-database/` anywhere in `build/`.
+- No redirect rules are needed: routing uses the URL hash (`#/home`, `#/top-rated`). Old links such as `#/top_rated` and `#/now_playing` are redirected by the app.
+- The TMDB key is built into the public JavaScript (a Vite `VITE_` variable). Anyone can read it from the site, so use a key you can rotate and rotate it if it leaks (the previous key is in the git history).
 
 ## Migration notes
 

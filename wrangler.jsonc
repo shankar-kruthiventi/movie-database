@@ -1,0 +1,11 @@
+{
+  // Cloudflare Workers static assets for https://movie-atlas.sankarbuilds.io (see README "Cloudflare").
+  // Build first with the root base path:  VITE_BASE=/ npm run build   (Vite writes to ./build)
+  "name": "movieatlas",
+  "compatibility_date": "2026-11-07",
+  "assets": {
+    "directory": "./build",
+    // Routing uses the URL hash, so this is only a safety net: an unknown path serves index.html.
+    "not_found_handling": "single-page-application"
+  }
+}

@@ -1,8 +1,11 @@
 const { test, expect, open, apiCalls, pageParams } = require('./helpers');
 
-test('BC-15 desktop header: MOVIE CITY + 4 links; Popular/Top Rated/Now Playing also fetch page 1', async ({ page, app }) => {
+// Step 5b: this spec is not about the next-page prefetch; it pins a single-page list (total_pages 1) so the prefetch requests nothing and every assertion below is the original one.
+test.use({ apiTotalPages: 1 });
+
+test('BC-15 desktop header: MOVIE ATLAS + 4 links; Popular/Top Rated/Now Playing also fetch page 1', async ({ page, app }) => {
   await open(page, '/home');
-  await expect(page.locator('.header-container h1')).toHaveText('MOVIE CITY');
+  await expect(page.locator('.header-container h1')).toHaveText('MOVIE ATLAS');
   await expect(page.locator('.header-container a h3')).toHaveText(['Home', 'Popular Movies', 'Top Rated Movies', 'Now Playing']);
   await expect(page.locator('.header-mobile-container')).toBeHidden();
   const link = (t) => page.locator('.header-container a', { hasText: t });
@@ -27,7 +30,7 @@ test.describe('mobile 390x844', () => {
     await expect(page.locator('.header-container')).toBeHidden();
     await expect(page.locator('#home span')).toHaveText('Home');
     await expect(page.locator('#myLinks')).toBeHidden();
-    const burger = page.locator('.header-mobile-container a.icon');
+    const burger = page.locator('.header-mobile-container button.icon');
     await burger.click();
     await expect(page.locator('#myLinks')).toBeVisible();
     await burger.click();
@@ -38,7 +41,7 @@ test.describe('mobile 390x844', () => {
     await expect(page.locator('#home span')).toHaveText('Top Rated Movies');
     await expect(page.locator('#myLinks')).toBeHidden();
     await expect.poll(() => apiCalls(app, '/movie/top_rated').length).toBe(1);
-    await expect(page).toHaveURL(/#\/top_rated$/);
+    await expect(page).toHaveURL(/#\/top-rated$/);
     await burger.click();
     await page.locator('#myLinks a', { hasText: 'Now Playing' }).click();
     await expect(page.locator('#home span')).toHaveText('Now Playing');

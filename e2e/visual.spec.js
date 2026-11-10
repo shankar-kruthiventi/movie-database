@@ -1,5 +1,8 @@
 const { test, expect, open, openListViaNav } = require('./helpers');
 
+// Step 5b: this spec is not about the next-page prefetch; it pins a single-page list (total_pages 1) so the prefetch requests nothing and every assertion below is the original one.
+test.use({ apiTotalPages: 1 });
+
 const VIEWPORTS = { desktop: { width: 1280, height: 800 }, tablet: { width: 900, height: 1000 }, mobile: { width: 390, height: 844 } };
 
 async function settle(page) {
@@ -10,7 +13,7 @@ async function settle(page) {
 const goList = async (page, name) => {
   if (name === 'mobile') {
     await open(page, '/home');
-    await page.locator('.header-mobile-container a.icon').click();
+    await page.locator('.header-mobile-container button.icon').click();
     await page.locator('#myLinks a', { hasText: 'Popular Movies' }).click();
     await page.locator('.poster').first().waitFor();
   } else {
@@ -31,7 +34,7 @@ for (const [name, viewport] of Object.entries(VIEWPORTS)) {
 
     test(`screenshot Popular list ${name}`, async ({ page }) => {
       await goList(page, name);
-      await expect(page.locator('.poster')).toHaveCount(name === 'tablet' ? 40 : 20); // tablet: 5x auto-click settled
+      await expect(page.locator('.movieList-container')).toHaveAttribute('data-total', name === 'tablet' ? '40' : '20'); // tablet: 5x auto-click settled
       await settle(page);
       await expect(page).toHaveScreenshot(`popular-${name}.png`);
     });
