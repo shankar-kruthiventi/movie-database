@@ -1,5 +1,5 @@
 import { TMDB_API_KEY } from '../../config';
-import React, { useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import type { KeyboardEvent, MouseEvent as ReactMouseEvent } from "react";
 import "./home.style.css";
 
@@ -7,12 +7,14 @@ import MovieDetails from "../../components/movie-details/movie-details.component
 import Scrollbar from "../../components/smooth-scrollbar/smooth-scrollbar.component";
 import type { MovieDetailsData, MovieDetailsResponse, MovieListItem, MovieListResponse } from "../../types/tmdb";
 
+/** The search request is sent this long after the last change of the input (Follow-up D, 2026-11-10). */
+export const SEARCH_DEBOUNCE_MS = 250;
+
 const Home = () => {
   const [display, setDisplay] = useState(false);
-  let [options, setOptions] = useState<MovieListItem[]>([]);
+  const [options, setOptions] = useState<MovieListItem[]>([]);
   const [search, setSearch] = useState("");
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [movies, setPokemon] = useState<MovieListItem[]>([]);
 
   const [activeIndex, setActiveIndex] = useState(-1);
 
@@ -78,27 +80,49 @@ const Home = () => {
     }
   };
 
-  const searchMovie = (event: KeyboardEvent<HTMLInputElement>) => {
-    options = [];
-    setPokemon([]);
+  // Search-as-you-type (Follow-up D, 2026-11-10): one request per pause in typing, not one per key.
+  //   - fires on a changed value (typing, paste, cut, IME), never on arrow/Shift/Tab/Enter key releases;
+  //   - trailing debounce SEARCH_DEBOUNCE_MS; the suggestions on screen stay until the new answer arrives;
+  //   - a newer search aborts the older request, and a late older answer can never replace a newer one;
+  //   - an empty (or blank) box clears the suggestions at once and sends nothing.
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const searchAbort = useRef<AbortController | undefined>(undefined);
 
-    fetch(
-      `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=en-US&query=${event.currentTarget.value}&page=1`
-    )
-      .then((value): Promise<MovieListResponse> => value.json())
-      .then((value) => {
-        if (value.results && value.results.length !== 0) {
-          movies.push(...value.results);
-          setOptions(movies);
-        } else {
+  const cancelSearch = useCallback(() => {
+    clearTimeout(searchTimer.current);
+    searchTimer.current = undefined;
+    searchAbort.current?.abort();
+    searchAbort.current = undefined;
+  }, []);
+
+  useEffect(() => cancelSearch, [cancelSearch]);
+
+  const searchMovie = (query: string) => {
+    cancelSearch();
+    if (query.trim() === "") {
+      setOptions([]);
+      return;
+    }
+    searchTimer.current = setTimeout(() => {
+      const controller = new AbortController();
+      searchAbort.current = controller;
+      // the raw, unencoded query is part of the contract (BC-14)
+      fetch(
+        `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=en-US&query=${query}&page=1`,
+        { signal: controller.signal }
+      )
+        .then((value): Promise<MovieListResponse> => value.json())
+        .then((value) => {
+          if (controller.signal.aborted) return;
           // zero results (or an error body without `results`): clear the suggestions, no stale list
-          setOptions([]);
-        }
-      })
-      .catch(() => {
-        // network failure (offline, blocked request, DNS): no unhandled rejection, no stale suggestions
-        setOptions([]);
-      });
+          setOptions(value.results && value.results.length !== 0 ? value.results : []);
+        })
+        .catch(() => {
+          // aborted by a newer search: that one decides. Otherwise a network failure (offline, blocked
+          // request, DNS): no unhandled rejection, no stale suggestions.
+          if (!controller.signal.aborted) setOptions([]);
+        });
+    }, SEARCH_DEBOUNCE_MS);
   };
   //   -------------------------------
 
@@ -234,6 +258,7 @@ const Home = () => {
                   autoComplete="off"
                   onChange={(event) => {
                     setSearch(event.target.value);
+                    searchMovie(event.target.value);
                     setDisplay(true);
                     setActiveIndex(-1);
                     document.getElementById("test")?.scrollIntoView();
@@ -243,7 +268,6 @@ const Home = () => {
                     // movie.scroll(0, topPos)
                     // console.log(movie.scrollTop, topPos);
                   }}
-                  onKeyUp={(event) => {searchMovie(event)}}
                 />
                 {expanded && (
                   <div
