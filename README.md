@@ -42,7 +42,7 @@ Note: Vite inlines the key into the client bundle at build time, so it is visibl
 
 `npm run deploy` builds (`predeploy`) and publishes `build/` to the `gh-pages` branch, which updates the live site. The default base path is `/movie-database/`.
 
-### Cloudflare (movieatlas.sankarbuilds.io)
+### Cloudflare (movie-atlas.sankarbuilds.io)
 
 The site is served as static assets by a Cloudflare Worker, configured in `wrangler.jsonc` (`assets.directory` is `./build`, the Vite output folder). The build must use the root base path, because the site lives at `/` and not at `/movie-database/`.
 
@@ -51,7 +51,7 @@ Dashboard setup (Workers Builds, connected to this repository):
 - Build command: `npm ci && npm run build`
 - Deploy command: `npx wrangler deploy`
 - Build variables (Settings, Build, Build Variables and Secrets): `VITE_TMDB_API_KEY=<your TMDB API key>`, `VITE_BASE=/`, `NODE_VERSION=22`. The Cloudflare build image defaults to Node 24; the repository's `.nvmrc` (`22`) is also read, the variable just makes it explicit.
-- Custom domain: Workers & Pages, your Worker, Settings, Domains & Routes, Add, Custom Domain, `movieatlas.sankarbuilds.io`. The `sankarbuilds.io` zone must be active in Cloudflare.
+- Custom domain: Workers & Pages, your Worker, Settings, Domains & Routes, Add, Custom Domain, `movie-atlas.sankarbuilds.io`. The `sankarbuilds.io` zone must be active in Cloudflare.
 - Wrangler is not a dependency of this project, so `npx wrangler deploy` fetches it on demand. Cloudflare's docs say Workers Builds uses the Wrangler version from `package.json` but do not say what happens when there is none; if a build complains, add `wrangler` as a devDependency (a decision for the owner, not done here).
 
 Manual deploy from a terminal (needs `wrangler login` once):
