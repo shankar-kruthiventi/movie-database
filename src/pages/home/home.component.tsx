@@ -94,6 +94,10 @@ const Home = () => {
           // zero results (or an error body without `results`): clear the suggestions, no stale list
           setOptions([]);
         }
+      })
+      .catch(() => {
+        // network failure (offline, blocked request, DNS): no unhandled rejection, no stale suggestions
+        setOptions([]);
       });
   };
   //   -------------------------------

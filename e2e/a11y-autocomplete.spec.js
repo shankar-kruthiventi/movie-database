@@ -268,6 +268,25 @@ for (const mode of MODES) {
       await expect(live).toHaveText('3 results available');
     });
 
+    test(`BC-22 a failed search request (network error) raises no uncaught error and clears the suggestions (${mode})`, async ({ page, app }) => {
+      await open(page, '/home');
+      await typeQuery(page);
+      await expect(options(page)).toHaveCount(3);
+      await page.route('https://api.themoviedb.org/3/search/movie**', (route) => route.abort('failed'));
+      await input(page).pressSequentially('zzz');
+      await expect(options(page)).toHaveCount(0);
+      await expect(input(page)).toHaveAttribute('aria-expanded', 'false');
+      // Chromium itself logs "Failed to load resource" for the aborted request: expected here. Anything else
+      // (above all "pageerror: ... Failed to fetch", the unhandled rejection) is a failure.
+      const isBrowserNetworkLog = (e) => /^Failed to load resource/.test(e);
+      expect(app.consoleErrors.filter((e) => !isBrowserNetworkLog(e)), 'app errors besides the aborted request').toEqual([]);
+      app.consoleErrors = app.consoleErrors.filter((e) => !isBrowserNetworkLog(e));
+      // the search works again once the network is back
+      await page.unroute('https://api.themoviedb.org/3/search/movie**');
+      await input(page).press('Backspace');
+      await expect(options(page)).toHaveCount(3);
+    });
+
     test(`BC-22 axe (aria validity, names, contrast) on the open popup with an active option (${mode})`, async ({ page }) => {
       await open(page, '/home');
       await typeQuery(page);
